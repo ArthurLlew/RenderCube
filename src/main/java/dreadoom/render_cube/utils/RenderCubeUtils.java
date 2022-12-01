@@ -3,6 +3,7 @@ package dreadoom.render_cube.utils;
 import com.mojang.blaze3d.vertex.PoseStack;
 import dreadoom.render_cube.RenderCube;
 import dreadoom.render_cube.rendered_entities.RenderedBlock;
+import dreadoom.render_cube.rendered_entities.RenderedBlockType;
 import dreadoom.render_cube.rendered_entities.RenderedQuad;
 import dreadoom.render_cube.vertex_consumers.CommonVertexConsumer;
 import dreadoom.render_cube.vertex_consumers.DummyMultiBufferSource;
@@ -69,6 +70,7 @@ public class RenderCubeUtils{
             if (!block.isAir()) {
                 // Rendered block
                 RenderedBlock renderedBlock = new RenderedBlock(
+                        RenderedBlockType.BLOCK,
                         regionPosition.getX(),
                         regionPosition.getY(),
                         regionPosition.getZ());

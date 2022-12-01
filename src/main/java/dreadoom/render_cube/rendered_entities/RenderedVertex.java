@@ -31,17 +31,17 @@ public class RenderedVertex {
 
     /**
      * Constructs instance from given coordinates.
-     * @param in_x vertex x coordinate
-     * @param in_y vertex y coordinate
-     * @param in_z vertex z coordinate
-     * @param in_u vertex u coordinate
-     * @param in_v vertex v coordinate
+     * @param x vertex x coordinate
+     * @param y vertex y coordinate
+     * @param z vertex z coordinate
+     * @param u vertex u coordinate
+     * @param v vertex v coordinate
      */
-    public RenderedVertex(double in_x, double in_y, double in_z, float in_u, float in_v){
-        x = in_x;
-        y = in_y;
-        z = in_z;
-        u = in_u;
-        v = in_v;
+    public RenderedVertex(double x, double y, double z, float u, float v){
+        this.x = x;
+        this.y = y;
+        this.z = z;
+        this.u = u;
+        this.v = v;
     }
 }

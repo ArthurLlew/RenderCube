@@ -34,7 +34,7 @@ displayName="Redder Cube" #mandatory
 #credits="" #optional
 
 # A text field displayed in the mod UI
-authors="Shermobeaver" #optional
+authors="Dreadoom" #optional
 
 # The description text for the mod (multi line!) (#mandatory)
 description='''

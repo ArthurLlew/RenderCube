@@ -10,7 +10,7 @@ import java.util.List;
  */
 public class RenderedQuad {
     /**
-     * List, holding vertices of quad.
+     * List of quad vertices.
      */
     public List<RenderedVertex> vertices = new ArrayList<>();
 

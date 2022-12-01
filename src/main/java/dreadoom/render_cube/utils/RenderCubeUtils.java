@@ -2,8 +2,8 @@ package dreadoom.render_cube.utils;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import dreadoom.render_cube.RenderCube;
-import dreadoom.render_cube.rendered_entities.RenderedBlock;
-import dreadoom.render_cube.rendered_entities.RenderedBlockType;
+import dreadoom.render_cube.rendered_entities.RenderedCube;
+import dreadoom.render_cube.rendered_entities.RenderedModel;
 import dreadoom.render_cube.rendered_entities.RenderedQuad;
 import dreadoom.render_cube.vertex_consumers.CommonVertexConsumer;
 import dreadoom.render_cube.vertex_consumers.DummyMultiBufferSource;
@@ -68,22 +68,10 @@ public class RenderCubeUtils{
 
             // We do not want to render air
             if (!block.isAir()) {
-                // Rendered blocks
-                RenderedBlock renderedBlock = new RenderedBlock(
-                        RenderedBlockType.BLOCK,
-                        regionPosition.getX(),
-                        regionPosition.getY(),
-                        regionPosition.getZ());
-                RenderedBlock renderedEntity = new RenderedBlock(
-                        RenderedBlockType.ENTITY,
-                        regionPosition.getX(),
-                        regionPosition.getY(),
-                        regionPosition.getZ());
-                RenderedBlock renderedLiquid = new RenderedBlock(
-                        RenderedBlockType.LIQUID,
-                        regionPosition.getX(),
-                        regionPosition.getY(),
-                        regionPosition.getZ());
+                // Rendered models of different types
+                RenderedModel renderedBlock = new RenderedModel();
+                RenderedModel renderedEntity = new RenderedModel();
+                RenderedModel renderedLiquid = new RenderedModel();
 
                 // Init common vertex consumer
                 CommonVertexConsumer commonVertexConsumer = new CommonVertexConsumer();
@@ -114,15 +102,17 @@ public class RenderCubeUtils{
                 // Add all quads to block
                 renderedBlock.quads.addAll(commonVertexConsumer.quads);
 
-                // Create dummy MultiBufferSource
-                DummyMultiBufferSource dummyMultiBufferSource = new DummyMultiBufferSource();
-                // Get entity at out position
+                // Get entity at our position
                 BlockEntity entity = level.getBlockEntity(levelPosition);
                 // If it is not null
                 if(entity != null){
+                    // Create dummy MultiBufferSource
+                    DummyMultiBufferSource dummyMultiBufferSource = new DummyMultiBufferSource();
+
                     // Get its renderer
                     BlockEntityRenderer<BlockEntity> renderer = Minecraft.
                             getInstance().getBlockEntityRenderDispatcher().getRenderer(entity);
+
                     // If it is not null
                     if(renderer != null){
                         // Render into dummy MultiBufferSource
@@ -136,8 +126,8 @@ public class RenderCubeUtils{
 
                         // Convert entity vertices to quads
                         dummyMultiBufferSource.buffer.convertVerticesToQuads();
-                        // Add all quads to block
-                        renderedBlock.quads.addAll(dummyMultiBufferSource.buffer.quads);
+                        // Add all quads to entity
+                        renderedEntity.quads.addAll(dummyMultiBufferSource.buffer.quads);
                     }
                 }
 
@@ -154,11 +144,20 @@ public class RenderCubeUtils{
 
                 // Convert liquid vertices to quads
                 liquidVertexConsumer.convertVerticesToQuads();
-                // Add all quads to block
-                renderedBlock.quads.addAll(liquidVertexConsumer.quads);
+                // Add all quads to liquid
+                renderedLiquid.quads.addAll(liquidVertexConsumer.quads);
 
-                // Add block to json
-                jsonWriter.seqWriter.write(renderedBlock);
+                // Init cube
+                RenderedCube renderedCube = new RenderedCube(
+                        regionPosition.getX(),
+                        regionPosition.getY(),
+                        regionPosition.getZ(),
+                        renderedBlock,
+                        renderedEntity,
+                        renderedLiquid);
+
+                // Add cube to json
+                jsonWriter.seqWriter.write(renderedCube);
             }
 
             // Operation was successful
@@ -184,7 +183,7 @@ public class RenderCubeUtils{
                                      @NotNull BlockState block,
                                      @NotNull BlockPos position,
                                      @NotNull List<BakedQuad> quads,
-                                     @NotNull RenderedBlock renderedBlock){
+                                     @NotNull RenderedModel renderedBlock){
         // For each quad
         for (BakedQuad quad : quads) {
             // If we should render this face

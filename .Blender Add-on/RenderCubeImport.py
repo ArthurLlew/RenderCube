@@ -36,38 +36,76 @@ class RenderCubeUtils:
         # Notify about success
         return data
     
+    # Read quads from rendered model
+    def import_quads(rendered_model, block_x, block_y, block_z, vertices, uv, faces):
+        # For block guads
+        for quad in rendered_model['quads']:
+            # Current quad first vertex index
+            face_first_vert_index = len(vertices)
+
+            # For vertex in quad
+            for vertex in quad['vertices']:
+                # Vertex position = its position + block position
+                vertices.append((block_x + vertex['z'], block_y + vertex['x'], block_z + vertex['y']))
+                    
+                # U and V coordinates for this vertex
+                uv.append((vertex['u'], vertex['v']))
+            
+            # Append vertices indices of face
+            faces.append(tuple(range(face_first_vert_index, len(vertices))))
+    
     # Creates vertices and faces from imported data
     def import_geometry(data):
         
-        vertices, uv, faces = [], [], []
-        
-        print(data)
+        vertices, uv, faces = [[], [], []], [[], [], []], [[], [], []]
         
         # Iterating through the blocks
         for block_data in data:
-            # Get block coordinates
-            block_x = block_data['z']
-            block_y = block_data['x']
-            block_z = block_data['y']
-
-            # For block guads
-            for quad in block_data['quads']:
-                # Current quad first vertex index
-                face_first_vert_index = len(vertices)
-                
-                print(quad)
-                
-                # For vertex in quad
-                for vertex in quad['vertices']:
-                    # Vertex position = its position + block position
-                    vertices.append((block_x + vertex['z'], block_y + vertex['x'], block_z + vertex['y']))
-                    
-                    # U and V coordinates for this vertex
-                    uv.append((vertex['u'], vertex['v']))
-                
-                faces.append(tuple(range(face_first_vert_index, len(vertices))))
-                
+            RenderCubeUtils.import_quads(block_data['renderedBlock'],
+                                         block_data['z'],
+                                         block_data['x'],
+                                         block_data['y'],
+                                         vertices[0],
+                                         uv[0],
+                                         faces[0])
+            RenderCubeUtils.import_quads(block_data['renderedEntity'],
+                                         block_data['z'],
+                                         block_data['x'],
+                                         block_data['y'],
+                                         vertices[1],
+                                         uv[1],
+                                         faces[1])
+            RenderCubeUtils.import_quads(block_data['renderedLiquid'],
+                                         block_data['z'],
+                                         block_data['x'],
+                                         block_data['y'],
+                                         vertices[2],
+                                         uv[2],
+                                         faces[2])
         return vertices, uv, faces
+    
+    # Creates object in scene from geomentry data
+    def create_object(name, vertices, uv, faces):
+        # Add a new mesh
+        mesh = bpy.data.meshes.new('mesh')
+        # Add a new object using the mesh
+        obj = bpy.data.objects.new(name, mesh)
+        
+        # Add geometry to mesh
+        mesh.from_pydata(vertices, [], faces)
+        # Update geometry
+        mesh.update(calc_edges=True)
+        
+        # Add UVs
+        uvlayer = mesh.uv_layers.new()
+        mesh.uv_layers.active = uvlayer
+        for face in mesh.polygons:
+            for vert_idx, loop_idx in zip(face.vertices, face.loop_indices):
+                uvlayer.data[loop_idx].uv = (uv[vert_idx][0], 1 - uv[vert_idx][1])
+        
+        # Put the object into the scene
+        bpy.context.scene.collection.children['Collection'].objects.link(obj)
+        
 
 # Import operator
 class ImportRenderCube(Operator, ImportHelper):
@@ -91,33 +129,15 @@ class ImportRenderCube(Operator, ImportHelper):
         # Import rendercube data
         data = RenderCubeUtils.import_rendercube(context, self.filepath)
         # Import geometry from data
-        verts, uv, faces = RenderCubeUtils.import_geometry(data)
+        vertices, uv, faces = RenderCubeUtils.import_geometry(data)
         
-        # Add a new mesh
-        mesh = bpy.data.meshes.new('mesh')
-        # Add a new object using the mesh
-        obj = bpy.data.objects.new('RenderedCube', mesh)
-        
-        # Add geometry to mesh
-        mesh.from_pydata(verts, [], faces)
-        # Update geometry
-        mesh.update(calc_edges=True)
-        
-        #me = obj.data
-        uvlayer = mesh.uv_layers.new()
+        # Create blocks object
+        RenderCubeUtils.create_object("RenderedBlocks", vertices[0], uv[0], faces[0])
+        # Create entities object
+        RenderCubeUtils.create_object("RenderedEntities", vertices[1], uv[1], faces[1])
+        # Create liquids object
+        RenderCubeUtils.create_object("RenderedLiquids", vertices[2], uv[2], faces[2])
 
-        mesh.uv_layers.active = uvlayer
-        for face in mesh.polygons:
-            for vert_idx, loop_idx in zip(face.vertices, face.loop_indices):
-                uvlayer.data[loop_idx].uv = (uv[vert_idx][0], 1 - uv[vert_idx][1])
-        
-        # Put the object into the scene
-        bpy.context.scene.collection.children['Collection'].objects.link(obj)
-        # Set as the active object in the scene
-        bpy.context.view_layer.objects.active = obj
-        # Select object
-        obj.select_set(True)
-        
         # Operation was successful
         return {'FINISHED'}
 

@@ -1,6 +1,6 @@
-package com.shermobeaver.render_cube;
+package dreadoom.render_cube;
 
-import com.shermobeaver.render_cube.registry.RegistryHandler;
+import dreadoom.render_cube.registry.RegistryHandler;
 import com.mojang.logging.LogUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.TitleScreen;
@@ -22,7 +22,7 @@ import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.Collection;
 
-import static com.shermobeaver.render_cube.utils.TextureAtlasDump.saveTextureAtlas;
+import static dreadoom.render_cube.utils.TextureAtlasDump.saveTextureAtlas;
 
 @Mod(RenderCube.MODID)
 public class RenderCube

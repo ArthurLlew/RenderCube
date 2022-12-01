@@ -1,9 +1,9 @@
-package com.shermobeaver.render_cube.commands;
+package dreadoom.render_cube.commands;
 
 import com.mojang.brigadier.CommandDispatcher;
-import com.shermobeaver.render_cube.RenderCube;
-import com.shermobeaver.render_cube.utils.JsonSequenceWriter;
-import com.shermobeaver.render_cube.utils.RenderCubeUtils;
+import dreadoom.render_cube.RenderCube;
+import dreadoom.render_cube.utils.JsonSequenceWriter;
+import dreadoom.render_cube.utils.RenderCubeUtils;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.coordinates.BlockPosArgument;

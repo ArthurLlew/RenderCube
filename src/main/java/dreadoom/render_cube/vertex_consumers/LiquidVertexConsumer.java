@@ -1,7 +1,7 @@
-package com.shermobeaver.render_cube.vertex_consumers;
+package dreadoom.render_cube.vertex_consumers;
 
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.shermobeaver.render_cube.rendered_entities.RenderedVertex;
+import dreadoom.render_cube.rendered_entities.RenderedVertex;
 import net.minecraft.core.BlockPos;
 import org.jetbrains.annotations.NotNull;
 

@@ -1,4 +1,4 @@
-package com.shermobeaver.render_cube.rendered_entities;
+package dreadoom.render_cube.rendered_entities;
 
 import java.util.ArrayList;
 import java.util.List;

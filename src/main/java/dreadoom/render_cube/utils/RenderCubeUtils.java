@@ -1,12 +1,12 @@
-package com.shermobeaver.render_cube.utils;
+package dreadoom.render_cube.utils;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.shermobeaver.render_cube.RenderCube;
-import com.shermobeaver.render_cube.rendered_entities.RenderedBlock;
-import com.shermobeaver.render_cube.rendered_entities.RenderedQuad;
-import com.shermobeaver.render_cube.vertex_consumers.CommonVertexConsumer;
-import com.shermobeaver.render_cube.vertex_consumers.DummyMultiBufferSource;
-import com.shermobeaver.render_cube.vertex_consumers.LiquidVertexConsumer;
+import dreadoom.render_cube.RenderCube;
+import dreadoom.render_cube.rendered_entities.RenderedBlock;
+import dreadoom.render_cube.rendered_entities.RenderedQuad;
+import dreadoom.render_cube.vertex_consumers.CommonVertexConsumer;
+import dreadoom.render_cube.vertex_consumers.DummyMultiBufferSource;
+import dreadoom.render_cube.vertex_consumers.LiquidVertexConsumer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;

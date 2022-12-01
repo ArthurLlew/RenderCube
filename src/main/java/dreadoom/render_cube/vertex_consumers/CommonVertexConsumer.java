@@ -1,4 +1,4 @@
-package com.shermobeaver.render_cube.vertex_consumers;
+package dreadoom.render_cube.vertex_consumers;
 
 /**
  * Used to consume geometry data, produced by renderers.

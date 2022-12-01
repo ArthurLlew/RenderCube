@@ -1,4 +1,4 @@
-package com.shermobeaver.render_cube.utils;
+package dreadoom.render_cube.utils;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;

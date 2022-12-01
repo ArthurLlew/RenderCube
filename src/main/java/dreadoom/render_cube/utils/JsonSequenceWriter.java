@@ -1,4 +1,4 @@
-package com.shermobeaver.render_cube.utils;
+package dreadoom.render_cube.utils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SequenceWriter;

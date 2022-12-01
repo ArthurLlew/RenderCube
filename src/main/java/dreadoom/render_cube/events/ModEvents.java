@@ -1,8 +1,8 @@
-package com.shermobeaver.render_cube.events;
+package dreadoom.render_cube.events;
 
-import com.shermobeaver.render_cube.RenderCube;
-import com.shermobeaver.render_cube.commands.RenderBlockCommand;
-import com.shermobeaver.render_cube.commands.RenderRegionCommand;
+import dreadoom.render_cube.RenderCube;
+import dreadoom.render_cube.commands.RenderBlockCommand;
+import dreadoom.render_cube.commands.RenderRegionCommand;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;

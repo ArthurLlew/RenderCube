@@ -68,9 +68,19 @@ public class RenderCubeUtils{
 
             // We do not want to render air
             if (!block.isAir()) {
-                // Rendered block
+                // Rendered blocks
                 RenderedBlock renderedBlock = new RenderedBlock(
                         RenderedBlockType.BLOCK,
+                        regionPosition.getX(),
+                        regionPosition.getY(),
+                        regionPosition.getZ());
+                RenderedBlock renderedEntity = new RenderedBlock(
+                        RenderedBlockType.ENTITY,
+                        regionPosition.getX(),
+                        regionPosition.getY(),
+                        regionPosition.getZ());
+                RenderedBlock renderedLiquid = new RenderedBlock(
+                        RenderedBlockType.LIQUID,
                         regionPosition.getX(),
                         regionPosition.getY(),
                         regionPosition.getZ());

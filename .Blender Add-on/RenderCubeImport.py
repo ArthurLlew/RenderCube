@@ -132,11 +132,14 @@ class ImportRenderCube(Operator, ImportHelper):
         vertices, uv, faces = RenderCubeUtils.import_geometry(data)
         
         # Create blocks object
-        RenderCubeUtils.create_object("RenderedBlocks", vertices[0], uv[0], faces[0])
+        if len(vertices[0]) != 0:
+            RenderCubeUtils.create_object("RenderedBlocks", vertices[0], uv[0], faces[0])
         # Create entities object
-        RenderCubeUtils.create_object("RenderedEntities", vertices[1], uv[1], faces[1])
+        if len(vertices[1]) != 0:
+            RenderCubeUtils.create_object("RenderedEntities", vertices[1], uv[1], faces[1])
         # Create liquids object
-        RenderCubeUtils.create_object("RenderedLiquids", vertices[2], uv[2], faces[2])
+        if len(vertices[2]) != 0:
+            RenderCubeUtils.create_object("RenderedLiquids", vertices[2], uv[2], faces[2])
 
         # Operation was successful
         return {'FINISHED'}

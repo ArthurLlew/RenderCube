@@ -100,11 +100,10 @@ public class RenderCube
     }
 
     private static void dumpTextureMaps() throws IOException {
-        TextureAtlas textureAtlas = null;
         try{
             TextureManager textureManager = Minecraft.getInstance().getTextureManager();
 
-            Collection<ResourceLocation> resourceLocations = Minecraft.getInstance().getResourceManager().listResources(
+            /*Collection<ResourceLocation> resourceLocations = Minecraft.getInstance().getResourceManager().listResources(
                     "textures/atlas",
                     res -> res.chars().noneMatch(i -> Character.isLetter(i) && Character.isUpperCase(i)));
 
@@ -112,17 +111,29 @@ public class RenderCube
                 for (ResourceLocation resource: resourceLocations) {
                     LOGGER.debug("resource: " + resource.toString());
                 }
-            }
+            }*/
 
-            textureAtlas = (TextureAtlas) textureManager.getTexture(new ResourceLocation("textures/atlas/blocks.png"));
-        }
-        catch (Exception e){
-            // Notify about exception
-            LOGGER.error("texture atlas", e);
-        }
-        try{
-            if (textureAtlas != null)
-                saveTextureAtlas("blocks", textureAtlas.getId(), Paths.get(MODID));
+            TextureAtlas textureAtlas1 = (TextureAtlas) textureManager.getTexture(new ResourceLocation("textures/atlas/blocks.png"));
+            TextureAtlas textureAtlas2 = (TextureAtlas) textureManager.getTexture(new ResourceLocation("textures/atlas/signs.png"));
+            TextureAtlas textureAtlas3 = (TextureAtlas) textureManager.getTexture(new ResourceLocation("textures/atlas/banner_patterns.png"));
+            TextureAtlas textureAtlas4 = (TextureAtlas) textureManager.getTexture(new ResourceLocation("textures/atlas/shield_patterns.png"));
+            TextureAtlas textureAtlas5 = (TextureAtlas) textureManager.getTexture(new ResourceLocation("textures/atlas/chest.png"));
+            TextureAtlas textureAtlas6 = (TextureAtlas) textureManager.getTexture(new ResourceLocation("textures/atlas/beds.png"));
+            TextureAtlas textureAtlas7 = (TextureAtlas) textureManager.getTexture(new ResourceLocation("textures/atlas/shulker_boxes.png"));
+            TextureAtlas textureAtlas8 = (TextureAtlas) textureManager.getTexture(new ResourceLocation("textures/atlas/particles.png"));
+            TextureAtlas textureAtlas9 = (TextureAtlas) textureManager.getTexture(new ResourceLocation("textures/atlas/paintings.png"));
+            TextureAtlas textureAtlas10 = (TextureAtlas) textureManager.getTexture(new ResourceLocation("textures/atlas/mob_effects.png"));
+
+            saveTextureAtlas("blocks", textureAtlas1.getId(), Paths.get(MODID));
+            saveTextureAtlas("signs", textureAtlas2.getId(), Paths.get(MODID));
+            saveTextureAtlas("banner_patterns", textureAtlas3.getId(), Paths.get(MODID));
+            saveTextureAtlas("shield_patterns", textureAtlas4.getId(), Paths.get(MODID));
+            saveTextureAtlas("chest", textureAtlas5.getId(), Paths.get(MODID));
+            saveTextureAtlas("beds", textureAtlas6.getId(), Paths.get(MODID));
+            saveTextureAtlas("shulker_boxes", textureAtlas7.getId(), Paths.get(MODID));
+            saveTextureAtlas("particles", textureAtlas8.getId(), Paths.get(MODID));
+            saveTextureAtlas("paintings", textureAtlas9.getId(), Paths.get(MODID));
+            saveTextureAtlas("mob_effects", textureAtlas10.getId(), Paths.get(MODID));
         }
         catch (Exception e){
             // Notify about exception

@@ -37,7 +37,7 @@ public abstract class BasicVertexConsumer implements VertexConsumer {
     /**
      * Does nothing.
      * @param pose instance of {@link PoseStack.Pose}
-     * @param bakedQuad instance of {@link BakedQuad}
+     * @param quad instance of {@link BakedQuad}
      * @param p_85998_ idk
      * @param p_85999_ idk
      * @param p_86000_ idk
@@ -48,7 +48,7 @@ public abstract class BasicVertexConsumer implements VertexConsumer {
      */
     @Override
     public void putBulkData(@NotNull PoseStack.Pose pose,
-                            @NotNull BakedQuad bakedQuad,
+                            @NotNull BakedQuad quad,
                             float @NotNull [] p_85998_,
                             float p_85999_,
                             float p_86000_,
@@ -56,7 +56,7 @@ public abstract class BasicVertexConsumer implements VertexConsumer {
                             int @NotNull [] p_86002_,
                             int p_86003_,
                             boolean p_86004_) {
-        quads.add(new RenderedQuad(bakedQuad));
+        quads.add(new RenderedQuad(quad));
     }
 
     /**

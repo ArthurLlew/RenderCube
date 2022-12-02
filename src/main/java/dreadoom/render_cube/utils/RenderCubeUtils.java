@@ -4,19 +4,16 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import dreadoom.render_cube.RenderCube;
 import dreadoom.render_cube.rendered_entities.RenderedCube;
 import dreadoom.render_cube.rendered_entities.RenderedModel;
-import dreadoom.render_cube.rendered_entities.RenderedQuad;
 import dreadoom.render_cube.vertex_consumers.CommonVertexConsumer;
 import dreadoom.render_cube.vertex_consumers.DummyMultiBufferSource;
 import dreadoom.render_cube.vertex_consumers.LiquidVertexConsumer;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.client.model.data.EmptyModelData;
@@ -27,7 +24,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.List;
 import java.util.Random;
 
 /**
@@ -55,6 +51,7 @@ public class RenderCubeUtils{
      * @param levelPosition block position in level
      * @param regionPosition block position in region
      **/
+    // TODO: Save information about block color and texture atlas
     public static boolean renderBlock(@NotNull CommandSourceStack source,
                                       @NotNull JsonSequenceWriter jsonWriter,
                                       @NotNull BlockPos levelPosition,
@@ -169,32 +166,6 @@ public class RenderCubeUtils{
 
             // We encountered errors
             return false;
-        }
-    }
-
-    /**
-     * Is used to process quad list.
-     * @param level minecraft level, where block is situated
-     * @param block block to render
-     * @param position block position in level
-     * @param quads quads to process
-     **/
-    private static void processQuads(@NotNull ServerLevel level,
-                                     @NotNull BlockState block,
-                                     @NotNull BlockPos position,
-                                     @NotNull List<BakedQuad> quads,
-                                     @NotNull RenderedModel renderedBlock){
-        // For each quad
-        for (BakedQuad quad : quads) {
-            // If we should render this face
-            if (Block.shouldRenderFace(block, level, position, quad.getDirection(),
-                    position.mutable().setWithOffset(position, quad.getDirection()))){
-                // Create rendered quad from this quad
-                RenderedQuad renderedQuad = new RenderedQuad(quad);
-
-                // Add quad to block
-                renderedBlock.quads.add(renderedQuad);
-            }
         }
     }
 }

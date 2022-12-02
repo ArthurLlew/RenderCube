@@ -65,6 +65,7 @@ public class RenderCube
      * Is fired after first load or resource-pack reload. If we have visited main menu screen we also dump textures if
      * this event has fired.
      */
+    // TODO: maybe refactor this method
     private void onLoadComplete() {
         // Reload when game resources change
         FMLJavaModLoadingContext.get().getModEventBus().addListener(
@@ -88,6 +89,7 @@ public class RenderCube
      * Here at first user visit to main menu we dump textures and say, that we have visited main menu on startup.
      * @param event screen open event
      */
+    // TODO: maybe refactor this method
     private void onMainMenuOpen(ScreenOpenEvent event) {
         if (!titleScreenWasOpened && event.getScreen() instanceof TitleScreen) {
             titleScreenWasOpened = true;
@@ -103,6 +105,7 @@ public class RenderCube
         try{
             TextureManager textureManager = Minecraft.getInstance().getTextureManager();
 
+            // TODO: Make texture export invariant / find resource location getter for all atlases
             /*Collection<ResourceLocation> resourceLocations = Minecraft.getInstance().getResourceManager().listResources(
                     "textures/atlas",
                     res -> res.chars().noneMatch(i -> Character.isLetter(i) && Character.isUpperCase(i)));

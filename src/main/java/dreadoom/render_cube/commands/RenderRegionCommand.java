@@ -48,12 +48,17 @@ public class RenderRegionCommand {
                         // Current block position
                         BlockPos position = new BlockPos(x, y, z);
 
+                        // position.mutable().setWithOffset(position, quad.getDirection())
+                        // TODO: if we are at edge, make blocks invisible, so border can be rendered
+
                         // Process block
                         boolean success = RenderCubeUtils.renderBlock(
                                 source, jsonWriter, position, new BlockPos(
                                         position.getX() - region_min_x,
                                         position.getY() - region_min_y,
                                         position.getZ() - region_min_z));
+
+                        // TODO: Make them visible here again
 
                         // We finish with success only if RenderCubeUtils.RenderBlock(...) returned true
                         if(!success){

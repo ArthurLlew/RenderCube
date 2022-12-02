@@ -62,8 +62,7 @@ public class RenderCube
     }
 
     /**
-     * Is fired after first load or resource-pack reload. If we have visited main menu screen we also dump textures if
-     * this event has fired.
+     * Is fired after first load or resource-pack reload. If we have already visited main menu screen we dump textures.
      */
     // TODO: maybe refactor this method
     private void onLoadComplete() {

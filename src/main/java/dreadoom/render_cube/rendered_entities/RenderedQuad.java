@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Contains the geometry data and texture name of a quad.
+ * Contains quad geometry data.
  */
 public class RenderedQuad {
     /**
@@ -14,13 +14,10 @@ public class RenderedQuad {
      */
     public List<RenderedVertex> vertices = new ArrayList<>();
 
-    /**
-     * Empty constructor.
-     */
     public RenderedQuad(){}
 
     /**
-     * Fully constructs instance from provided {@link BakedQuad}.
+     * Constructs instance from provided {@link BakedQuad}.
      */
     public RenderedQuad(BakedQuad quad){
         // Geometric encrypted information

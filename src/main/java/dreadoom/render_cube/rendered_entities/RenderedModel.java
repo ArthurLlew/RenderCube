@@ -12,9 +12,6 @@ public class RenderedModel {
      */
     public List<RenderedQuad> quads = new ArrayList<>();
 
-    /**
-     * Empty constructor.
-     */
     public RenderedModel(){
     }
 }

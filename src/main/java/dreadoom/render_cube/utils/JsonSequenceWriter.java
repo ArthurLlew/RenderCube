@@ -8,21 +8,21 @@ import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
 
 /**
- * This class creates autocloseable json
+ * This class creates autocloseable json sequence writer.
  */
 public class JsonSequenceWriter implements AutoCloseable {
     /**
-     * Stores file writer
+     * Stores file writer.
      */
     private final PrintWriter writer;
 
     /**
-     * Stores json sequence writer
+     * Stores json sequence writer.
      */
     public final SequenceWriter seqWriter;
 
     /**
-     * Init (opens file)
+     * Opens file and creates instance of {@link SequenceWriter}.
      * @param filename filename of file to be created
      * @throws IOException when file exceptions are encountered
      */
@@ -41,7 +41,7 @@ public class JsonSequenceWriter implements AutoCloseable {
     }
 
     /**
-     * Closes file
+     * Closes file writers.
      * @throws IOException when file exceptions are encountered
      */
     @Override

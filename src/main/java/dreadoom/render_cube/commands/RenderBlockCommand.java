@@ -14,7 +14,7 @@ import java.io.IOException;
 
 public class RenderBlockCommand {
     /**
-     * Is used to define command pattern
+     * Is used to define command pattern.
     **/
     public RenderBlockCommand(CommandDispatcher<CommandSourceStack> dispatcher){
         dispatcher.register(Commands.literal(RenderCube.MODID)
@@ -27,7 +27,9 @@ public class RenderBlockCommand {
     }
 
     /**
-     * Executes command
+     * Executes command.
+     * @param source command executioner
+     * @param position block position in world
      **/
     private int renderBlock(CommandSourceStack source, BlockPos position){
         try(JsonSequenceWriter jsonWriter = new JsonSequenceWriter(RenderCube.MODID + "\\rendered_cube.json")){

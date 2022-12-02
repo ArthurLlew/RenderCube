@@ -14,7 +14,7 @@ import java.io.IOException;
 
 public class RenderRegionCommand {
     /**
-     * Is used to define command pattern
+     * Is used to define command pattern.
      **/
     public RenderRegionCommand(CommandDispatcher<CommandSourceStack> dispatcher){
         dispatcher.register(Commands.literal(RenderCube.MODID)
@@ -29,7 +29,10 @@ public class RenderRegionCommand {
     }
 
     /**
-     * Executes command
+     * Executes command.
+     * @param source command executioner
+     * @param position1 first region corner position in world
+     * @param position2 second region corner position in world
      **/
     private int renderRegion(CommandSourceStack source, BlockPos position1, BlockPos position2){
         try(JsonSequenceWriter jsonWriter = new JsonSequenceWriter(RenderCube.MODID + "\\rendered_cube.json")){

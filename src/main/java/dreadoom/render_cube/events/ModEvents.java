@@ -10,9 +10,8 @@ import net.minecraftforge.server.command.ConfigCommand;
 
 @Mod.EventBusSubscriber(modid = RenderCube.MODID)
 public class ModEvents {
-
     /**
-     * Registers custom commands
+     * Registers custom commands.
      * @param event command registering event
      */
     @SubscribeEvent

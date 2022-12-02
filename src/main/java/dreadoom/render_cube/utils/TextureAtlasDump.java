@@ -16,17 +16,17 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
 
 /**
- * Manages texture dumping.
+ * Manages texture atlas dumping.
  */
 public class TextureAtlasDump {
     private static final Logger LOGGER = LogManager.getLogger();
 
     /**
-     * Saves provided texture atlas as png
+     * Saves provided texture atlas as png.
      * @param name name of atlas, that is used to name file
      * @param textureId id of texture atlas
      * @param modDir directory, where file will be stored
-     * @throws IOException file errors are not caught
+     * @throws IOException when file errors occur
      */
     public static void saveTextureAtlas(String name, int textureId, Path modDir) throws IOException {
         // GL init

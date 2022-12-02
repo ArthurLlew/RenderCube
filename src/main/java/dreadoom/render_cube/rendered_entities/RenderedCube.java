@@ -1,7 +1,7 @@
 package dreadoom.render_cube.rendered_entities;
 
 /**
- * Contains block, entity and liquid geometry data in a cube and there position.
+ * Contains block, entity and liquid geometry data in a cube and cube position.
  */
 public class RenderedCube {
     /**

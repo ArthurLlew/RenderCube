@@ -20,7 +20,6 @@ import org.slf4j.Logger;
 
 import java.io.IOException;
 import java.nio.file.Paths;
-import java.util.Collection;
 
 import static dreadoom.render_cube.utils.TextureAtlasDump.saveTextureAtlas;
 

@@ -1,16 +1,17 @@
-# Imports
-import bpy
 # ImportHelper is a helper class, defines filename and
 # invoke() function which calls the file selector.
 from bpy_extras.io_utils import ImportHelper
+# Blender stuff
+import bpy
 from bpy.props import StringProperty, BoolProperty, EnumProperty
 from bpy.types import Operator
+import bmesh
 # Json reading
 import json
 # Is used, when converting json string to object
 from types import SimpleNamespace
-
-import bmesh
+# Math
+import math
 
 # Add-on info
 bl_info = {

@@ -26,7 +26,7 @@ public class JsonSequenceWriter implements AutoCloseable {
     /**
      * Opens file and creates instance of {@link SequenceWriter}.
      * @param filename filename of file to be created
-     * @throws IOException when file exceptions are encountered
+     * @throws IOException if file exceptions are encountered
      */
     public JsonSequenceWriter(String filename) throws IOException {
         // Validate mod directory

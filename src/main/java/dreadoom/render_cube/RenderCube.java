@@ -4,6 +4,7 @@ import dreadoom.render_cube.registry.RegistryHandler;
 import com.mojang.logging.LogUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.TitleScreen;
+import net.minecraft.client.renderer.texture.AbstractTexture;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.resources.ResourceLocation;
@@ -20,6 +21,7 @@ import org.slf4j.Logger;
 
 import java.io.IOException;
 import java.nio.file.Paths;
+import java.util.Map;
 
 import static dreadoom.render_cube.utils.TextureAtlasDump.saveTextureAtlas;
 
@@ -31,6 +33,9 @@ public class RenderCube
     // The value here should match an entry in the META-INF/mods.toml file
     public static final String MODID = "rendercube";
 
+    /**
+     * Indicates if player have reached main menu on startup.
+     */
     private boolean titleScreenWasOpened = false;
 
     /**
@@ -61,11 +66,11 @@ public class RenderCube
     }
 
     /**
-     * Is fired after first load or resource-pack reload. If we have already visited main menu screen we dump textures.
+     * Is fires after game loading was complete. Sets up listener for resource-packs reload event.
      */
     // TODO: maybe refactor this method
     private void onLoadComplete() {
-        // Reload when game resources change
+        // Register listener for resource-packs reload event, that will dump textures again
         FMLJavaModLoadingContext.get().getModEventBus().addListener(
                 EventPriority.NORMAL,
                 false,
@@ -99,46 +104,32 @@ public class RenderCube
         }
     }
 
+    /**
+     * Dumps all loaded texture atlases to separate files.
+     * @throws IOException if file exceptions are encountered
+     */
     private static void dumpTextureMaps() throws IOException {
-        try{
-            TextureManager textureManager = Minecraft.getInstance().getTextureManager();
+        // Gets minecraft texture manager
+        TextureManager textureManager = Minecraft.getInstance().getTextureManager();
 
-            // TODO: Make texture export invariant / find resource location getter for all atlases
-            /*Collection<ResourceLocation> resourceLocations = Minecraft.getInstance().getResourceManager().listResources(
-                    "textures/atlas",
-                    res -> res.chars().noneMatch(i -> Character.isLetter(i) && Character.isUpperCase(i)));
+        // Iterate over map of texture resources
+        for (Map.Entry<ResourceLocation, AbstractTexture> entry : textureManager.byPath.entrySet()) {
+            // Get value of map
+            AbstractTexture textureObject = entry.getValue();
 
-            if (!resourceLocations.isEmpty()){
-                for (ResourceLocation resource: resourceLocations) {
-                    LOGGER.debug("resource: " + resource.toString());
-                }
-            }*/
+            // If it is texture atlas
+            if (textureObject instanceof TextureAtlas textureAtlas) {
+                // Get entry key as string. In this case this string will represent texture atlas resource location.
+                String name = entry.getKey().toString();
 
-            TextureAtlas textureAtlas1 = (TextureAtlas) textureManager.getTexture(new ResourceLocation("textures/atlas/blocks.png"));
-            TextureAtlas textureAtlas2 = (TextureAtlas) textureManager.getTexture(new ResourceLocation("textures/atlas/signs.png"));
-            TextureAtlas textureAtlas3 = (TextureAtlas) textureManager.getTexture(new ResourceLocation("textures/atlas/banner_patterns.png"));
-            TextureAtlas textureAtlas4 = (TextureAtlas) textureManager.getTexture(new ResourceLocation("textures/atlas/shield_patterns.png"));
-            TextureAtlas textureAtlas5 = (TextureAtlas) textureManager.getTexture(new ResourceLocation("textures/atlas/chest.png"));
-            TextureAtlas textureAtlas6 = (TextureAtlas) textureManager.getTexture(new ResourceLocation("textures/atlas/beds.png"));
-            TextureAtlas textureAtlas7 = (TextureAtlas) textureManager.getTexture(new ResourceLocation("textures/atlas/shulker_boxes.png"));
-            TextureAtlas textureAtlas8 = (TextureAtlas) textureManager.getTexture(new ResourceLocation("textures/atlas/particles.png"));
-            TextureAtlas textureAtlas9 = (TextureAtlas) textureManager.getTexture(new ResourceLocation("textures/atlas/paintings.png"));
-            TextureAtlas textureAtlas10 = (TextureAtlas) textureManager.getTexture(new ResourceLocation("textures/atlas/mob_effects.png"));
+                // Name of texture atlas is name of .png file
+                name = name.substring(name.lastIndexOf("/") + 1);
+                // without '.png'
+                name = name.substring(0, name.lastIndexOf(".png"));
 
-            saveTextureAtlas("blocks", textureAtlas1.getId(), Paths.get(MODID));
-            saveTextureAtlas("signs", textureAtlas2.getId(), Paths.get(MODID));
-            saveTextureAtlas("banner_patterns", textureAtlas3.getId(), Paths.get(MODID));
-            saveTextureAtlas("shield_patterns", textureAtlas4.getId(), Paths.get(MODID));
-            saveTextureAtlas("chest", textureAtlas5.getId(), Paths.get(MODID));
-            saveTextureAtlas("beds", textureAtlas6.getId(), Paths.get(MODID));
-            saveTextureAtlas("shulker_boxes", textureAtlas7.getId(), Paths.get(MODID));
-            saveTextureAtlas("particles", textureAtlas8.getId(), Paths.get(MODID));
-            saveTextureAtlas("paintings", textureAtlas9.getId(), Paths.get(MODID));
-            saveTextureAtlas("mob_effects", textureAtlas10.getId(), Paths.get(MODID));
-        }
-        catch (Exception e){
-            // Notify about exception
-            LOGGER.error("texture atlas", e);
+                // Save texture atlas
+                saveTextureAtlas(name, textureAtlas.getId(), Paths.get(MODID));
+            }
         }
     }
 

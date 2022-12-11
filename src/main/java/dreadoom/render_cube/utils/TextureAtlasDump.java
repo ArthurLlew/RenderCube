@@ -22,7 +22,7 @@ public class TextureAtlasDump {
     private static final Logger LOGGER = LogManager.getLogger();
 
     /**
-     * Saves provided texture atlas as png.
+     * Saves provided texture atlas as png. Max mipmap quality level is chosen.
      * @param name name of atlas, that is used to name file
      * @param textureId id of texture atlas
      * @param modDir directory, where file will be stored

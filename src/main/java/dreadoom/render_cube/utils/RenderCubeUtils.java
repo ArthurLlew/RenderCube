@@ -1,6 +1,7 @@
 package dreadoom.render_cube.utils;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.logging.LogUtils;
 import dreadoom.render_cube.RenderCube;
 import dreadoom.render_cube.rendered_entities.RenderedCube;
 import dreadoom.render_cube.rendered_entities.RenderedModel;
@@ -8,7 +9,6 @@ import dreadoom.render_cube.vertex_consumers.CommonVertexConsumer;
 import dreadoom.render_cube.vertex_consumers.DummyMultiBufferSource;
 import dreadoom.render_cube.vertex_consumers.LiquidVertexConsumer;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.color.block.BlockColors;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.commands.CommandSourceStack;
@@ -20,6 +20,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.client.model.data.EmptyModelData;
 import net.minecraftforge.client.model.data.IModelData;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -52,7 +53,7 @@ public class RenderCubeUtils{
      * @param levelPosition block position in level
      * @param regionPosition block position in region
      **/
-    // TODO: Save information about block color and texture atlas
+    // TODO: Save information about block color
     public static boolean renderBlock(@NotNull CommandSourceStack source,
                                       @NotNull JsonSequenceWriter jsonWriter,
                                       @NotNull BlockPos levelPosition,
@@ -63,6 +64,25 @@ public class RenderCubeUtils{
 
             // Get BlockState at position
             BlockState block = level.getBlockState(levelPosition);
+
+            // Debug block color
+            Logger logger = LogUtils.getLogger();
+            int color = Minecraft.getInstance().blockColors.getColor(block, level, levelPosition);
+            String buf = Integer.toHexString(color);
+            String hex = "#"+buf.substring(buf.length()-6);
+            logger.debug(hex);
+            color = level.getBiome(levelPosition).value().getGrassColor(0, 0);
+            buf = Integer.toHexString(color);
+            hex = "#"+buf.substring(buf.length()-6);
+            logger.debug(hex);
+            color = level.getBiome(levelPosition).value().getFoliageColor();
+            buf = Integer.toHexString(color);
+            hex = "#"+buf.substring(buf.length()-6);
+            logger.debug(hex);
+            color = level.getBiome(levelPosition).value().getWaterColor();
+            buf = Integer.toHexString(color);
+            hex = "#"+buf.substring(buf.length()-6);
+            logger.debug(hex);
 
             // We do not want to render air
             if (!block.isAir()) {
@@ -107,7 +127,7 @@ public class RenderCubeUtils{
                     // Create dummy MultiBufferSource
                     DummyMultiBufferSource dummyMultiBufferSource = new DummyMultiBufferSource();
 
-                    // Get its renderer
+                    // Get entity renderer
                     BlockEntityRenderer<BlockEntity> renderer = Minecraft.
                             getInstance().getBlockEntityRenderDispatcher().getRenderer(entity);
 
@@ -145,7 +165,7 @@ public class RenderCubeUtils{
                 // Add all quads to liquid
                 renderedLiquid.quads.addAll(liquidVertexConsumer.quads);
 
-                // Init cube
+                // Init rendered cube, that will be written to disk
                 RenderedCube renderedCube = new RenderedCube(
                         regionPosition.getX(),
                         regionPosition.getY(),

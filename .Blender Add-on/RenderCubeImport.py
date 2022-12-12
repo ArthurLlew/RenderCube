@@ -27,24 +27,6 @@ bl_info = {
 
 # Add-on utils
 class RenderCubeUtils:
-    # Clips float values to 0.001 accuracy
-    def clip_float(value):
-        # Divide float into numbers before and after decimal point
-        after, before = math.modf(value)
-        
-        # If encountered 0 after decimal point do not clip
-        if abs(after) == 0:
-            return value
-        # If we have number less than 0.001 after decimal point
-        elif abs(after) < 0.001:
-            # Clip it to 0.001
-            return before + math.copysign(0.001, after)
-        # If we have number more than 0.999 after decimal point
-        elif abs(after) > 0.999:
-            # Clip it to 0.999
-            return before + math.copysign(0.999, after)
-        return value
-    
     # Reads file contents
     def import_rendercube(context, filepath):
         # Open file
@@ -65,9 +47,7 @@ class RenderCubeUtils:
             # For vertex in quad
             for vertex in quad['vertices']:
                 # Vertex position = its position + block position
-                vertices.append((RenderCubeUtils.clip_float(block_x + vertex['z']),
-                                 RenderCubeUtils.clip_float(block_y + vertex['x']),
-                                 RenderCubeUtils.clip_float(block_z + vertex['y'])))
+                vertices.append((block_x + vertex['z'], block_y + vertex['x'], block_z + vertex['y']))
                     
                 # U and V coordinates for this vertex
                 uv.append((vertex['u'], vertex['v']))

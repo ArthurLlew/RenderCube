@@ -1,7 +1,7 @@
 RenderCube (under development):
 ==============================
 This mod will allow to export parts of minecraft world even
-if they have mods and custom geometry.
+if it has mods installed.
 
 Credits:
 ------------------------------

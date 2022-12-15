@@ -17,7 +17,7 @@ public class RenderedQuad {
     /**
      * Quad color as hex string.
      */
-    public String quadHexColor;
+    public String quadColor;
 
     public RenderedQuad(){}
 

@@ -38,7 +38,7 @@ class RenderCubeUtils:
         return data
     
     # Read quads from rendered model
-    def import_quads(rendered_model, block_x, block_y, block_z, vertices, uv, faces):
+    def import_quads(rendered_model, block_x, block_y, block_z, vertices, uv, faces, faces_color):
         # For block guads
         for quad in rendered_model['quads']:
             # Current quad first vertex index
@@ -46,19 +46,22 @@ class RenderCubeUtils:
 
             # For vertex in quad
             for vertex in quad['vertices']:
-                # Vertex position = its position + block position
+                # Append vertex position which is equal to its position + block position
                 vertices.append((block_x + vertex['z'], block_y + vertex['x'], block_z + vertex['y']))
                     
-                # U and V coordinates for this vertex
+                # Append U and V coordinates for this vertex
                 uv.append((vertex['u'], vertex['v']))
             
             # Append vertices indices of face
             faces.append(tuple(range(face_first_vert_index, len(vertices))))
+            
+            # Append face color
+            faces_color.append(quad['quadColor'])
     
     # Creates vertices and faces from imported data
     def import_geometry(data):
         
-        vertices, uv, faces = [[], [], []], [[], [], []], [[], [], []]
+        vertices, uv, faces, faces_color = [[], [], []], [[], [], []], [[], [], []], [[], [], []]
         
         # Iterating through the blocks
         for block_data in data:
@@ -68,25 +71,35 @@ class RenderCubeUtils:
                                          block_data['y'],
                                          vertices[0],
                                          uv[0],
-                                         faces[0])
+                                         faces[0],
+                                         faces_color[0])
             RenderCubeUtils.import_quads(block_data['renderedEntity'],
                                          block_data['z'],
                                          block_data['x'],
                                          block_data['y'],
                                          vertices[1],
                                          uv[1],
-                                         faces[1])
+                                         faces[1],
+                                         faces_color[1])
             RenderCubeUtils.import_quads(block_data['renderedLiquid'],
                                          block_data['z'],
                                          block_data['x'],
                                          block_data['y'],
                                          vertices[2],
                                          uv[2],
-                                         faces[2])
-        return vertices, uv, faces
+                                         faces[2],
+                                         faces_color[2])
+        return vertices, uv, faces, faces_color
+    
+    # Creates material from hex string
+    def create_material(hex, material_name):
+        mat = bpy.data.materials.new(material_name)
+        mat.diffuse_color = (100,100,100,1)
+        
+        return mat
     
     # Creates object in scene from geomentry data
-    def create_object(name, vertices, uv, faces):
+    def create_object(name, vertices, uv, faces, faces_color):
         # Add a new mesh
         mesh = bpy.data.meshes.new('mesh')
         # Add a new object using the mesh
@@ -103,6 +116,19 @@ class RenderCubeUtils:
         for face in mesh.polygons:
             for vert_idx, loop_idx in zip(face.vertices, face.loop_indices):
                 uvlayer.data[loop_idx].uv = (uv[vert_idx][0], 1 - uv[vert_idx][1])
+        
+        # Assign materials to faces
+        for face_index, face in enumerate(mesh.polygons):
+            # Name of material
+            material_name = f'{obj.name}_{faces_color[face_index]}'
+            
+            # If this material is not yet present in mesh
+            if material_name not in mesh.materials:
+                # Create it and add to mesh materials
+                mesh.materials.append(RenderCubeUtils.create_material(faces_color[face_index], material_name))
+            
+            # Assign materials material index to face
+            face.material_index = mesh.materials.find(material_name)
         
         # Put the object into the scene
         bpy.context.scene.collection.children['Collection'].objects.link(obj)
@@ -129,18 +155,18 @@ class ImportRenderCube(Operator, ImportHelper):
     def execute(self, context):
         # Import rendercube data
         data = RenderCubeUtils.import_rendercube(context, self.filepath)
-        # Import geometry from data
-        vertices, uv, faces = RenderCubeUtils.import_geometry(data)
+        # Convert it to another form
+        vertices, uv, faces, faces_color = RenderCubeUtils.import_geometry(data)
         
         # Create blocks object
         if len(vertices[0]) != 0:
-            RenderCubeUtils.create_object("RenderedBlocks", vertices[0], uv[0], faces[0])
+            RenderCubeUtils.create_object("RenderedBlocks", vertices[0], uv[0], faces[0], faces_color[0])
         # Create entities object
         if len(vertices[1]) != 0:
-            RenderCubeUtils.create_object("RenderedEntities", vertices[1], uv[1], faces[1])
+            RenderCubeUtils.create_object("RenderedEntities", vertices[1], uv[1], faces[1], faces_color[1])
         # Create liquids object
         if len(vertices[2]) != 0:
-            RenderCubeUtils.create_object("RenderedLiquids", vertices[2], uv[2], faces[2])
+            RenderCubeUtils.create_object("RenderedLiquids", vertices[2], uv[2], faces[2], faces_color[2])
 
         # Operation was successful
         return {'FINISHED'}

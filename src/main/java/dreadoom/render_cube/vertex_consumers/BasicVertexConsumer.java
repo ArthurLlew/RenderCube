@@ -64,11 +64,11 @@ public abstract class BasicVertexConsumer implements VertexConsumer {
                         vertexColors.get(i).equals(vertexColors.get(i + 2)) &&
                         vertexColors.get(i).equals(vertexColors.get(i + 3))){
                     // Quad color is set to it
-                    quad.quadHexColor = vertexColors.get(i);
+                    quad.quadColor = vertexColors.get(i);
                 }
                 else{
                     // Else quad color is pure white (no color is applied to this quad)
-                    quad.quadHexColor = "#ffffff";
+                    quad.quadColor = "#ffffff";
                 }
 
                 // Add to list

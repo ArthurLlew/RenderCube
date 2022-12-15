@@ -75,13 +75,14 @@ public abstract class BasicVertexConsumer implements VertexConsumer {
                 quads.add(quad);
             }
 
-            // Clear now unused vertices
+            // Clear now unused vertex information
             vertices.clear();
+            vertexColors.clear();
         }
     }
 
     /**
-     * Adds vertex to list.
+     * Processes vertex and adds it to list.
      * @param x X vertex coordinate
      * @param y Y vertex coordinate
      * @param z Z vertex coordinate

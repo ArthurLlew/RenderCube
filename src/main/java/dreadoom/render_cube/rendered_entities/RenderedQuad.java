@@ -14,11 +14,17 @@ public class RenderedQuad {
      */
     public List<RenderedVertex> vertices = new ArrayList<>();
 
+    /**
+     * Quad color as hex string.
+     */
+    public String quadHexColor;
+
     public RenderedQuad(){}
 
     /**
      * Constructs instance from provided {@link BakedQuad}.
      */
+    @Deprecated
     public RenderedQuad(BakedQuad quad){
         // Geometric encrypted information
         int[] encryptedVertices = quad.getVertices();

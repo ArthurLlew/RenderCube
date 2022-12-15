@@ -19,35 +19,6 @@ public class LiquidVertexConsumer extends BasicVertexConsumer {
         position = inPosition;
     }
 
-    /**
-     * Consumes vertex.
-     */
-    @Override
-    public void vertex(float x,
-                       float y,
-                       float z,
-                       float r,
-                       float g,
-                       float b,
-                       float a,
-                       float u,
-                       float v,
-                       int overlayCords,
-                       int uv2,
-                       float normal_x,
-                       float normal_y,
-                       float normal_z){
-        vertices.add(new RenderedVertex(
-                x - (position.getX() & 15),
-                y - (position.getY() & 15),
-                z - (position.getZ() & 15),
-                u,
-                v));
-    }
-
-    /**
-     * Consumes vertex coordinates.
-     */
     @Override
     public @NotNull VertexConsumer vertex(double x, double y, double z){
         return super.vertex(x - (position.getX() & 15), y - (position.getY() & 15), z - (position.getZ() & 15));

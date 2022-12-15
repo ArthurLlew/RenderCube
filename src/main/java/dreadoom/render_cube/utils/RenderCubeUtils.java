@@ -1,7 +1,6 @@
 package dreadoom.render_cube.utils;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.logging.LogUtils;
 import dreadoom.render_cube.RenderCube;
 import dreadoom.render_cube.rendered_entities.RenderedCube;
 import dreadoom.render_cube.rendered_entities.RenderedModel;
@@ -20,7 +19,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.client.model.data.EmptyModelData;
 import net.minecraftforge.client.model.data.IModelData;
 import org.jetbrains.annotations.NotNull;
-import org.slf4j.Logger;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -53,7 +51,6 @@ public class RenderCubeUtils{
      * @param levelPosition block position in level
      * @param regionPosition block position in region
      **/
-    // TODO: Save information about block color
     public static boolean renderBlock(@NotNull CommandSourceStack source,
                                       @NotNull JsonSequenceWriter jsonWriter,
                                       @NotNull BlockPos levelPosition,
@@ -64,25 +61,6 @@ public class RenderCubeUtils{
 
             // Get BlockState at position
             BlockState block = level.getBlockState(levelPosition);
-
-            // Debug block color
-            Logger logger = LogUtils.getLogger();
-            int color = Minecraft.getInstance().blockColors.getColor(block, level, levelPosition);
-            String buf = Integer.toHexString(color);
-            String hex = "#"+buf.substring(buf.length()-6);
-            logger.debug(hex);
-            color = level.getBiome(levelPosition).value().getGrassColor(0, 0);
-            buf = Integer.toHexString(color);
-            hex = "#"+buf.substring(buf.length()-6);
-            logger.debug(hex);
-            color = level.getBiome(levelPosition).value().getFoliageColor();
-            buf = Integer.toHexString(color);
-            hex = "#"+buf.substring(buf.length()-6);
-            logger.debug(hex);
-            color = level.getBiome(levelPosition).value().getWaterColor();
-            buf = Integer.toHexString(color);
-            hex = "#"+buf.substring(buf.length()-6);
-            logger.debug(hex);
 
             // We do not want to render air
             if (!block.isAir()) {
@@ -115,7 +93,7 @@ public class RenderCubeUtils{
                         random,
                         data);
 
-                // There might be extra vertices, that we have consumed. We try to convert them to quads.
+                // Convert consumed vertices to quads.
                 commonVertexConsumer.convertVerticesToQuads();
                 // Add all quads to block
                 renderedBlock.quads.addAll(commonVertexConsumer.quads);
@@ -142,7 +120,7 @@ public class RenderCubeUtils{
                                 15728880,
                                 OverlayTexture.NO_OVERLAY);
 
-                        // Convert entity vertices to quads
+                        // Convert consumed vertices to quads.
                         dummyMultiBufferSource.buffer.convertVerticesToQuads();
                         // Add all quads to entity
                         renderedEntity.quads.addAll(dummyMultiBufferSource.buffer.quads);
@@ -160,7 +138,7 @@ public class RenderCubeUtils{
                         block,
                         block.getFluidState());
 
-                // Convert liquid vertices to quads
+                // Convert consumed vertices to quads.
                 liquidVertexConsumer.convertVerticesToQuads();
                 // Add all quads to liquid
                 renderedLiquid.quads.addAll(liquidVertexConsumer.quads);

@@ -91,12 +91,68 @@ class RenderCubeUtils:
                                          faces_color[2])
         return vertices, uv, faces, faces_color
     
+    # Convert hex substring (like 'ff') to linear channel
+    def hex_substring_to_color(hex_substring):
+        # Basic color from 0 to 255
+        channel = int(hex_substring, base=16)
+        
+        # Color from 0.0 to 1.0
+        schannel = channel / 255
+        
+        # Make it linear
+        if schannel <= 0.04045:
+            return schannel / 12.92
+        else:
+            return math.pow((schannel + 0.055) / 1.055, 2.4)
+    
+    # Covert hex to rgb
+    def hex_to_rgb(hex):
+        # Get rid of #
+        hex = hex[1:]
+        
+        return (RenderCubeUtils.hex_substring_to_color(hex[:2]),
+                RenderCubeUtils.hex_substring_to_color(hex[2:4]),
+                RenderCubeUtils.hex_substring_to_color(hex[4:6]),
+                1.0)
+    
     # Creates material from hex string
     def create_material(hex, material_name):
-        mat = bpy.data.materials.new(material_name)
-        mat.diffuse_color = (100,100,100,1)
+        # Init material
+        material = bpy.data.materials.new(material_name)
         
-        return mat
+        # Set alpha settings to HASHED
+        material.blend_method = 'HASHED'
+        material.shadow_method = 'HASHED'
+        # Hide back surfaces of faces
+        material.use_backface_culling = True
+
+        # Start using nodes
+        material.use_nodes = True
+        # Get Principled BSDF shader node
+        principled_node = material.node_tree.nodes.get('Principled BSDF')
+        
+        # Clear default values
+        principled_node.inputs[4].default_value = 0
+        principled_node.inputs[7].default_value = 0
+        principled_node.inputs[9].default_value = 0
+        principled_node.inputs[13].default_value = 0
+        principled_node.inputs[15].default_value = 0
+        
+        # If HEX color is not pure white
+        if hex != '#ffffff':
+            # Create mix color node
+            mix_node = material.node_tree.nodes.new('ShaderNodeMixRGB')
+            
+            # Set 'B' color to hex value
+            mix_node.inputs[2].default_value = RenderCubeUtils.hex_to_rgb(hex)
+            
+            # Set color mixing to multiplication
+            mix_node.blend_type = 'MULTIPLY'
+
+            # Connect mix node output to base color of Principled BSDF shader node
+            material.node_tree.links.new(principled_node.inputs[0], mix_node.outputs[0])
+        
+        return material
     
     # Creates object in scene from geomentry data
     def create_object(name, vertices, uv, faces, faces_color):

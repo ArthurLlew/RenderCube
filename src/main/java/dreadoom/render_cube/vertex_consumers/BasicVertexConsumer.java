@@ -24,11 +24,6 @@ public abstract class BasicVertexConsumer implements VertexConsumer {
     public List<RenderedVertex> vertices = new ArrayList<>();
 
     /**
-     * Holds consumed vertices colors.
-     */
-    public List<String> vertexColors = new ArrayList<>();
-
-    /**
      * Saved vertex coordinates.
      */
     private final double[] savedVertexCoordinates = new double[3];
@@ -59,25 +54,12 @@ public abstract class BasicVertexConsumer implements VertexConsumer {
                 quad.vertices.add(vertices.get(i + 2));
                 quad.vertices.add(vertices.get(i + 3));
 
-                // If all point share same color
-                if (vertexColors.get(i).equals(vertexColors.get(i + 1)) &&
-                        vertexColors.get(i).equals(vertexColors.get(i + 2)) &&
-                        vertexColors.get(i).equals(vertexColors.get(i + 3))){
-                    // Quad color is set to it
-                    quad.quadColor = vertexColors.get(i);
-                }
-                else{
-                    // Else quad color is pure white (no color is applied to this quad)
-                    quad.quadColor = "#ffffff";
-                }
-
                 // Add to list
                 quads.add(quad);
             }
 
             // Clear now unused vertex information
             vertices.clear();
-            vertexColors.clear();
         }
     }
 
@@ -164,7 +146,7 @@ public abstract class BasicVertexConsumer implements VertexConsumer {
     }
 
     /**
-     * Adds vertex, constructed from saved coordinates and UVs, to vertex list.
+     * Adds vertex, constructed from saved coordinates, UVs and color, to vertex list.
      */
     @Override
     public void endVertex(){
@@ -173,8 +155,8 @@ public abstract class BasicVertexConsumer implements VertexConsumer {
                 savedVertexCoordinates[1],
                 savedVertexCoordinates[2],
                 savedVertexUVs[0],
-                savedVertexUVs[1]));
-        vertexColors.add(savedVertexColor);
+                savedVertexUVs[1],
+                savedVertexColor));
     }
 
     /**

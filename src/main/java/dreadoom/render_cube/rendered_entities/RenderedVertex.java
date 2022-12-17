@@ -30,6 +30,11 @@ public class RenderedVertex {
     public float v;
 
     /**
+     * Vertex color as hex string.
+     */
+    public String color;
+
+    /**
      * Constructs instance from given coordinates.
      * @param x vertex x coordinate
      * @param y vertex y coordinate
@@ -37,11 +42,12 @@ public class RenderedVertex {
      * @param u vertex u coordinate
      * @param v vertex v coordinate
      */
-    public RenderedVertex(double x, double y, double z, float u, float v){
+    public RenderedVertex(double x, double y, double z, float u, float v, String color){
         this.x = x;
         this.y = y;
         this.z = z;
         this.u = u;
         this.v = v;
+        this.color = color;
     }
 }

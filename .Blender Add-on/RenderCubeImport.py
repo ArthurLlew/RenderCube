@@ -3,15 +3,16 @@
 from bpy_extras.io_utils import ImportHelper
 # Blender stuff
 import bpy
-from bpy.props import StringProperty, BoolProperty, EnumProperty
+from bpy.props import StringProperty, BoolProperty
 from bpy.types import Operator
-import bmesh
 # Json reading
 import json
 # Is used, when converting json string to object
 from types import SimpleNamespace
 # Math
 import math
+# Regular expretions
+import re
 
 # Add-on info
 bl_info = {
@@ -116,7 +117,7 @@ class RenderCubeUtils:
                 1.0)
     
     # Creates material from hex string
-    def create_material(hex, material_name):
+    def create_material(material_name, hex):
         # Init material
         material = bpy.data.materials.new(material_name)
         
@@ -141,24 +142,35 @@ class RenderCubeUtils:
         # If HEX color is not pure white
         if hex != '#ffffff':
             # Create mix color node
-            mix_node = material.node_tree.nodes.new('ShaderNodeMixRGB')
+            mix_node = material.node_tree.nodes.new('ShaderNodeMix')
+            # Set to color mixing
+            mix_node.data_type = 'RGBA'
+            # Move it away from Principled BSDF shader node
+            mix_node.location = (-300, 200)
             
-            # Set 'B' color to hex value
-            mix_node.inputs[2].default_value = RenderCubeUtils.hex_to_rgb(hex)
+            # Set factor to 1.0
+            mix_node.inputs[0].default_value = 1.0
+            
+            # Set 'A' input to hex color value
+            mix_node.inputs[6].default_value = RenderCubeUtils.hex_to_rgb(hex)
             
             # Set color mixing to multiplication
             mix_node.blend_type = 'MULTIPLY'
-
+            
             # Connect mix node output to base color of Principled BSDF shader node
-            material.node_tree.links.new(principled_node.inputs[0], mix_node.outputs[0])
+            material.node_tree.links.new(mix_node.outputs[2], principled_node.inputs[0])
         
         return material
     
+    # Checks if material names are equal ('material' is equal to 'material.001')
+    def material_names_equality(template_name, name):
+        return re.fullmatch(template_name + r'(?:.\d\d\d|\Z)', name)
+    
     # Creates object in scene from geomentry data
-    def create_object(name, vertices, uv, faces, faces_color):
+    def create_object(name, vertices, uv, faces, faces_color, search_for_materials):
         # Add a new mesh
         mesh = bpy.data.meshes.new('mesh')
-        # Add a new object using the mesh
+        # Add new object using that mesh
         obj = bpy.data.objects.new(name, mesh)
         
         # Add geometry to mesh
@@ -166,25 +178,59 @@ class RenderCubeUtils:
         # Update geometry
         mesh.update(calc_edges=True)
         
-        # Add UVs
+        # Add UVs to mesh
         uvlayer = mesh.uv_layers.new()
         mesh.uv_layers.active = uvlayer
         for face in mesh.polygons:
             for vert_idx, loop_idx in zip(face.vertices, face.loop_indices):
                 uvlayer.data[loop_idx].uv = (uv[vert_idx][0], 1 - uv[vert_idx][1])
         
-        # Assign materials to faces
+        # Assign materials to faces of mesh
         for face_index, face in enumerate(mesh.polygons):
-            # Name of material
-            material_name = f'{obj.name}_{faces_color[face_index]}'
-            
+            # Name of the material
+            material_name = f'minecraft_{faces_color[face_index]}'
+
+            # Try to find this material name with may be additional number suffix after
+            for material_key in mesh.materials.keys():
+                if RenderCubeUtils.material_names_equality(material_name, material_key):
+                    break
             # If this material is not yet present in mesh
-            if material_name not in mesh.materials:
-                # Create it and add to mesh materials
-                mesh.materials.append(RenderCubeUtils.create_material(faces_color[face_index], material_name))
-            
-            # Assign materials material index to face
-            face.material_index = mesh.materials.find(material_name)
+            else:
+                # If we want to search for such material in scene
+                if search_for_materials:
+                    # Try to find material in scene
+                    for object in bpy.context.scene.objects:
+                        for material_slot in object.material_slots:
+                            if material_slot.name == material_name:
+                                mesh.materials.append(material_slot.material)
+                                # Signal, that material was found
+                                break
+                        else:
+                            # If no material was not found, we continue outer loop (break statement is skipped)
+                            continue
+                        # Signal, that material was found
+                        break
+                    # No such material was found
+                    else:
+                        # Create material and add it to mesh materials
+                        mesh.materials.append(RenderCubeUtils.create_material(material_name, faces_color[face_index]))
+                else:
+                    # Create material and add it to mesh materials
+                    mesh.materials.append(RenderCubeUtils.create_material(material_name, faces_color[face_index]))
+
+            # Find material
+            for material in mesh.materials:
+                if RenderCubeUtils.material_names_equality(material_name, material.name):
+                    # Assign material index in mesh materials to face
+                    face.material_index = mesh.materials.find(material.name)
+                    break
+        
+        # Test
+        vertex_color = mesh.vertex_colors.new()
+        mesh.vertex_colors.active = vertex_color
+        for face in mesh.polygons:
+            for vert_idx, loop_idx in zip(face.vertices, face.loop_indices):
+                vertex_color.data[loop_idx].color = (0.7, 0.7, 0.5, 1)
         
         # Put the object into the scene
         bpy.context.scene.collection.children['Collection'].objects.link(obj)
@@ -207,6 +253,13 @@ class ImportRenderCube(Operator, ImportHelper):
         maxlen=255,  # Max internal buffer length, longer would be clamped.
     )
     
+    # Import option. Does the importer search for already existing materials
+    search_for_materials: BoolProperty(
+        name="Search for existing materials",
+        description="Should importer look for already existing materials or will it create its own ones",
+        default=True,
+    )
+    
     # Executes operator
     def execute(self, context):
         # Import rendercube data
@@ -216,13 +269,28 @@ class ImportRenderCube(Operator, ImportHelper):
         
         # Create blocks object
         if len(vertices[0]) != 0:
-            RenderCubeUtils.create_object("RenderedBlocks", vertices[0], uv[0], faces[0], faces_color[0])
+            RenderCubeUtils.create_object("RenderedBlocks",
+                                          vertices[0],
+                                          uv[0],
+                                          faces[0],
+                                          faces_color[0],
+                                          self.search_for_materials)
         # Create entities object
         if len(vertices[1]) != 0:
-            RenderCubeUtils.create_object("RenderedEntities", vertices[1], uv[1], faces[1], faces_color[1])
+            RenderCubeUtils.create_object("RenderedEntities",
+                                          vertices[1],
+                                          uv[1],
+                                          faces[1],
+                                          faces_color[1],
+                                          self.search_for_materials)
         # Create liquids object
         if len(vertices[2]) != 0:
-            RenderCubeUtils.create_object("RenderedLiquids", vertices[2], uv[2], faces[2], faces_color[2])
+            RenderCubeUtils.create_object("RenderedLiquids",
+                                          vertices[2],
+                                          uv[2],
+                                          faces[2],
+                                          faces_color[2],
+                                          self.search_for_materials)
 
         # Operation was successful
         return {'FINISHED'}

@@ -1,6 +1,7 @@
 package dreadoom.render_cube.utils;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.logging.LogUtils;
 import dreadoom.render_cube.RenderCube;
 import dreadoom.render_cube.rendered_entities.RenderedCube;
 import dreadoom.render_cube.rendered_entities.RenderedModel;
@@ -127,21 +128,24 @@ public class RenderCubeUtils{
                     }
                 }
 
-                // Init liquid consumer
-                LiquidVertexConsumer liquidVertexConsumer = new LiquidVertexConsumer(levelPosition);
+                // If this block contains fluid
+                if (!block.getFluidState().isEmpty()){
+                    // Init liquid consumer
+                    LiquidVertexConsumer liquidVertexConsumer = new LiquidVertexConsumer(levelPosition);
 
-                // Consume liquid vertices
-                Minecraft.getInstance().getBlockRenderer().renderLiquid(
-                        levelPosition,
-                        level,
-                        liquidVertexConsumer,
-                        block,
-                        block.getFluidState());
+                    // Consume liquid vertices
+                    Minecraft.getInstance().getBlockRenderer().renderLiquid(
+                            levelPosition,
+                            level,
+                            liquidVertexConsumer,
+                            block,
+                            block.getFluidState());
 
-                // Convert consumed vertices to quads.
-                liquidVertexConsumer.convertVerticesToQuads();
-                // Add all quads to liquid
-                renderedLiquid.quads.addAll(liquidVertexConsumer.quads);
+                    // Convert consumed vertices to quads.
+                    liquidVertexConsumer.convertVerticesToQuads();
+                    // Add all quads to liquid
+                    renderedLiquid.quads.addAll(liquidVertexConsumer.quads);
+                }
 
                 // Init rendered cube, that will be written to disk
                 RenderedCube renderedCube = new RenderedCube(

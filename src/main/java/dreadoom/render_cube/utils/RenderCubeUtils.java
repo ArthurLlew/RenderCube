@@ -8,6 +8,7 @@ import dreadoom.render_cube.vertex_consumers.CommonVertexConsumer;
 import dreadoom.render_cube.vertex_consumers.DummyMultiBufferSource;
 import dreadoom.render_cube.vertex_consumers.LiquidVertexConsumer;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.commands.CommandSourceStack;
@@ -105,26 +106,17 @@ public class RenderCubeUtils{
                     // Create dummy MultiBufferSource
                     DummyMultiBufferSource dummyMultiBufferSource = new DummyMultiBufferSource();
 
-                    // Get entity renderer
-                    BlockEntityRenderer<BlockEntity> renderer = Minecraft.
-                            getInstance().getBlockEntityRenderDispatcher().getRenderer(entity);
+                    // Render into dummy MultiBufferSource
+                    Minecraft.getInstance().getBlockEntityRenderDispatcher().render(
+                            entity,
+                            1.0F,
+                            new PoseStack(),
+                            dummyMultiBufferSource);
 
-                    // If it is not null
-                    if(renderer != null){
-                        // Render into dummy MultiBufferSource
-                        renderer.render(
-                                entity,
-                                1.0F,
-                                new PoseStack(),
-                                dummyMultiBufferSource,
-                                15728880,
-                                OverlayTexture.NO_OVERLAY);
-
-                        // Convert consumed vertices to quads.
-                        dummyMultiBufferSource.buffer.convertVerticesToQuads();
-                        // Add all quads to entity
-                        renderedEntity.quads.addAll(dummyMultiBufferSource.buffer.quads);
-                    }
+                    // Convert consumed vertices to quads.
+                    dummyMultiBufferSource.buffer.convertVerticesToQuads();
+                    // Add all quads to entity
+                    renderedEntity.quads.addAll(dummyMultiBufferSource.buffer.quads);
                 }
 
                 // If this block contains fluid

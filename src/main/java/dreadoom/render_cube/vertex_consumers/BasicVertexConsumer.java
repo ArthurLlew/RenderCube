@@ -1,7 +1,6 @@
 package dreadoom.render_cube.vertex_consumers;
 
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.mojang.logging.LogUtils;
 import dreadoom.render_cube.rendered_entities.RenderedQuad;
 import dreadoom.render_cube.rendered_entities.RenderedVertex;
 import org.jetbrains.annotations.NotNull;
@@ -65,7 +64,7 @@ public abstract class BasicVertexConsumer implements VertexConsumer {
     }
 
     /**
-     * Processes vertex and adds it to list.
+     * Processes vertex.
      * @param x X vertex coordinate
      * @param y Y vertex coordinate
      * @param z Z vertex coordinate

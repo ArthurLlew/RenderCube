@@ -2,7 +2,6 @@ package dreadoom.render_cube.events;
 
 import com.mojang.logging.LogUtils;
 import dreadoom.render_cube.RenderCube;
-import dreadoom.render_cube.registry.RegistryHandler;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimplePreparableReloadListener;
 import net.minecraft.util.Unit;
@@ -18,7 +17,7 @@ import org.slf4j.Logger;
 import java.io.IOException;
 
 /**
- * Listens to resource reload event.
+ * Mod events handler.
  */
 @Mod.EventBusSubscriber(modid = RenderCube.MODID, bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
 public class ModEventsHandler {
@@ -64,7 +63,7 @@ public class ModEventsHandler {
     }
 
     /**
-     * Mod registry setup.
+     * Mod setup.
      * @param event common setup event
      */
     @SubscribeEvent
@@ -72,9 +71,6 @@ public class ModEventsHandler {
     {
         // Some pre-init code
         LOGGER.info("Starting setup");
-
-        // Registry
-        RegistryHandler.register();
 
         LOGGER.info("Setup successful");
     }

@@ -1,6 +1,5 @@
 package dreadoom.render_cube;
 
-import dreadoom.render_cube.registry.RegistryHandler;
 import dreadoom.render_cube.utils.RenderCubeUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.AbstractTexture;
@@ -27,9 +26,6 @@ public class RenderCube
      */
     public RenderCube()
     {
-        // Registry setup
-        RegistryHandler.init();
-
         // Register ourselves for server and other game events we are interested in
         MinecraftForge.EVENT_BUS.register(this);
     }

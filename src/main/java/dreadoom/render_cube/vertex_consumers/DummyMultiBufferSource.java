@@ -5,6 +5,9 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Is used to capture geometry, produced by entity renderers.
+ */
 public class DummyMultiBufferSource implements MultiBufferSource {
     /**
      * Stored vertex consumer.

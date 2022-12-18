@@ -1,7 +1,6 @@
 package dreadoom.render_cube.utils;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.logging.LogUtils;
 import dreadoom.render_cube.RenderCube;
 import dreadoom.render_cube.rendered_entities.RenderedCube;
 import dreadoom.render_cube.rendered_entities.RenderedModel;

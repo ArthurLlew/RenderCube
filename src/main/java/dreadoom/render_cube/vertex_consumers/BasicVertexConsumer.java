@@ -1,6 +1,7 @@
 package dreadoom.render_cube.vertex_consumers;
 
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.mojang.logging.LogUtils;
 import dreadoom.render_cube.rendered_entities.RenderedQuad;
 import dreadoom.render_cube.rendered_entities.RenderedVertex;
 import org.jetbrains.annotations.NotNull;
@@ -139,8 +140,12 @@ public abstract class BasicVertexConsumer implements VertexConsumer {
      */
     @Override
     public @NotNull VertexConsumer color(int r, int g, int b, int a){
-        String buf = Integer.toHexString(new Color(r, g, b, a).getRGB());
-        savedVertexColor = "#" + buf.substring(buf.length()-6);
+        try {
+            String buf = Integer.toHexString(new Color(r, g, b, a).getRGB());
+            savedVertexColor = "#" + buf.substring(buf.length()-6);
+        } catch (Throwable throwable) {
+            savedVertexColor = "#ffffff";
+        }
 
         return this;
     }

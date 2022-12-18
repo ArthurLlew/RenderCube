@@ -1,6 +1,7 @@
 package dreadoom.render_cube;
 
 import dreadoom.render_cube.registry.RegistryHandler;
+import dreadoom.render_cube.utils.RenderCubeUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.AbstractTexture;
 import net.minecraft.client.renderer.texture.TextureAtlas;
@@ -38,6 +39,9 @@ public class RenderCube
      * @throws IOException if file exceptions are encountered
      */
     public static void dumpTextureMaps() throws IOException {
+        // Validate mod directory
+        RenderCubeUtils.checkAndCreateModDir();
+
         // Gets minecraft texture manager
         TextureManager textureManager = Minecraft.getInstance().getTextureManager();
 

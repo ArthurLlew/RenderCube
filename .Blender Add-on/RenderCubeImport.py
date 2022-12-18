@@ -166,7 +166,7 @@ class RenderCubeUtils:
         return re.fullmatch(template_name + r'(?:.\d\d\d|\Z)', name)
     
     # Creates object in scene from geomentry data
-    def create_object(name, vertices, uv, faces, vertices_colors, search_for_materials):
+    def create_object(name, vertices, uv, faces, vertices_colors, material_name, search_for_materials):
         # Add a new mesh
         mesh = bpy.data.meshes.new('mesh')
         # Add new object using that mesh
@@ -193,10 +193,7 @@ class RenderCubeUtils:
         
         # Assign materials to faces of mesh
         for face in mesh.polygons:
-            # Name of the material
-            material_name = name
-
-            # Try to find this material name with may be additional number suffix after
+            # Try to find material name with may be additional number suffix in mesh materials
             for material_key in mesh.materials.keys():
                 if RenderCubeUtils.material_names_equality(material_name, material_key):
                     break
@@ -239,23 +236,23 @@ class RenderCubeUtils:
 class ImportRenderCube(Operator, ImportHelper):
     """RenderCube data import"""
     # important since its how bpy.ops.import_test.some_data is constructed
-    bl_idname = "rendercube_import.rendercube_data"
-    bl_label = "Import RenderCube Data"
+    bl_idname = 'rendercube_import.rendercube_data'
+    bl_label = 'Import RenderCube Data'
     
     # ImportHelper mixin class uses this
-    filename_ext = ".json"
+    filename_ext = '.json'
     
     # File explorer searsh optiond
     filter_glob: StringProperty(
-        default="*.json",
+        default='*.json',
         options={'HIDDEN'},
         maxlen=255,  # Max internal buffer length, longer would be clamped.
     )
     
     # Import option. Does the importer search for already existing materials
     search_for_materials: BoolProperty(
-        name="Search for existing materials",
-        description="Should importer look for already existing materials or will it create its own ones",
+        name='Search for existing materials',
+        description='Should importer look for already existing materials or will it create its own ones',
         default=True,
     )
     
@@ -268,27 +265,30 @@ class ImportRenderCube(Operator, ImportHelper):
         
         # Create blocks object
         if len(vertices[0]) != 0:
-            RenderCubeUtils.create_object("RenderedBlocks",
+            RenderCubeUtils.create_object('RenderedBlocks',
                                           vertices[0],
                                           uv[0],
                                           faces[0],
                                           vertices_colors[0],
+                                          'minecraft_blocks',
                                           self.search_for_materials)
         # Create entities object
         if len(vertices[1]) != 0:
-            RenderCubeUtils.create_object("RenderedEntities",
+            RenderCubeUtils.create_object('RenderedEntities',
                                           vertices[1],
                                           uv[1],
                                           faces[1],
                                           vertices_colors[1],
+                                          'minecraft_entities',
                                           self.search_for_materials)
         # Create liquids object
         if len(vertices[2]) != 0:
-            RenderCubeUtils.create_object("RenderedLiquids",
+            RenderCubeUtils.create_object('RenderedLiquids',
                                           vertices[2],
                                           uv[2],
                                           faces[2],
                                           vertices_colors[2],
+                                          'minecraft_liquids',
                                           self.search_for_materials)
 
         # Operation was successful
@@ -297,7 +297,7 @@ class ImportRenderCube(Operator, ImportHelper):
 
 # Only needed if you want to add into a dynamic menu
 def menu_func_import(self, context):
-    self.layout.operator(ImportRenderCube.bl_idname, text="RenderCube (.json)")
+    self.layout.operator(ImportRenderCube.bl_idname, text='RenderCube (.json)')
 
 # Register
 def register():

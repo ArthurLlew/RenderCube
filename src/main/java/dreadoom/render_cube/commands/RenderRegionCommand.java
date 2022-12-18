@@ -44,6 +44,14 @@ public class RenderRegionCommand {
             int region_min_z = Math.min(position1.getZ(), position2.getZ());
             int region_max_z = Math.max(position1.getZ(), position2.getZ());
 
+            // Region size by X or Z can't be > 450
+            if (region_max_x - region_min_x > 450){
+                throw new IllegalArgumentException("Region size by X axis can't be > 450");
+            }
+            if (region_max_z - region_min_z > 450){
+                throw new IllegalArgumentException("Region size by Z axis can't be > 450");
+            }
+
             // Loop over coordinates
             for(int x = region_min_x; x <= region_max_x; x++){
                 for(int y = region_min_y; y <= region_max_y; y++){

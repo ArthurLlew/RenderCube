@@ -1,7 +1,7 @@
 package dreadoom.render_cube.events;
 
 import dreadoom.render_cube.RenderCube;
-import dreadoom.render_cube.commands.RenderBlockCommand;
+import dreadoom.render_cube.commands.RenderCubeCommand;
 import dreadoom.render_cube.commands.RenderRegionCommand;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.event.RegisterCommandsEvent;
@@ -21,7 +21,7 @@ public class ModRegisterEventsHandler {
     @SubscribeEvent
     public static void onCommandRegister(RegisterCommandsEvent event){
         // Render block command
-        new RenderBlockCommand(event.getDispatcher());
+        new RenderCubeCommand(event.getDispatcher());
 
         // Render region command
         new RenderRegionCommand(event.getDispatcher());

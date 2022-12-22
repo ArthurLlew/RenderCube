@@ -16,11 +16,11 @@ import re
 
 # Add-on info
 bl_info = {
-    "name": "RenderCubeImport",
-    "author": "Serius",
+    "name": "RenderedCubeImport",
+    "author": "Dreadoom",
     "version": (1, 0),
     "blender": (2, 80, 0),
-    "description": "Imports RenderCube data",
+    "description": "Imports RenderedCube data",
     "warning": "",
     "doc_url": "",
     "category": "Import-Export",
@@ -237,7 +237,7 @@ class ImportRenderCube(Operator, ImportHelper):
     """RenderCube data import"""
     # important since its how bpy.ops.import_test.some_data is constructed
     bl_idname = 'rendercube_import.rendercube_data'
-    bl_label = 'Import RenderCube Data'
+    bl_label = 'Import RenderedCube Data'
     
     # ImportHelper mixin class uses this
     filename_ext = '.json'
@@ -297,7 +297,7 @@ class ImportRenderCube(Operator, ImportHelper):
 
 # Only needed if you want to add into a dynamic menu
 def menu_func_import(self, context):
-    self.layout.operator(ImportRenderCube.bl_idname, text='RenderCube (.json)')
+    self.layout.operator(ImportRenderCube.bl_idname, text='RenderedCube (.json)')
 
 # Register
 def register():

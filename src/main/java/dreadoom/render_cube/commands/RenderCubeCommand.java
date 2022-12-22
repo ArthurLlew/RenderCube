@@ -12,17 +12,17 @@ import net.minecraft.network.chat.TextComponent;
 
 import java.io.IOException;
 
-public class RenderBlockCommand {
+public class RenderCubeCommand {
     /**
      * Is used to define command pattern.
     **/
-    public RenderBlockCommand(CommandDispatcher<CommandSourceStack> dispatcher){
+    public RenderCubeCommand(CommandDispatcher<CommandSourceStack> dispatcher){
         dispatcher.register(Commands.literal(RenderCube.MODID)
                 .requires(source -> source.hasPermission(2))
                 .then(Commands.literal("render")
-                        .then(Commands.literal("block")
+                        .then(Commands.literal("cube")
                                 .then(Commands.argument("pos", BlockPosArgument.blockPos())
-                                        .executes((command) -> renderBlock(command.getSource(),
+                                        .executes((command) -> renderCube(command.getSource(),
                                                 BlockPosArgument.getLoadedBlockPos(command, "pos")))))));
     }
 
@@ -31,7 +31,7 @@ public class RenderBlockCommand {
      * @param source command executioner
      * @param position block position in world
      **/
-    private int renderBlock(CommandSourceStack source, BlockPos position){
+    private int renderCube(CommandSourceStack source, BlockPos position){
         try(JsonSequenceWriter jsonWriter = new JsonSequenceWriter(RenderCube.MODID + "\\rendered_cube.json")){
             // Process block
             boolean success = RenderCubeUtils.renderBlock(

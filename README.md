@@ -43,8 +43,8 @@ for default material names, that are created with this addon.
 You can turn this off, if you export mesh with different
 texture atlases into scene with existing materials.
 
-### **Important note:**
-Minecraft uses overlapping faces. This
+### **Important notes:**
+1) Minecraft uses overlapping faces. This
 means, that some objects cannot be rendered in cycles and in
 eevee  require extra tweaks. This is, for example, true for
 grass blocks. They have extra outer faces on sides (they hold
@@ -56,6 +56,10 @@ time they are obviously visible, because most faces tend to
 occupy one square texture part in atlas), and separate them all
 into another object. Then duplicate material on that object and
 assign material _Blend Mode_ to _Alpha Blend_.
+2) Mod currently does not support _paintings_, _item frames_ and
+_armor stands_.
+3) Mod currently does not support mods like _chisel and bits_
+which use custom renders.
 
 Credits:
 ------------------------------

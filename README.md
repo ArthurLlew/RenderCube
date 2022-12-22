@@ -43,7 +43,8 @@ for default material names, that are created with this addon.
 You can turn this off, if you export mesh with different
 texture atlases into scene with existing materials.
 
-**Important note:** Minecraft uses overlapping faces. This
+### **Important note:**
+Minecraft uses overlapping faces. This
 means, that some objects cannot be rendered in cycles and in
 eevee  require extra tweaks. This is, for example, true for
 grass blocks. They have extra outer faces on sides (they hold

@@ -7,17 +7,17 @@ public class RenderedCube {
     /**
      * Cube X coordinate.
      */
-    public float x;
+    public double x;
 
     /**
      * Cube Y coordinate.
      */
-    public float y;
+    public double y;
 
     /**
      * Cube Z coordinate.
      */
-    public float z;
+    public double z;
 
     /**
      * Contains block geometry.
@@ -41,9 +41,9 @@ public class RenderedCube {
      * @param z block z coordinate
      */
     public RenderedCube(
-            float x,
-            float y,
-            float z,
+            double x,
+            double y,
+            double z,
             RenderedModel renderedBlock,
             RenderedModel renderedEntity,
             RenderedModel renderedLiquid){

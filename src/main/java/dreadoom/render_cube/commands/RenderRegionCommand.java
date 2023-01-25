@@ -3,6 +3,7 @@ package dreadoom.render_cube.commands;
 import com.mojang.brigadier.CommandDispatcher;
 import dreadoom.render_cube.RenderCube;
 import dreadoom.render_cube.utils.JsonSequenceWriter;
+import dreadoom.render_cube.utils.RenderCubeConstants;
 import dreadoom.render_cube.utils.RenderCubeUtils;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
@@ -35,7 +36,9 @@ public class RenderRegionCommand {
      * @param position2 second region corner position in world
      **/
     private int renderRegion(CommandSourceStack source, BlockPos position1, BlockPos position2){
-        try(JsonSequenceWriter jsonWriter = new JsonSequenceWriter(RenderCube.MODID + "\\rendered_cube.json")){
+        try(JsonSequenceWriter jsonWriter = new JsonSequenceWriter(
+                RenderCube.MODID + "\\" + RenderCubeConstants.exportedFileName)){
+
             // Min and max coordinates over each axes
             int region_min_x = Math.min(position1.getX(), position2.getX());
             int region_max_x = Math.max(position1.getX(), position2.getX());
@@ -59,16 +62,13 @@ public class RenderRegionCommand {
                         // Current block position
                         BlockPos position = new BlockPos(x, y, z);
 
-                        // position.mutable().setWithOffset(position, quad.getDirection())
-
-                        // Process block
-                        boolean success = RenderCubeUtils.renderBlock(
+                        // Process cube
+                        boolean success = RenderCubeUtils.renderCube(
                                 source, jsonWriter, position, new BlockPos(
                                         position.getX() - region_min_x,
                                         position.getY() - region_min_y,
                                         position.getZ() - region_min_z));
 
-                        // We finish with success only if RenderCubeUtils.RenderBlock(...) returned true
                         if(!success){
                             // Finish with failure
                             return -1;
@@ -77,22 +77,34 @@ public class RenderRegionCommand {
                 }
             }
 
+            // Process region entities
+            boolean success = RenderCubeUtils.renderRegionEntities(
+                    source,
+                    jsonWriter,
+                    new int[]{region_min_x, region_min_y, region_min_z, region_max_x, region_max_y, region_max_z});
+
+            if(!success){
+                // Finish with failure
+                return -1;
+            }
+
             // Notify about success
-            source.sendSuccess(new TextComponent("Operation succeeded."), true);
+            source.sendSuccess(new TextComponent(RenderCubeConstants.successMessage), true);
 
             // Finish with success
             return 1;
         }
         catch (IOException e){
             // Notify about exception
-            source.sendFailure(new TextComponent("File error: " + e));
+            source.sendFailure(new TextComponent(RenderCubeConstants.fileExceptionMessage + e));
 
             // Finish with failure
             return -1;
         }
         catch(Exception e) {
             // Notify about exception
-            source.sendFailure(new TextComponent("Render region: " + e));
+            source.sendFailure(
+                    new TextComponent(new Throwable().getStackTrace()[0].getMethodName() + ": " + e));
 
             // Finish with failure
             return -1;

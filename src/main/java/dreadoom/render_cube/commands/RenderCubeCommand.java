@@ -3,6 +3,7 @@ package dreadoom.render_cube.commands;
 import com.mojang.brigadier.CommandDispatcher;
 import dreadoom.render_cube.RenderCube;
 import dreadoom.render_cube.utils.JsonSequenceWriter;
+import dreadoom.render_cube.utils.RenderCubeConstants;
 import dreadoom.render_cube.utils.RenderCubeUtils;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
@@ -32,33 +33,51 @@ public class RenderCubeCommand {
      * @param position block position in world
      **/
     private int renderCube(CommandSourceStack source, BlockPos position){
-        try(JsonSequenceWriter jsonWriter = new JsonSequenceWriter(RenderCube.MODID + "\\rendered_cube.json")){
+        try(JsonSequenceWriter jsonWriter = new JsonSequenceWriter(
+                RenderCube.MODID + "\\" + RenderCubeConstants.exportedFileName)){
+
             // Process block
-            boolean success = RenderCubeUtils.renderBlock(
+            boolean success = RenderCubeUtils.renderCube(
                     source, jsonWriter, position, new BlockPos(0, 0 , 0));
 
-            // We finish with success only if RenderCubeUtils.RenderBlock(...) returned true
+            if(!success){
+                // Finish with failure
+                return -1;
+            }
+
+            // Process region entities
+            success = RenderCubeUtils.renderRegionEntities(
+                    source,
+                    jsonWriter,
+                    new int[]{position.getX(),
+                            position.getY(),
+                            position.getZ(),
+                            position.getX() + 1,
+                            position.getY() + 1,
+                            position.getZ() + 1});
+
             if(!success){
                 // Finish with failure
                 return -1;
             }
 
             // Notify about success
-            source.sendSuccess(new TextComponent("Operation succeeded."), true);
+            source.sendSuccess(new TextComponent(RenderCubeConstants.successMessage), true);
 
             // Finish with success
             return 1;
         }
         catch (IOException e){
             // Notify about exception
-            source.sendFailure(new TextComponent("File error: " + e));
+            source.sendFailure(new TextComponent(RenderCubeConstants.fileExceptionMessage + e));
 
             // Finish with failure
             return -1;
         }
         catch(Exception e) {
             // Notify about exception
-            source.sendFailure(new TextComponent("Render block: " + e));
+            source.sendFailure(
+                    new TextComponent(new Throwable().getStackTrace()[0].getMethodName() + ": " + e));
 
             // Finish with failure
             return -1;

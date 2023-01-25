@@ -71,7 +71,6 @@ public class ModEventsHandler {
     {
         // Some pre-init code
         LOGGER.info("Starting setup");
-
         LOGGER.info("Setup successful");
     }
 }

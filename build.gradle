@@ -182,6 +182,7 @@ dependencies {
 
     // Mods
     implementation fg.deobf("curse.maven:conquest-reforged-250077:3854053")
+    implementation fg.deobf("curse.maven:chisel-and-bits-231095:3957651")
 
     // Java json api
     minecraftLibrary 'com.fasterxml.jackson.core:jackson-core:2.14.0'

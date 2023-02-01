@@ -53,6 +53,7 @@ public class RenderCubeUtils{
      * @param jsonWriter json sequence writer
      * @param levelPosition block position in level
      * @param regionPosition block position in region
+     * @return {@link false} if function succeeded, {@link true} otherwise.
      **/
     public static boolean renderCube(@NotNull CommandSourceStack source,
                                      @NotNull JsonSequenceWriter jsonWriter,
@@ -154,7 +155,7 @@ public class RenderCubeUtils{
             }
 
             // Operation was successful
-            return true;
+            return false;
 
         } catch(Exception e) {
             // Notify about exception
@@ -162,13 +163,21 @@ public class RenderCubeUtils{
                     new TextComponent(new Throwable().getStackTrace()[0].getMethodName() + ": " + e));
 
             // We encountered errors
-            return false;
+            return true;
         }
     }
 
-    public  static boolean renderRegionEntities(@NotNull CommandSourceStack source,
-                                                @NotNull JsonSequenceWriter jsonWriter,
-                                                int[] regionCoordinates){
+    /**
+     * Renders all entities in region.
+     * @param source command executioner
+     * @param jsonWriter json sequence writer
+     * @param regionCoordinates array that holds region_min_x, region_min_y, region_min_z, region_max_x, region_max_y,
+     *                          region_max_z positions of region in world
+     * @return {@link false} if function succeeded, {@link true} otherwise.
+     **/
+    public static boolean renderRegionEntities(@NotNull CommandSourceStack source,
+                                               @NotNull JsonSequenceWriter jsonWriter,
+                                               int[] regionCoordinates){
         try{
             // Get level, where command is executed
             ServerLevel level = source.getLevel();
@@ -191,8 +200,6 @@ public class RenderCubeUtils{
 
             // Process entities
             for (Entity entity: entities) {
-                source.sendSuccess(new TextComponent("Captured entity: " + entity.getType()), true);
-
                 // Create dummy MultiBufferSource
                 DummyMultiBufferSource dummyMultiBufferSource = new DummyMultiBufferSource();
 
@@ -226,7 +233,8 @@ public class RenderCubeUtils{
                 jsonWriter.seqWriter.write(renderedCube);
             }
 
-            return true;
+            // Operation was successful
+            return false;
 
         } catch(Exception e) {
             // Notify about exception
@@ -234,7 +242,50 @@ public class RenderCubeUtils{
                     new TextComponent(new Throwable().getStackTrace()[0].getMethodName() + ": " + e));
 
             // We encountered errors
-            return false;
+            return true;
+        }
+    }
+
+    /**
+     * Renders world region.
+     * @see RenderCubeUtils#renderRegionEntities(CommandSourceStack, JsonSequenceWriter, int[])
+     **/
+    public static boolean renderRegion(@NotNull CommandSourceStack source,
+                                       @NotNull JsonSequenceWriter jsonWriter,
+                                       int[] regionCoordinates){
+        try{
+            // Loop over coordinates included in region
+            for(int x = regionCoordinates[0]; x <= regionCoordinates[3]; x++){
+                for(int y = regionCoordinates[1]; y <= regionCoordinates[4]; y++){
+                    for(int z = regionCoordinates[2]; z <= regionCoordinates[5]; z++){
+                        // Process cube
+                        if(RenderCubeUtils.renderCube(
+                                source,
+                                jsonWriter,
+                                new BlockPos(x, y, z),
+                                new BlockPos(
+                                        x - regionCoordinates[0],
+                                        y - regionCoordinates[1],
+                                        z - regionCoordinates[2])))
+                            // If function failed, finish with failure
+                            return true;
+                    }
+                }
+            }
+
+            // Process region entities (result of this function determines final result of region rendering operation)
+            return RenderCubeUtils.renderRegionEntities(
+                    source,
+                    jsonWriter,
+                    regionCoordinates);
+
+        } catch(Exception e) {
+            // Notify about exception
+            source.sendFailure(
+                    new TextComponent(new Throwable().getStackTrace()[0].getMethodName() + ": " + e));
+
+            // We encountered errors
+            return true;
         }
     }
 }

@@ -35,14 +35,13 @@ public class RenderCubeCommand {
     private int renderCube(CommandSourceStack source, BlockPos position){
         try(JsonSequenceWriter jsonWriter = new JsonSequenceWriter(
                 RenderCube.MODID + "\\" + RenderCubeConstants.exportedFileName)){
-            // Process cube (region of 1 block)
-            if(RenderCubeUtils.renderRegion(
+
+            // Render cube (region of 1 block)
+            RenderCubeUtils.renderRegion(
                     source,
                     jsonWriter,
                     new int[]{position.getX(), position.getY(), position.getZ(), position.getX(), position.getY(),
-                            position.getZ()}))
-                // If function failed, finish with failure
-                return -1;
+                            position.getZ()});
 
             // Notify about success
             source.sendSuccess(new TextComponent(RenderCubeConstants.successMessage), true);

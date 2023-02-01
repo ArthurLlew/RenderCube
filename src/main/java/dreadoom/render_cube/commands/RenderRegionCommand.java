@@ -55,13 +55,11 @@ public class RenderRegionCommand {
                 throw new IllegalArgumentException("Region size by Z axis can't be > 450");
             }
 
-            // Process cube (region of 1 block)
-            if(RenderCubeUtils.renderRegion(
+            // Render region
+            RenderCubeUtils.renderRegion(
                     source,
                     jsonWriter,
-                    new int[]{region_min_x, region_min_y, region_min_z, region_max_x, region_max_y, region_max_z}))
-                // If function failed, finish with failure
-                return -1;
+                    new int[]{region_min_x, region_min_y, region_min_z, region_max_x, region_max_y, region_max_z});
 
             // Notify about success
             source.sendSuccess(new TextComponent(RenderCubeConstants.successMessage), true);

@@ -40,6 +40,7 @@ public class RenderedCube {
      * @param y block y coordinate
      * @param z block z coordinate
      */
+    // TODO: refactor geometry saving logic
     public RenderedCube(
             double x,
             double y,

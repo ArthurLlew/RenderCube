@@ -9,11 +9,18 @@ import org.jetbrains.annotations.NotNull;
  */
 public class LiquidVertexConsumer extends BasicVertexConsumer {
     /**
+     * Liquid position in level.
+     */
+    private final BlockPos levelPosition;
+
+    /**
      * Constructs instance from position in region.
      * @param regionPosition liquid position in region
      */
-    public LiquidVertexConsumer(BlockPos regionPosition){
+    public LiquidVertexConsumer(BlockPos regionPosition, BlockPos levelPosition){
         super(regionPosition);
+
+        this.levelPosition = levelPosition;
     }
 
     /**
@@ -26,8 +33,8 @@ public class LiquidVertexConsumer extends BasicVertexConsumer {
     @Override
     public @NotNull VertexConsumer vertex(double x, double y, double z){
         return super.vertex(
-                x - (regionPosition.getX() & 15),
-                y - (regionPosition.getY() & 15),
-                z - (regionPosition.getZ() & 15));
+                x - (levelPosition.getX() & 15),
+                y - (levelPosition.getY() & 15),
+                z - (levelPosition.getZ() & 15));
     }
 }

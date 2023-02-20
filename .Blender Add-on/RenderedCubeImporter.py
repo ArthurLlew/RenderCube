@@ -1,18 +1,20 @@
+# Operating system
+import os
+# Regular expretions
+import re
+# Math
+import math
+# Json reading
+import json
+# Is used, when converting json string to object
+from types import SimpleNamespace
 # ImportHelper is a helper class, defines filename and
 # invoke() function which calls the file selector.
 from bpy_extras.io_utils import ImportHelper
 # Blender stuff
 import bpy
-from bpy.props import StringProperty, BoolProperty
-from bpy.types import Operator
-# Json reading
-import json
-# Is used, when converting json string to object
-from types import SimpleNamespace
-# Math
-import math
-# Regular expretions
-import re
+from bpy.props import StringProperty, BoolProperty, CollectionProperty
+from bpy.types import Operator, OperatorFileListElement
 
 # Add-on info
 bl_info = {
@@ -29,68 +31,37 @@ bl_info = {
 # Add-on utils
 class RenderCubeUtils:
     # Reads file contents
-    def import_rendercube(context, filepath):
+    def import_data(filepath):
         # Open file
         with open(filepath, 'r', encoding='utf-8') as f:
-            # Read json object
-            data = json.load(f)
-
-        # Notify about success
-        return data
+            # Read json object and return contents
+            return json.load(f)
     
-    # Read quads from rendered model
-    def import_quads(rendered_model, block_x, block_y, block_z, vertices, uv, faces, vertices_colors):
-        # For block guads
-        for quad in rendered_model['quads']:
+    # Creates vertices and faces from imported data
+    def parse_loaded_data(loaded_data):
+        # Unit data
+        vertices, uv, vertices_colors, faces = [], [], [], []
+        
+        # For guad in loaded data
+        for quad in loaded_data:
             # Current quad first vertex index
             face_first_vert_index = len(vertices)
-
+            
             # For vertex in quad
             for vertex in quad['vertices']:
-                # Append vertex position which is equal to its position + block position
-                vertices.append((block_x + vertex['z'], block_y + vertex['x'], block_z + vertex['y']))
+                # Append vertex position
+                vertices.append((vertex['z'], vertex['x'], vertex['y']))
                     
                 # Append U and V coordinates for this vertex
                 uv.append((vertex['u'], vertex['v']))
                 
-                # Append vertex color
+                # Append this vertex color
                 vertices_colors.append(vertex['color'])
             
             # Append vertices indices of face
             faces.append(tuple(range(face_first_vert_index, len(vertices))))
-    
-    # Creates vertices and faces from imported data
-    def import_geometry(data):
-        
-        vertices, uv, faces, vertices_colors = [[], [], []], [[], [], []], [[], [], []], [[], [], []]
-        
-        # Iterating through the blocks
-        for block_data in data:
-            RenderCubeUtils.import_quads(block_data['renderedBlock'],
-                                         block_data['z'],
-                                         block_data['x'],
-                                         block_data['y'],
-                                         vertices[0],
-                                         uv[0],
-                                         faces[0],
-                                         vertices_colors[0])
-            RenderCubeUtils.import_quads(block_data['renderedEntity'],
-                                         block_data['z'],
-                                         block_data['x'],
-                                         block_data['y'],
-                                         vertices[1],
-                                         uv[1],
-                                         faces[1],
-                                         vertices_colors[1])
-            RenderCubeUtils.import_quads(block_data['renderedLiquid'],
-                                         block_data['z'],
-                                         block_data['x'],
-                                         block_data['y'],
-                                         vertices[2],
-                                         uv[2],
-                                         faces[2],
-                                         vertices_colors[2])
-        return vertices, uv, faces, vertices_colors
+
+        return vertices, uv, vertices_colors, faces
     
     # Convert hex substring (like 'ff') to linear channel
     def hex_substring_to_color(hex_substring):
@@ -166,7 +137,10 @@ class RenderCubeUtils:
         return re.fullmatch(template_name + r'(?:.\d\d\d|\Z)', name)
     
     # Creates object in scene from geomentry data
-    def create_object(name, vertices, uv, faces, vertices_colors, material_name, search_for_materials):
+    def create_object(name, loaded_data, material_name, search_for_materials):
+        # Parse loaded data to vertices, UVs, vertices_colors and faces
+        vertices, uv, vertices_colors, faces = RenderCubeUtils.parse_loaded_data(loaded_data)
+        
         # Add a new mesh
         mesh = bpy.data.meshes.new('mesh')
         # Add new object using that mesh
@@ -235,7 +209,7 @@ class RenderCubeUtils:
 # Import operator
 class ImportRenderCube(Operator, ImportHelper):
     """RenderCube data import"""
-    # important since its how bpy.ops.import_test.some_data is constructed
+    # Important since its how bpy.ops.import_test.some_data is constructed
     bl_idname = 'rendercube_import.rendercube_data'
     bl_label = 'Import RenderedCube Data'
     
@@ -249,47 +223,31 @@ class ImportRenderCube(Operator, ImportHelper):
         maxlen=255,  # Max internal buffer length, longer would be clamped.
     )
     
-    # Import option. Does the importer search for already existing materials
+    # Directory, containing files for import
+    directory: StringProperty(subtype='DIR_PATH')
+    
+    # Imported files (each one contains field with name of file)
+    files: CollectionProperty(
+        name="BVH files",
+        type=OperatorFileListElement,
+        )
+    
+    # Import option (Does the importer search for already existing materials?)
     search_for_materials: BoolProperty(
         name='Search for existing materials',
         description='Should importer look for already existing materials or will it create its own ones',
         default=True,
     )
-    
+
     # Executes operator
     def execute(self, context):
-        # Import rendercube data
-        data = RenderCubeUtils.import_rendercube(context, self.filepath)
-        # Convert it to another form
-        vertices, uv, faces, vertices_colors = RenderCubeUtils.import_geometry(data)
-        
-        # Create blocks object
-        if len(vertices[0]) != 0:
-            RenderCubeUtils.create_object('RenderedBlocks',
-                                          vertices[0],
-                                          uv[0],
-                                          faces[0],
-                                          vertices_colors[0],
-                                          'minecraft_blocks',
-                                          self.search_for_materials)
-        # Create entities object
-        if len(vertices[1]) != 0:
-            RenderCubeUtils.create_object('RenderedEntities',
-                                          vertices[1],
-                                          uv[1],
-                                          faces[1],
-                                          vertices_colors[1],
-                                          'minecraft_entities',
-                                          self.search_for_materials)
-        # Create liquids object
-        if len(vertices[2]) != 0:
-            RenderCubeUtils.create_object('RenderedLiquids',
-                                          vertices[2],
-                                          uv[2],
-                                          faces[2],
-                                          vertices_colors[2],
-                                          'minecraft_liquids',
-                                          self.search_for_materials)
+        # For each imported file
+        for file in self.files:
+            # Import data
+            loaded_data = RenderCubeUtils.import_data(os.path.join(self.directory, file.name))
+            
+            # Create object from loaded data
+            RenderCubeUtils.create_object(file.name, loaded_data, file.name, self.search_for_materials)
 
         # Operation was successful
         return {'FINISHED'}

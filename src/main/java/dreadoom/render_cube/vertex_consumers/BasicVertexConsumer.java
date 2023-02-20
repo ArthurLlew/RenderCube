@@ -15,9 +15,9 @@ import java.util.List;
  */
 public abstract class BasicVertexConsumer implements VertexConsumer {
     /**
-     * Liquid position in region.
+     * Position in region.
      */
-    public final BlockPos regionPosition;
+    private final BlockPos regionPosition;
 
     /**
      * Holds consumed vertices.

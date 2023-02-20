@@ -97,7 +97,7 @@ public class RenderCubeUtils{
             // If this block contains fluid
             if (!block.getFluidState().isEmpty()){
                 // Init liquid consumer
-                LiquidVertexConsumer liquidVertexConsumer = new LiquidVertexConsumer(levelPosition);
+                LiquidVertexConsumer liquidVertexConsumer = new LiquidVertexConsumer(levelPosition, levelPosition);
 
                 // Consume liquid vertices
                 Minecraft.getInstance().getBlockRenderer().renderLiquid(

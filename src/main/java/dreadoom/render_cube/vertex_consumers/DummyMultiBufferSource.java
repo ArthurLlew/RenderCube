@@ -3,6 +3,7 @@ package dreadoom.render_cube.vertex_consumers;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.core.BlockPos;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -12,7 +13,15 @@ public class DummyMultiBufferSource implements MultiBufferSource {
     /**
      * Stored vertex consumer.
      */
-    public final BasicVertexConsumer buffer = new CommonVertexConsumer();
+    public final BasicVertexConsumer buffer;
+
+    /**
+     * Constructs instance from position in region.
+     * @param regionPosition liquid position in region
+     */
+    public DummyMultiBufferSource(BlockPos regionPosition){
+        buffer = new CommonVertexConsumer(regionPosition);
+    }
 
     /**
      * Returns stored instance of {@link CommonVertexConsumer}.

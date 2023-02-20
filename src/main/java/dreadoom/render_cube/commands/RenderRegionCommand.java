@@ -2,7 +2,7 @@ package dreadoom.render_cube.commands;
 
 import com.mojang.brigadier.CommandDispatcher;
 import dreadoom.render_cube.RenderCube;
-import dreadoom.render_cube.utils.JsonSequenceWriter;
+import dreadoom.render_cube.utils.JsonWriters;
 import dreadoom.render_cube.utils.RenderCubeConstants;
 import dreadoom.render_cube.utils.RenderCubeUtils;
 import net.minecraft.commands.CommandSourceStack;
@@ -10,8 +10,6 @@ import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.coordinates.BlockPosArgument;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.TextComponent;
-
-import java.io.IOException;
 
 public class RenderRegionCommand {
     /**
@@ -36,9 +34,7 @@ public class RenderRegionCommand {
      * @param position2 second region corner position in world
      **/
     private int renderRegion(CommandSourceStack source, BlockPos position1, BlockPos position2){
-        try(JsonSequenceWriter jsonWriter = new JsonSequenceWriter(
-                RenderCube.MODID + "\\" + RenderCubeConstants.exportedFileName)){
-
+        try (JsonWriters jsonWriters = new JsonWriters()){
             // Min and max coordinates over each axes
             int region_min_x = Math.min(position1.getX(), position2.getX());
             int region_max_x = Math.max(position1.getX(), position2.getX());
@@ -48,17 +44,17 @@ public class RenderRegionCommand {
             int region_max_z = Math.max(position1.getZ(), position2.getZ());
 
             // Region size by X or Z can't be > 450
-            if (region_max_x - region_min_x > 450){
+            if (region_max_x - region_min_x > 450) {
                 throw new IllegalArgumentException("Region size by X axis can't be > 450");
             }
-            if (region_max_z - region_min_z > 450){
+            if (region_max_z - region_min_z > 450) {
                 throw new IllegalArgumentException("Region size by Z axis can't be > 450");
             }
 
             // Render region
             RenderCubeUtils.renderRegion(
                     source,
-                    jsonWriter,
+                    jsonWriters,
                     new int[]{region_min_x, region_min_y, region_min_z, region_max_x, region_max_y, region_max_z});
 
             // Notify about success
@@ -66,13 +62,6 @@ public class RenderRegionCommand {
 
             // Finish with success
             return 1;
-        }
-        catch (IOException e){
-            // Notify about exception
-            source.sendFailure(new TextComponent(RenderCubeConstants.fileExceptionMessage + e));
-
-            // Finish with failure
-            return -1;
         }
         catch(Exception e) {
             // Notify about exception

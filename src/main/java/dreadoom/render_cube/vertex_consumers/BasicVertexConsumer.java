@@ -1,8 +1,9 @@
 package dreadoom.render_cube.vertex_consumers;
 
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import dreadoom.render_cube.rendered_entities.RenderedQuad;
-import dreadoom.render_cube.rendered_entities.RenderedVertex;
+import dreadoom.render_cube.rendered_geometry.RenderedQuad;
+import dreadoom.render_cube.rendered_geometry.RenderedVertex;
+import net.minecraft.core.BlockPos;
 import org.jetbrains.annotations.NotNull;
 
 import java.awt.*;
@@ -14,9 +15,9 @@ import java.util.List;
  */
 public abstract class BasicVertexConsumer implements VertexConsumer {
     /**
-     * Holds consumed quads.
+     * Liquid position in region.
      */
-    public List<RenderedQuad> quads = new ArrayList<>();
+    public final BlockPos regionPosition;
 
     /**
      * Holds consumed vertices.
@@ -39,9 +40,21 @@ public abstract class BasicVertexConsumer implements VertexConsumer {
     private String savedVertexColor;
 
     /**
-     * Tries to convert all hold vertices to quads.
+     * Constructs instance from position in region.
+     * @param regionPosition liquid position in region
      */
-    public void convertVerticesToQuads(){
+    public BasicVertexConsumer(BlockPos regionPosition){
+        this.regionPosition = regionPosition;
+    }
+
+    /**
+     * Tries to convert all hold vertices to quads.
+     * @return List of rendered quads
+     */
+    public List<RenderedQuad> convertVerticesToQuads(){
+        // Init list
+        List<RenderedQuad> quads = new ArrayList<>();
+
         // Vertices count should be dividable by 4
         if(vertices.size() % 4 == 0){
             // For each pack of 4 vertices
@@ -61,6 +74,8 @@ public abstract class BasicVertexConsumer implements VertexConsumer {
             // Clear now unused vertex information
             vertices.clear();
         }
+
+        return quads;
     }
 
     /**
@@ -110,9 +125,9 @@ public abstract class BasicVertexConsumer implements VertexConsumer {
      */
     @Override
     public @NotNull VertexConsumer vertex(double x, double y, double z){
-        savedVertexCoordinates[0] = x;
-        savedVertexCoordinates[1] = y;
-        savedVertexCoordinates[2] = z;
+        savedVertexCoordinates[0] = regionPosition.getX() + x;
+        savedVertexCoordinates[1] = regionPosition.getY() + y;
+        savedVertexCoordinates[2] = regionPosition.getZ() + z;
         return this;
     }
 

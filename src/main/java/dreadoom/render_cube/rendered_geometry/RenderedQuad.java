@@ -1,4 +1,4 @@
-package dreadoom.render_cube.rendered_entities;
+package dreadoom.render_cube.rendered_geometry;
 
 import java.util.ArrayList;
 import java.util.List;

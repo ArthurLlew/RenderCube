@@ -2,7 +2,7 @@ package dreadoom.render_cube.commands;
 
 import com.mojang.brigadier.CommandDispatcher;
 import dreadoom.render_cube.RenderCube;
-import dreadoom.render_cube.utils.JsonSequenceWriter;
+import dreadoom.render_cube.utils.JsonWriters;
 import dreadoom.render_cube.utils.RenderCubeConstants;
 import dreadoom.render_cube.utils.RenderCubeUtils;
 import net.minecraft.commands.CommandSourceStack;
@@ -10,8 +10,6 @@ import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.coordinates.BlockPosArgument;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.TextComponent;
-
-import java.io.IOException;
 
 public class RenderCubeCommand {
     /**
@@ -33,13 +31,11 @@ public class RenderCubeCommand {
      * @param position block position in world
      **/
     private int renderCube(CommandSourceStack source, BlockPos position){
-        try(JsonSequenceWriter jsonWriter = new JsonSequenceWriter(
-                RenderCube.MODID + "\\" + RenderCubeConstants.exportedFileName)){
-
+        try (JsonWriters jsonWriters = new JsonWriters()){
             // Render cube (region of 1 block)
             RenderCubeUtils.renderRegion(
                     source,
-                    jsonWriter,
+                    jsonWriters,
                     new int[]{position.getX(), position.getY(), position.getZ(), position.getX(), position.getY(),
                             position.getZ()});
 
@@ -48,13 +44,6 @@ public class RenderCubeCommand {
 
             // Finish with success
             return 1;
-        }
-        catch (IOException e){
-            // Notify about exception
-            source.sendFailure(new TextComponent(RenderCubeConstants.fileExceptionMessage + e));
-
-            // Finish with failure
-            return -1;
         }
         catch(Exception e) {
             // Notify about exception

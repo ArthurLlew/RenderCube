@@ -108,7 +108,7 @@ public class RenderCubeUtils{
                         block.getFluidState());
 
                 // Convert consumed vertices to quads and write them one by one
-                for (RenderedQuad quad: commonVertexConsumer.convertVerticesToQuads()) {
+                for (RenderedQuad quad: liquidVertexConsumer.convertVerticesToQuads()) {
                     jsonWriters.liquidWriter.seqWriter.write(quad);
                 }
             }

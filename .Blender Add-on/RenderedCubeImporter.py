@@ -247,7 +247,11 @@ class ImportRenderCube(Operator, ImportHelper):
             loaded_data = RenderCubeUtils.import_data(os.path.join(self.directory, file.name))
             
             # Create object from loaded data
-            RenderCubeUtils.create_object(file.name, loaded_data, file.name, self.search_for_materials)
+            RenderCubeUtils.create_object(
+                file.name.split('.', 1)[0],
+                loaded_data,
+                file.name.split('.', 1)[0] + 'Mat',
+                self.search_for_materials)
 
         # Operation was successful
         return {'FINISHED'}

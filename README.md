@@ -7,7 +7,7 @@ util, that imports exported world parts into blender.
 Usage:
 ------------------------------
 
-There are currently 2 new commands:
+There are currently 2 commands:
 1) rendercube render cube \<position>
 2) rendercube render region \<position 1> \<position 2>
 
@@ -22,26 +22,34 @@ console.
 After you hit _Enter_, try not to move, because it may lag or
 crash the game. It may take up to 5-10 minutes to render world
 portion of maximum allowed size (depending on geometry
-complexity and your computer power). Ones it's done, navigate 
+complexity and your computer power). Once it's done, navigate 
 to you game folder (_.../.minecraft_) and you will notice new 
-directory named _rendercube_. There you will see file called 
-_rendered_cube.json_ (it is your exported mesh) and some _.png_
+directory named _rendercube_. There you will see files with
+extension _.json_ (contains geometry) and some _.png_
 files (these are minecraft texture atlases).
 
 After successful export open _Blender_ and activate provided
 addon. You then will see new option in import menu, named
-_RenderedCube (.json)_. Click it and navigate to exported
-_.json_ file. After it will load mesh (may take up to 5-10
-minutes of loading if it is very big) you will see 3 objects
-that correspond to block, entity and liquid. They will all have
-proper materials already setup. Note, that most  entities will
-have different texture atlases in use. So, you should figure 
-out (mostly, by names of atlases) which one is which.
+_RenderCube (.json)_. Click it and navigate to exported
+_.json_ files. 
 
-There is an option (checked by default) to look
-for default material names, that are created with this addon.
-You can turn this off, if you export mesh with different
-texture atlases into scene with existing materials.
+**Note:** you can select multiple files at once.
+
+After it will load meshes (may take up to 5-10
+minutes of loading if it is very big) you will see as many new
+objects as there were files to import. They will all have
+proper materials already setup.
+
+**Note:** most entities will have different texture atlases
+or even single textures (which are not automatically exported)
+in use. So, you should figure out (mostly, by names of atlases
+and textures) which one is which.
+
+**Note:**  there is an option (checked by default) to check
+if a material, that is about to be created, exists already
+in a scene (is performed name wise). You can turn this off,
+if you export mesh with different texture atlases into scene
+with existing materials.
 
 ### **Important notes:**
 1) Minecraft uses overlapping faces. This
@@ -56,9 +64,7 @@ time they are obviously visible, because most faces tend to
 occupy one square texture part in atlas), and separate them all
 into another object. Then duplicate material on that object and
 assign material _Blend Mode_ to _Alpha Blend_.
-2) Mod currently does not support _paintings_, _item frames_ and
-_armor stands_.
-3) Mod currently does not support mods like _chisel and bits_
+2) Mod currently does not support mods like _chisel and bits_
 which use custom renders.
 
 Credits:

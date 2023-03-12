@@ -3,14 +3,16 @@ package dreadoom.render_cube.utils;
 import com.mojang.blaze3d.vertex.PoseStack;
 import dreadoom.render_cube.RenderCube;
 import dreadoom.render_cube.rendered_geometry.RenderedQuad;
+import dreadoom.render_cube.vertex_consumers.BasicVertexConsumer;
 import dreadoom.render_cube.vertex_consumers.CommonVertexConsumer;
 import dreadoom.render_cube.vertex_consumers.DummyMultiBufferSource;
 import dreadoom.render_cube.vertex_consumers.LiquidVertexConsumer;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -118,7 +120,8 @@ public class RenderCubeUtils{
             // If it is not null
             if(entity != null){
                 // Create dummy MultiBufferSource
-                DummyMultiBufferSource dummyMultiBufferSource = new DummyMultiBufferSource(regionPosition);
+                DummyMultiBufferSource dummyMultiBufferSource =
+                        new DummyMultiBufferSource(new CommonVertexConsumer(regionPosition));
 
                 // Render into dummy MultiBufferSource
                 Minecraft.getInstance().getBlockEntityRenderDispatcher().render(
@@ -143,14 +146,13 @@ public class RenderCubeUtils{
      *                          region_max_z positions of region in world
      * @throws IOException when file exceptions are encountered
      **/
-    //TODO: this methods works incorrectly
     public static void renderRegionEntities(@NotNull CommandSourceStack source,
                                             @NotNull JsonWriters jsonWriters,
                                             int[] regionCoordinates) throws IOException{
         // Get level, where command is executed
         ServerLevel level = source.getLevel();
 
-        // Get all entities in region
+        // Get all entities in region (except player entity)
         List<Entity> entities = level.getEntities(
                 (Entity)null, new AABB(
                         regionCoordinates[0],
@@ -161,26 +163,33 @@ public class RenderCubeUtils{
                         regionCoordinates[5]),
                 (entity) -> !(entity instanceof Player));
 
+        // Saves instance of minecraft entity render dispatcher for multiple use in loop
+        EntityRenderDispatcher entityRenderDispatcher = Minecraft.getInstance().getEntityRenderDispatcher();
+        // 1.0F is a constant, that is parsed to such method by game to level renderer
+        float minecraftConstant = 1.0F;
+
         // Process entities
         for (Entity entity: entities) {
-            // Create dummy MultiBufferSource
-            DummyMultiBufferSource dummyMultiBufferSource = new DummyMultiBufferSource(
-                    new BlockPos(
-                            entity.getX() - regionCoordinates[0],
-                            entity.getY() - regionCoordinates[1],
-                            entity.getZ() - regionCoordinates[2]));
+            // Got here from game code of level renderer
+            double entityX = Mth.lerp(minecraftConstant, entity.xOld, entity.getX());
+            double entityY = Mth.lerp(minecraftConstant, entity.yOld, entity.getY());
+            double entityZ = Mth.lerp(minecraftConstant, entity.zOld, entity.getZ());
 
-            // Render into dummy MultiBufferSource
-            Minecraft.getInstance().getEntityRenderDispatcher().render(
+            // Create dummy MultiBufferSource
+            DummyMultiBufferSource dummyMultiBufferSource = new DummyMultiBufferSource(new BasicVertexConsumer());
+
+            // Render entity into dummy MultiBufferSource
+            entityRenderDispatcher.render(
                     entity,
-                    0.0D,
-                    0.0D,
-                    0.0D,
-                    0.0F,
-                    1.0F,
+                    entityX - regionCoordinates[0],
+                    entityY - regionCoordinates[1],
+                    entityZ - regionCoordinates[2],
+                    // This float stands for entity rotation
+                    Mth.lerp(minecraftConstant, entity.yRotO, entity.getYRot()),
+                    minecraftConstant,
                     new PoseStack(),
                     dummyMultiBufferSource,
-                    OverlayTexture.NO_OVERLAY);
+                    entityRenderDispatcher.getPackedLightCoords(entity, minecraftConstant));
 
             // Convert consumed vertices to quads and write them one by one
             for (RenderedQuad quad: dummyMultiBufferSource.buffer.convertVerticesToQuads()) {

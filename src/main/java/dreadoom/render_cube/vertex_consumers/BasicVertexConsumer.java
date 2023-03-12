@@ -3,7 +3,6 @@ package dreadoom.render_cube.vertex_consumers;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import dreadoom.render_cube.rendered_geometry.RenderedQuad;
 import dreadoom.render_cube.rendered_geometry.RenderedVertex;
-import net.minecraft.core.BlockPos;
 import org.jetbrains.annotations.NotNull;
 
 import java.awt.*;
@@ -13,12 +12,7 @@ import java.util.List;
 /**
  * Implements basic variables, that stores geometry data, and methods overrides of {@link VertexConsumer}.
  */
-public abstract class BasicVertexConsumer implements VertexConsumer {
-    /**
-     * Position in region.
-     */
-    private final BlockPos regionPosition;
-
+public class BasicVertexConsumer implements VertexConsumer {
     /**
      * Holds consumed vertices.
      */
@@ -40,12 +34,9 @@ public abstract class BasicVertexConsumer implements VertexConsumer {
     private String savedVertexColor;
 
     /**
-     * Constructs instance from position in region.
-     * @param regionPosition liquid position in region
+     * Constructs empty instance.
      */
-    public BasicVertexConsumer(BlockPos regionPosition){
-        this.regionPosition = regionPosition;
-    }
+    public BasicVertexConsumer(){}
 
     /**
      * Tries to convert all hold vertices to quads.
@@ -125,9 +116,9 @@ public abstract class BasicVertexConsumer implements VertexConsumer {
      */
     @Override
     public @NotNull VertexConsumer vertex(double x, double y, double z){
-        savedVertexCoordinates[0] = regionPosition.getX() + x;
-        savedVertexCoordinates[1] = regionPosition.getY() + y;
-        savedVertexCoordinates[2] = regionPosition.getZ() + z;
+        savedVertexCoordinates[0] = x;
+        savedVertexCoordinates[1] = y;
+        savedVertexCoordinates[2] = z;
         return this;
     }
 

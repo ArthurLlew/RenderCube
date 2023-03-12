@@ -7,7 +7,7 @@ import org.jetbrains.annotations.NotNull;
 /**
  * Used to consume geometry data, produced by liquid renderers.
  */
-public class LiquidVertexConsumer extends BasicVertexConsumer {
+public class LiquidVertexConsumer extends CommonVertexConsumer {
     /**
      * Liquid position in level.
      */

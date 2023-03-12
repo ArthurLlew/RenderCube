@@ -16,11 +16,11 @@ public class DummyMultiBufferSource implements MultiBufferSource {
     public final BasicVertexConsumer buffer;
 
     /**
-     * Constructs instance from position in region.
-     * @param regionPosition liquid position in region
+     * Constructs instance from given {@link BasicVertexConsumer}.
+     * @param buffer to init instance
      */
-    public DummyMultiBufferSource(BlockPos regionPosition){
-        buffer = new CommonVertexConsumer(regionPosition);
+    public DummyMultiBufferSource(BasicVertexConsumer buffer){
+        this.buffer = buffer;
     }
 
     /**

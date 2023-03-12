@@ -131,7 +131,7 @@ public class RenderCubeUtils{
                         dummyMultiBufferSource);
 
                 // Convert consumed vertices to quads and write them one by one
-                for (RenderedQuad quad: dummyMultiBufferSource.buffer.convertVerticesToQuads()) {
+                for (RenderedQuad quad: dummyMultiBufferSource.getBuffer().convertVerticesToQuads()) {
                     jsonWriters.blockEntityWriter.seqWriter.write(quad);
                 }
             }
@@ -192,7 +192,7 @@ public class RenderCubeUtils{
                     entityRenderDispatcher.getPackedLightCoords(entity, minecraftConstant));
 
             // Convert consumed vertices to quads and write them one by one
-            for (RenderedQuad quad: dummyMultiBufferSource.buffer.convertVerticesToQuads()) {
+            for (RenderedQuad quad: dummyMultiBufferSource.getBuffer().convertVerticesToQuads()) {
                 jsonWriters.entityWriter.seqWriter.write(quad);
             }
         }

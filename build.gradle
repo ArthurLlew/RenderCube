@@ -147,6 +147,15 @@ repositories {
     // flatDir {
     //     dir 'libs'
     // }
+
+    // Maven repository
+    maven {
+        url "https://cursemaven.com"
+        content {
+            includeGroup "curse.maven"
+        }
+    }
+    mavenCentral()
 }
 
 dependencies {

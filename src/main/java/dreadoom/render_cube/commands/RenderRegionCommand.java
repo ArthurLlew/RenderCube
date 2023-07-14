@@ -3,7 +3,6 @@ package dreadoom.render_cube.commands;
 import com.mojang.brigadier.CommandDispatcher;
 import dreadoom.render_cube.RenderCube;
 import dreadoom.render_cube.utils.FileWriters;
-import dreadoom.render_cube.utils.RenderCubeConstants;
 import dreadoom.render_cube.utils.RenderCubeUtils;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
@@ -58,7 +57,7 @@ public class RenderRegionCommand {
                     new int[]{region_min_x, region_min_y, region_min_z, region_max_x, region_max_y, region_max_z});
 
             // Notify about success
-            source.sendSuccess(new TextComponent(RenderCubeConstants.successMessage), true);
+            source.sendSuccess(new TextComponent("Operation succeeded."), true);
 
             // Finish with success
             return 1;

@@ -21,11 +21,11 @@ class RenderCubeImporter(Operator, ImportHelper):
     bl_label = 'Import RenderCube Data'
     
     # ImportHelper mixin class uses this
-    filename_ext = '.rc'
+    filename_ext = '.rcube'
     
     # File explorer search options
     filter_glob: StringProperty(
-        default='*.rc',
+        default='*.rcube',
         options={'HIDDEN'},
         maxlen=384,  # Max internal buffer length, longer would be clamped.
     )

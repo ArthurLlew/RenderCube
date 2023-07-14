@@ -32,7 +32,7 @@ bl_info = {
 
 # Only needed if you want to add into a dynamic menu
 def menu_func_import(self, context):
-    self.layout.operator(importer.RenderCubeImporter.bl_idname, text='RenderCube (.rc)')
+    self.layout.operator(importer.RenderCubeImporter.bl_idname, text='RenderCube (.rcube)')
 
 # Register
 def register():

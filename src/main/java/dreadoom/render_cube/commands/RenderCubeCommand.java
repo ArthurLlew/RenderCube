@@ -3,7 +3,6 @@ package dreadoom.render_cube.commands;
 import com.mojang.brigadier.CommandDispatcher;
 import dreadoom.render_cube.RenderCube;
 import dreadoom.render_cube.utils.FileWriters;
-import dreadoom.render_cube.utils.RenderCubeConstants;
 import dreadoom.render_cube.utils.RenderCubeUtils;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
@@ -40,7 +39,7 @@ public class RenderCubeCommand {
                             position.getZ()});
 
             // Notify about success
-            source.sendSuccess(new TextComponent(RenderCubeConstants.successMessage), true);
+            source.sendSuccess(new TextComponent("Operation succeeded."), true);
 
             // Finish with success
             return 1;

@@ -37,15 +37,16 @@ public class FileWriters implements AutoCloseable {
      */
     public FileWriters() throws IOException {
         int bufferSize = 8064;	// Buffer size: 48 (size of one vertex) * 4 (4 in a quad) * 42
+        String FileExtension = ".rcube";
 
         blockWriter= new BufferedOutputStream(
-                new FileOutputStream(RenderCube.MODID + "\\" + "renderedBlocks.rc"), bufferSize);
+                new FileOutputStream(RenderCube.MODID + "\\" + "renderedBlocks" + FileExtension), bufferSize);
         liquidWriter = new BufferedOutputStream(
-                new FileOutputStream(RenderCube.MODID + "\\" + "renderedLiquids.rc"), bufferSize);
+                new FileOutputStream(RenderCube.MODID + "\\" + "renderedLiquids" + FileExtension), bufferSize);
         blockEntityWriter = new BufferedOutputStream(
-                new FileOutputStream(RenderCube.MODID + "\\" + "renderedBlockEntities.rc"), bufferSize);
+                new FileOutputStream(RenderCube.MODID + "\\" + "renderedBlockEntities" + FileExtension), bufferSize);
         entityWriter = new BufferedOutputStream(
-                new FileOutputStream(RenderCube.MODID + "\\" + "renderedEntities.rc"), bufferSize);
+                new FileOutputStream(RenderCube.MODID + "\\" + "renderedEntities" + FileExtension), bufferSize);
     }
 
     /**

@@ -25,18 +25,18 @@ portion of maximum allowed size (depending on geometry
 complexity and your computer power). Once it's done, navigate 
 to you game folder (_.../.minecraft_) and you will notice new 
 directory named _rendercube_. There you will see files with
-extension _.json_ (contains geometry) and some _.png_
+extension _.rcube_ (contains geometry) and some _.png_
 files (these are minecraft texture atlases).
 
 After successful export open _Blender_ and activate provided
 addon. You then will see new option in import menu, named
-_RenderCube (.json)_. Click it and navigate to exported
-_.json_ files. 
+_RenderCube (.rcube)_. Click it and navigate to exported
+_.rcube_ files. 
 
 **Note:** you can select multiple files at once.
 
 After it will load meshes (may take up to 5-10
-minutes of loading if it is very big) you will see as many new
+minutes of loading) you will see as many new
 objects as there were files to import. They will all have
 proper materials already setup.
 

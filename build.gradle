@@ -14,15 +14,12 @@ buildscript {
 plugins {
     id 'eclipse'
     id 'maven-publish'
-
-    id 'com.github.johnrengelman.shadow' version '7.1.2'
 }
 apply plugin: 'net.minecraftforge.gradle'
 
 
 version = '1.0'
 group = 'com.yourname.modid' // http://maven.apache.org/guides/mini/guide-naming-conventions.html
-archivesBaseName = 'modid'
 
 // Mojang ships Java 17 to end users in 1.18+, so your mod should target Java 17.
 java.toolchain.languageVersion = JavaLanguageVersion.of(17)
@@ -58,9 +55,6 @@ minecraft {
             // "REGISTRIES": For firing of registry events.
             // "REGISTRYDUMP": For getting the contents of all registries.
             property 'forge.logging.markers', 'REGISTRIES'
-
-            property 'mixin.env.remapRefMap', 'true'
-            property 'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
 
             // Recommended logging level for the console
             // You can set various levels here.
@@ -146,56 +140,36 @@ sourceSets.main.resources { srcDir 'src/generated/resources' }
 
 // Declares repositories to use
 repositories {
-    maven {
-        url "https://cursemaven.com"
-        content {
-            includeGroup "curse.maven"
-        }
-    }
-    mavenCentral()
-}
+    // Put repositories for dependencies here
+    // ForgeGradle automatically adds the Forge maven and Maven Central for you
 
-configurations {
-    shade
-    implementation.extendsFrom shade
-}
-
-shadowJar {
-    archiveClassifier = ''
-    configurations = [project.configurations.shade]
-    relocate 'com.fasterxml.jackson.core.jackson-core', "${project.group}.relocated.jackson-core"
-    relocate 'com.fasterxml.jackson.core.jackson-annotations', "${project.group}.relocated.jackson-annotations"
-    relocate 'com.fasterxml.jackson.core.jackson-databind', "${project.group}.relocated.jackson-databind"
-    finalizedBy 'reobfShadowJar'
-}
-
-assemble.dependsOn shadowJar
-
-reobf {
-    shadowJar {}
+    // If you have mod jar dependencies in ./libs, you can declare them as a repository like so:
+    // flatDir {
+    //     dir 'libs'
+    // }
 }
 
 dependencies {
     // Specify the version of Minecraft to use. If this is any group other than 'net.minecraft', it is assumed
     // that the dep is a ForgeGradle 'patcher' dependency, and its patches will be applied.
+    // The userdev artifact is a special name and will get all sorts of transformations applied to it.
     minecraft 'net.minecraftforge:forge:1.18.2-40.1.0'
 
-    // Mods
-    implementation fg.deobf("curse.maven:conquest-reforged-250077:3854053")
-    implementation fg.deobf("curse.maven:chisel-and-bits-231095:3957651")
+    // Real mod deobf dependency examples - these get remapped to your current mappings
+    // compileOnly fg.deobf("mezz.jei:jei-${mc_version}:${jei_version}:api") // Adds JEI API as a compile dependency
+    // runtimeOnly fg.deobf("mezz.jei:jei-${mc_version}:${jei_version}") // Adds the full JEI mod as a runtime dependency
+    // implementation fg.deobf("com.tterrag.registrate:Registrate:MC${mc_version}-${registrate_version}") // Adds registrate as a dependency
 
-    // Java json api
-    minecraftLibrary 'com.fasterxml.jackson.core:jackson-core:2.14.0'
-    minecraftLibrary 'com.fasterxml.jackson.core:jackson-annotations:2.14.0'
-    minecraftLibrary 'com.fasterxml.jackson.core:jackson-databind:2.14.0'
-    shade 'com.fasterxml.jackson.core:jackson-core:2.14.0'
-    shade 'com.fasterxml.jackson.core:jackson-annotations:2.14.0'
-    shade 'com.fasterxml.jackson.core:jackson-databind:2.14.0'
+    // Examples using mod jars from ./libs
+    // implementation fg.deobf("blank:coolmod-${mc_version}:${coolmod_version}")
+
+    // For more info...
+    // http://www.gradle.org/docs/current/userguide/artifact_dependencies_tutorial.html
+    // http://www.gradle.org/docs/current/userguide/dependency_management.html
 }
 
 // Example for how to get properties into the manifest for reading at runtime.
 jar {
-    archiveClassifier = 'slim'
     manifest {
         attributes([
                 "Specification-Title"     : "rendercube",

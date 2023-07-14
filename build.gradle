@@ -166,6 +166,10 @@ dependencies {
     // For more info...
     // http://www.gradle.org/docs/current/userguide/artifact_dependencies_tutorial.html
     // http://www.gradle.org/docs/current/userguide/dependency_management.html
+
+    // Mods
+    implementation fg.deobf("curse.maven:conquest-reforged-250077:3854053")
+    implementation fg.deobf("curse.maven:chisel-and-bits-231095:3957651")
 }
 
 // Example for how to get properties into the manifest for reading at runtime.

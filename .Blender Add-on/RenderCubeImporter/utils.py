@@ -6,6 +6,8 @@
 import re
 # Blender
 import bpy
+# Bytes interpretation
+import struct
 
 ####################
 # RenderCube Utils #
@@ -26,34 +28,31 @@ def import_data(filepath):
 def parse_loaded_data(loaded_data):
     # Unit data
     vertices, uv, vertices_colors, faces = [], [], [], []
-    
+
     # For quad in loaded data
     for i in range(0, len(loaded_data) // 192):
-        # Current quad first vertex index
-        face_first_vert_index = len(vertices)
-        
         # For vertex in quad
         for j in range(0, 4):
             # Append vertex position
-            vertex_x = struct.unpack('>d', loaded_data[i * 192: (i + 1) * 192][j * 48: (j + 1) * 48][0:8])
-            vertex_y = struct.unpack('>d', loaded_data[i * 192: (i + 1) * 192][j * 48: (j + 1) * 48][8:16])
-            vertex_z = struct.unpack('>d', loaded_data[i * 192: (i + 1) * 192][j * 48: (j + 1) * 48][16:24])
+            vertex_x = struct.unpack('>d', loaded_data[i * 192:(i + 1) * 192][j * 48:(j + 1) * 48][0:8])[0]
+            vertex_y = struct.unpack('>d', loaded_data[i * 192:(i + 1) * 192][j * 48:(j + 1) * 48][8:16])[0]
+            vertex_z = struct.unpack('>d', loaded_data[i * 192:(i + 1) * 192][j * 48:(j + 1) * 48][16:24])[0]
             vertices.append((vertex_z, vertex_x, vertex_y))
                 
             # Append U and V coordinates for this vertex
-            vertex_u = struct.unpack('>f', loaded_data[i * 192: (i + 1) * 192][j * 48: (j + 1) * 48][24:28])
-            vertex_v = struct.unpack('>f', loaded_data[i * 192: (i + 1) * 192][j * 48: (j + 1) * 48][28:32])
+            vertex_u = struct.unpack('>f', loaded_data[i * 192: (i + 1) * 192][j * 48: (j + 1) * 48][24:28])[0]
+            vertex_v = struct.unpack('>f', loaded_data[i * 192: (i + 1) * 192][j * 48: (j + 1) * 48][28:32])[0]
             uv.append((vertex_u, vertex_v))
             
             # Append this vertex color
-            vertex_r = struct.unpack('>i', loaded_data[i * 192: (i + 1) * 192][j * 48: (j + 1) * 48][32:36])
-            vertex_g = struct.unpack('>i', loaded_data[i * 192: (i + 1) * 192][j * 48: (j + 1) * 48][36:40])
-            vertex_b = struct.unpack('>i', loaded_data[i * 192: (i + 1) * 192][j * 48: (j + 1) * 48][40:44])
-            vertex_a = struct.unpack('>i', loaded_data[i * 192: (i + 1) * 192][j * 48: (j + 1) * 48][44:48])
+            vertex_r = struct.unpack('>i', loaded_data[i * 192: (i + 1) * 192][j * 48: (j + 1) * 48][32:36])[0] / 255
+            vertex_g = struct.unpack('>i', loaded_data[i * 192: (i + 1) * 192][j * 48: (j + 1) * 48][36:40])[0] / 255
+            vertex_b = struct.unpack('>i', loaded_data[i * 192: (i + 1) * 192][j * 48: (j + 1) * 48][40:44])[0] / 255
+            vertex_a = struct.unpack('>i', loaded_data[i * 192: (i + 1) * 192][j * 48: (j + 1) * 48][44:48])[0] / 255
             vertices_colors.append((vertex_r, vertex_g, vertex_b, vertex_a))
         
         # Append vertices indices of face
-        faces.append(tuple(range(face_first_vert_index, len(vertices))))
+        faces.append(tuple(range(len(vertices) - 4, len(vertices))))
 
     return vertices, uv, vertices_colors, faces
 

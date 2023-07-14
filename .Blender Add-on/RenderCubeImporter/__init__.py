@@ -19,7 +19,7 @@ bl_info = {
     "name": "RenderCubeImporter",
     "author": "Dreadoom",
     "version": (0, 1),
-    "blender": (2, 80, 0),
+    "blender": (3, 6, 0),
     "description": "Imports RenderCube data",
     "warning": "",
     "doc_url": "",
@@ -32,7 +32,7 @@ bl_info = {
 
 # Only needed if you want to add into a dynamic menu
 def menu_func_import(self, context):
-    self.layout.operator(importer.RenderCubeImporter.bl_idname, text='RenderCube (.json)')
+    self.layout.operator(importer.RenderCubeImporter.bl_idname, text='RenderCube (.rc)')
 
 # Register
 def register():

@@ -2,7 +2,7 @@ package dreadoom.render_cube.commands;
 
 import com.mojang.brigadier.CommandDispatcher;
 import dreadoom.render_cube.RenderCube;
-import dreadoom.render_cube.utils.JsonWriters;
+import dreadoom.render_cube.utils.FileWriters;
 import dreadoom.render_cube.utils.RenderCubeConstants;
 import dreadoom.render_cube.utils.RenderCubeUtils;
 import net.minecraft.commands.CommandSourceStack;
@@ -31,11 +31,11 @@ public class RenderCubeCommand {
      * @param position block position in world
      **/
     private int renderCube(CommandSourceStack source, BlockPos position){
-        try (JsonWriters jsonWriters = new JsonWriters()){
+        try (FileWriters fileWriters = new FileWriters()){
             // Render cube (region of 1 block)
             RenderCubeUtils.renderRegion(
                     source,
-                    jsonWriters,
+                    fileWriters,
                     new int[]{position.getX(), position.getY(), position.getZ(), position.getX(), position.getY(),
                             position.getZ()});
 

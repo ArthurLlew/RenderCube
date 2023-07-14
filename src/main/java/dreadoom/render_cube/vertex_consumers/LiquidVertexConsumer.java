@@ -4,6 +4,9 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.core.BlockPos;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.FileNotFoundException;
+import java.io.OutputStream;
+
 /**
  * Used to consume geometry data, produced by liquid renderers.
  */
@@ -17,8 +20,8 @@ public class LiquidVertexConsumer extends CommonVertexConsumer {
      * Constructs instance from position in region.
      * @param regionPosition liquid position in region
      */
-    public LiquidVertexConsumer(BlockPos regionPosition, BlockPos levelPosition){
-        super(regionPosition);
+    public LiquidVertexConsumer(OutputStream fileStream, BlockPos regionPosition, BlockPos levelPosition) {
+        super(fileStream, regionPosition);
 
         this.levelPosition = levelPosition;
     }

@@ -1,22 +1,19 @@
 package dreadoom.render_cube.vertex_consumers;
 
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import dreadoom.render_cube.rendered_geometry.RenderedQuad;
-import dreadoom.render_cube.rendered_geometry.RenderedVertex;
 import org.jetbrains.annotations.NotNull;
 
-import java.awt.*;
-import java.util.ArrayList;
-import java.util.List;
+import java.io.*;
+import java.nio.ByteBuffer;
 
 /**
  * Implements basic variables, that stores geometry data, and methods overrides of {@link VertexConsumer}.
  */
-public class BasicVertexConsumer implements VertexConsumer {
+public class BasicVertexConsumer implements VertexConsumer{
     /**
-     * Holds consumed vertices.
+     * Holds consumer file stream
      */
-    public List<RenderedVertex> vertices = new ArrayList<>();
+    public OutputStream outputStream;
 
     /**
      * Saved vertex coordinates.
@@ -31,42 +28,13 @@ public class BasicVertexConsumer implements VertexConsumer {
     /**
      * Saved vertex color as hex string.
      */
-    private String savedVertexColor;
+    private final int[]  savedVertexColor = new int[4];
 
     /**
      * Constructs empty instance.
      */
-    public BasicVertexConsumer(){}
-
-    /**
-     * Tries to convert all hold vertices to quads.
-     * @return List of rendered quads
-     */
-    public List<RenderedQuad> convertVerticesToQuads(){
-        // Init list
-        List<RenderedQuad> quads = new ArrayList<>();
-
-        // Vertices count should be dividable by 4
-        if(vertices.size() % 4 == 0){
-            // For each pack of 4 vertices
-            for(int i = 0; i < vertices.size(); i += 4){
-                RenderedQuad quad = new RenderedQuad();
-
-                // Add 4 vertices from pack
-                quad.vertices.add(vertices.get(i));
-                quad.vertices.add(vertices.get(i + 1));
-                quad.vertices.add(vertices.get(i + 2));
-                quad.vertices.add(vertices.get(i + 3));
-
-                // Add to list
-                quads.add(quad);
-            }
-
-            // Clear now unused vertex information
-            vertices.clear();
-        }
-
-        return quads;
+    public BasicVertexConsumer(OutputStream fileStream){
+        outputStream = fileStream;
     }
 
     /**
@@ -145,28 +113,34 @@ public class BasicVertexConsumer implements VertexConsumer {
      */
     @Override
     public @NotNull VertexConsumer color(int r, int g, int b, int a){
-        try {
-            String buf = Integer.toHexString(new Color(r, g, b, a).getRGB());
-            savedVertexColor = "#" + buf.substring(buf.length()-6);
-        } catch (Throwable throwable) {
-            savedVertexColor = "#ffffff";
-        }
+        savedVertexColor[0] = r;
+        savedVertexColor[1] = g;
+        savedVertexColor[2] = b;
+        savedVertexColor[3] = a;
 
         return this;
     }
 
     /**
-     * Adds vertex, constructed from saved coordinates, UVs and color, to vertex list.
+     * Writes vertex sata, constructed from saved coordinates, UVs and color, to file.
      */
     @Override
     public void endVertex(){
-        vertices.add(new RenderedVertex(
-                savedVertexCoordinates[0],
-                savedVertexCoordinates[1],
-                savedVertexCoordinates[2],
-                savedVertexUVs[0],
-                savedVertexUVs[1],
-                savedVertexColor));
+        // ByteBuffer size is 3 double (each is 8 bytes) + 2 floats (each is 4 bytes) + 4 ints (each is 4 bytes)
+        byte[] bytes = ByteBuffer.allocate(48)
+                .putDouble(savedVertexCoordinates[0]).putDouble(savedVertexCoordinates[1])
+                .putDouble(savedVertexCoordinates[2])
+                .putFloat(savedVertexUVs[0]).putFloat(savedVertexUVs[1])
+                .putInt(savedVertexColor[0]).putInt(savedVertexColor[1])
+                .putInt(savedVertexColor[2]).putInt(savedVertexColor[3])
+                .array();
+
+        // Try to write these bytes into file
+        try {
+            outputStream.write(bytes);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     /**

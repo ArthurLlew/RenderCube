@@ -2,10 +2,8 @@
 # Imports #
 ###########
 
-# Regular expretions
+# Regular expressions
 import re
-# Json reading
-import json
 # Blender
 import bpy
 
@@ -18,9 +16,9 @@ import bpy
 #---------------------#
 def import_data(filepath):
     # Open file
-    with open(filepath, 'r', encoding='utf-8') as f:
-        # Read json object and return contents
-        return json.load(f)
+    with open(filepath, mode="rb") as f:
+        # Read byte stream
+        return f.read()
 
 #-----------------------------------------------#
 # Creates vertices and faces from imported data #
@@ -29,50 +27,35 @@ def parse_loaded_data(loaded_data):
     # Unit data
     vertices, uv, vertices_colors, faces = [], [], [], []
     
-    # For guad in loaded data
-    for quad in loaded_data:
+    # For quad in loaded data
+    for i in range(0, len(loaded_data) // 192):
         # Current quad first vertex index
         face_first_vert_index = len(vertices)
         
         # For vertex in quad
-        for vertex in quad['vertices']:
+        for j in range(0, 4):
             # Append vertex position
-            vertices.append((vertex['z'], vertex['x'], vertex['y']))
+            vertex_x = struct.unpack('>d', loaded_data[i * 192: (i + 1) * 192][j * 48: (j + 1) * 48][0:8])
+            vertex_y = struct.unpack('>d', loaded_data[i * 192: (i + 1) * 192][j * 48: (j + 1) * 48][8:16])
+            vertex_z = struct.unpack('>d', loaded_data[i * 192: (i + 1) * 192][j * 48: (j + 1) * 48][16:24])
+            vertices.append((vertex_z, vertex_x, vertex_y))
                 
             # Append U and V coordinates for this vertex
-            uv.append((vertex['u'], vertex['v']))
+            vertex_u = struct.unpack('>f', loaded_data[i * 192: (i + 1) * 192][j * 48: (j + 1) * 48][24:28])
+            vertex_v = struct.unpack('>f', loaded_data[i * 192: (i + 1) * 192][j * 48: (j + 1) * 48][28:32])
+            uv.append((vertex_u, vertex_v))
             
             # Append this vertex color
-            vertices_colors.append(vertex['color'])
+            vertex_r = struct.unpack('>i', loaded_data[i * 192: (i + 1) * 192][j * 48: (j + 1) * 48][32:36])
+            vertex_g = struct.unpack('>i', loaded_data[i * 192: (i + 1) * 192][j * 48: (j + 1) * 48][36:40])
+            vertex_b = struct.unpack('>i', loaded_data[i * 192: (i + 1) * 192][j * 48: (j + 1) * 48][40:44])
+            vertex_a = struct.unpack('>i', loaded_data[i * 192: (i + 1) * 192][j * 48: (j + 1) * 48][44:48])
+            vertices_colors.append((vertex_r, vertex_g, vertex_b, vertex_a))
         
         # Append vertices indices of face
         faces.append(tuple(range(face_first_vert_index, len(vertices))))
 
     return vertices, uv, vertices_colors, faces
-
-#-----------------------------------------------------#
-# Convert hex substring (like 'ff') to linear channel #
-#-----------------------------------------------------#
-def hex_substring_to_color(hex_substring):
-    # Basic color from 0 to 255
-    channel = int(hex_substring, base=16)
-    
-    # Color from 0.0 to 1.0
-    schannel = channel / 255
-    
-    return schannel
-
-#-------------------#
-# Covert hex to rgb #
-#-------------------#
-def hex_to_rgb(hex):
-    # Get rid of #
-    hex = hex[1:]
-    
-    return (hex_substring_to_color(hex[:2]),
-            hex_substring_to_color(hex[2:4]),
-            hex_substring_to_color(hex[4:6]),
-            1.0)
 
 #----------------------------------#
 # Creates material from hex string #
@@ -132,7 +115,7 @@ def material_names_equality(template_name, name):
     return re.fullmatch(template_name + r'(?:.\d\d\d|\Z)', name)
 
 #---------------------------------------------#
-# Creates object in scene from geomentry data #
+# Creates object in scene from geometry data #
 #---------------------------------------------#
 def create_object(name, loaded_data, material_name, search_for_materials):
     # Parse loaded data to vertices, UVs, vertices_colors and faces
@@ -160,7 +143,7 @@ def create_object(name, loaded_data, material_name, search_for_materials):
     mesh.vertex_colors.active = vertex_color
     for face in mesh.polygons:
         for vert_idx, loop_idx in zip(face.vertices, face.loop_indices):
-            vertex_color.data[loop_idx].color = hex_to_rgb(vertices_colors[vert_idx])
+            vertex_color.data[loop_idx].color = vertices_colors[vert_idx]
     
     # Assign materials to faces of mesh
     for face in mesh.polygons:

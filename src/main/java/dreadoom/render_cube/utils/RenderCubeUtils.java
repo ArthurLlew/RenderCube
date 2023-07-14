@@ -2,7 +2,6 @@ package dreadoom.render_cube.utils;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import dreadoom.render_cube.RenderCube;
-import dreadoom.render_cube.rendered_geometry.RenderedQuad;
 import dreadoom.render_cube.vertex_consumers.BasicVertexConsumer;
 import dreadoom.render_cube.vertex_consumers.CommonVertexConsumer;
 import dreadoom.render_cube.vertex_consumers.DummyMultiBufferSource;
@@ -50,15 +49,14 @@ public class RenderCubeUtils{
     /**
      * Renders one cube.
      * @param source command executioner
-     * @param jsonWriters writers, used to write captured data
+     * @param fileWriters writers, used to write captured data
      * @param levelPosition block position in level
      * @param regionPosition block position in region
-     * @throws IOException when file exceptions are encountered
      **/
     public static void renderCube(@NotNull CommandSourceStack source,
-                                  @NotNull JsonWriters jsonWriters,
+                                  @NotNull FileWriters fileWriters,
                                   @NotNull BlockPos levelPosition,
-                                  @NotNull BlockPos regionPosition) throws IOException {
+                                  @NotNull BlockPos regionPosition) {
         // Get level, where command is executed
         ServerLevel level = source.getLevel();
 
@@ -67,8 +65,9 @@ public class RenderCubeUtils{
 
         // We do not want to render air
         if (!block.isAir()) {
-            // Init common vertex consumer
-            CommonVertexConsumer commonVertexConsumer = new CommonVertexConsumer(regionPosition);
+            // Init block consumer
+            CommonVertexConsumer commonVertexConsumer =
+                    new CommonVertexConsumer(fileWriters.blockWriter, regionPosition);
 
             // Init random with block seed at this position
             Random random = new Random(block.getSeed(levelPosition));
@@ -91,15 +90,11 @@ public class RenderCubeUtils{
                     random,
                     data);
 
-            // Convert consumed vertices to quads and write them one by one
-            for (RenderedQuad quad: commonVertexConsumer.convertVerticesToQuads()) {
-                jsonWriters.blockWriter.seqWriter.write(quad);
-            }
-
             // If this block contains fluid
             if (!block.getFluidState().isEmpty()){
                 // Init liquid consumer
-                LiquidVertexConsumer liquidVertexConsumer = new LiquidVertexConsumer(regionPosition, levelPosition);
+                LiquidVertexConsumer liquidVertexConsumer =
+                        new LiquidVertexConsumer(fileWriters.liquidWriter, regionPosition, levelPosition);
 
                 // Consume liquid vertices
                 Minecraft.getInstance().getBlockRenderer().renderLiquid(
@@ -108,11 +103,6 @@ public class RenderCubeUtils{
                         liquidVertexConsumer,
                         block,
                         block.getFluidState());
-
-                // Convert consumed vertices to quads and write them one by one
-                for (RenderedQuad quad: liquidVertexConsumer.convertVerticesToQuads()) {
-                    jsonWriters.liquidWriter.seqWriter.write(quad);
-                }
             }
 
             // Get entity at our position
@@ -121,7 +111,8 @@ public class RenderCubeUtils{
             if(entity != null){
                 // Create dummy MultiBufferSource
                 DummyMultiBufferSource dummyMultiBufferSource =
-                        new DummyMultiBufferSource(new CommonVertexConsumer(regionPosition));
+                        new DummyMultiBufferSource(
+                                new CommonVertexConsumer(fileWriters.blockEntityWriter, regionPosition));
 
                 // Render into dummy MultiBufferSource
                 Minecraft.getInstance().getBlockEntityRenderDispatcher().render(
@@ -129,11 +120,6 @@ public class RenderCubeUtils{
                         1.0F,
                         new PoseStack(),
                         dummyMultiBufferSource);
-
-                // Convert consumed vertices to quads and write them one by one
-                for (RenderedQuad quad: dummyMultiBufferSource.getBuffer().convertVerticesToQuads()) {
-                    jsonWriters.blockEntityWriter.seqWriter.write(quad);
-                }
             }
         }
     }
@@ -141,14 +127,13 @@ public class RenderCubeUtils{
     /**
      * Renders all entities in region.
      * @param source command executioner
-     * @param jsonWriters writers, used to write captured data
+     * @param fileWriters writers, used to write captured data
      * @param regionCoordinates array that holds region_min_x, region_min_y, region_min_z, region_max_x, region_max_y,
      *                          region_max_z positions of region in world
-     * @throws IOException when file exceptions are encountered
      **/
     public static void renderRegionEntities(@NotNull CommandSourceStack source,
-                                            @NotNull JsonWriters jsonWriters,
-                                            int[] regionCoordinates) throws IOException{
+                                            @NotNull FileWriters fileWriters,
+                                            int[] regionCoordinates){
         // Get level, where command is executed
         ServerLevel level = source.getLevel();
 
@@ -176,7 +161,8 @@ public class RenderCubeUtils{
             double entityZ = Mth.lerp(minecraftConstant, entity.zOld, entity.getZ());
 
             // Create dummy MultiBufferSource
-            DummyMultiBufferSource dummyMultiBufferSource = new DummyMultiBufferSource(new BasicVertexConsumer());
+            DummyMultiBufferSource dummyMultiBufferSource = new DummyMultiBufferSource(
+                    new BasicVertexConsumer(fileWriters.entityWriter));
 
             // Render entity into dummy MultiBufferSource
             entityRenderDispatcher.render(
@@ -190,25 +176,19 @@ public class RenderCubeUtils{
                     new PoseStack(),
                     dummyMultiBufferSource,
                     entityRenderDispatcher.getPackedLightCoords(entity, minecraftConstant));
-
-            // Convert consumed vertices to quads and write them one by one
-            for (RenderedQuad quad: dummyMultiBufferSource.getBuffer().convertVerticesToQuads()) {
-                jsonWriters.entityWriter.seqWriter.write(quad);
-            }
         }
     }
 
     /**
      * Renders world region.
      * @param source command executioner
-     * @param jsonWriters writers, used to write captured data
+     * @param fileWriters writers, used to write captured data
      * @param regionCoordinates coordinates of region to render
-     * @see RenderCubeUtils#renderRegionEntities(CommandSourceStack, JsonWriters, int[])
-     * @throws IOException when file exceptions are encountered
+     * @see RenderCubeUtils#renderRegionEntities(CommandSourceStack, FileWriters, int[])
      **/
     public static void renderRegion(@NotNull CommandSourceStack source,
-                                    @NotNull JsonWriters jsonWriters,
-                                    int[] regionCoordinates) throws IOException{
+                                    @NotNull FileWriters fileWriters,
+                                    int[] regionCoordinates){
         // Loop over coordinates included in region
         for(int x = regionCoordinates[0]; x <= regionCoordinates[3]; x++){
             for(int y = regionCoordinates[1]; y <= regionCoordinates[4]; y++){
@@ -216,7 +196,7 @@ public class RenderCubeUtils{
                     // Process cube
                     RenderCubeUtils.renderCube(
                             source,
-                            jsonWriters,
+                            fileWriters,
                             new BlockPos(x, y, z),
                             new BlockPos(
                                     x - regionCoordinates[0],
@@ -228,6 +208,6 @@ public class RenderCubeUtils{
         }
 
         // Process region entities (result of this function determines final result of region rendering operation)
-        RenderCubeUtils.renderRegionEntities(source, jsonWriters, regionCoordinates);
+        RenderCubeUtils.renderRegionEntities(source, fileWriters, regionCoordinates);
     }
 }

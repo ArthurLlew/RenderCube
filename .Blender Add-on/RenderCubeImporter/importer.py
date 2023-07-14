@@ -21,13 +21,13 @@ class RenderCubeImporter(Operator, ImportHelper):
     bl_label = 'Import RenderCube Data'
     
     # ImportHelper mixin class uses this
-    filename_ext = '.json'
+    filename_ext = '.rc'
     
-    # File explorer searsh optiond
+    # File explorer search options
     filter_glob: StringProperty(
-        default='*.json',
+        default='*.rc',
         options={'HIDDEN'},
-        maxlen=255,  # Max internal buffer length, longer would be clamped.
+        maxlen=384,  # Max internal buffer length, longer would be clamped.
     )
     
     # Directory, containing files for import
@@ -56,7 +56,7 @@ class RenderCubeImporter(Operator, ImportHelper):
             loaded_data = utils.import_data(os.path.join(self.directory, file.name))
             
             # If loaded file is not empty
-            if len(loaded_data) != 0:
+            if len(loaded_data) != 0 and len(loaded_data) % 192 == 0:
                 # Create object from loaded data
                 utils.create_object(
                     file.name.split('.', 1)[0],

@@ -4,6 +4,9 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.core.BlockPos;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.FileNotFoundException;
+import java.io.OutputStream;
+
 /**
  * Used to consume geometry data, produced by renderers.
  */
@@ -17,7 +20,9 @@ public class CommonVertexConsumer extends BasicVertexConsumer {
      * Constructs instance from position in region.
      * @param regionPosition liquid position in region
      */
-    public CommonVertexConsumer(BlockPos regionPosition){
+    public CommonVertexConsumer(OutputStream fileStream, BlockPos regionPosition) {
+        super(fileStream);
+
         this.regionPosition = regionPosition;
     }
 

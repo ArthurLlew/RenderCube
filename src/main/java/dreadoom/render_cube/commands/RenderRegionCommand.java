@@ -2,7 +2,7 @@ package dreadoom.render_cube.commands;
 
 import com.mojang.brigadier.CommandDispatcher;
 import dreadoom.render_cube.RenderCube;
-import dreadoom.render_cube.utils.JsonWriters;
+import dreadoom.render_cube.utils.FileWriters;
 import dreadoom.render_cube.utils.RenderCubeConstants;
 import dreadoom.render_cube.utils.RenderCubeUtils;
 import net.minecraft.commands.CommandSourceStack;
@@ -34,7 +34,7 @@ public class RenderRegionCommand {
      * @param position2 second region corner position in world
      **/
     private int renderRegion(CommandSourceStack source, BlockPos position1, BlockPos position2){
-        try (JsonWriters jsonWriters = new JsonWriters()){
+        try (FileWriters fileWriters = new FileWriters()){
             // Min and max coordinates over each axes
             int region_min_x = Math.min(position1.getX(), position2.getX());
             int region_max_x = Math.max(position1.getX(), position2.getX());
@@ -54,7 +54,7 @@ public class RenderRegionCommand {
             // Render region
             RenderCubeUtils.renderRegion(
                     source,
-                    jsonWriters,
+                    fileWriters,
                     new int[]{region_min_x, region_min_y, region_min_z, region_max_x, region_max_y, region_max_z});
 
             // Notify about success

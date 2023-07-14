@@ -178,7 +178,7 @@ dependencies {
 
     // Mods
     implementation fg.deobf("curse.maven:conquest-reforged-250077:4035900")
-    implementation fg.deobf("curse.maven:chisel-and-bits-231095:4119191")
+    implementation fg.deobf("curse.maven:chisel-and-bits-231095:3957651")
 }
 
 // Example for how to get properties into the manifest for reading at runtime.

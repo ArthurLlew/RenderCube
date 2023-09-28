@@ -13,19 +13,19 @@ import struct
 # RenderCube Utils #
 ####################
 
-#---------------------#
-# Reads file contents #
-#---------------------#
+
 def import_data(filepath):
+    '''Reads file contents.'''
+    
     # Open file
     with open(filepath, mode="rb") as f:
         # Read byte stream
         return f.read()
 
-#-----------------------------------------------#
-# Creates vertices and faces from imported data #
-#-----------------------------------------------#
+
 def parse_loaded_data(loaded_data):
+    '''Creates vertices and faces from imported data.'''
+    
     # Unit data
     vertices, uv, vertices_colors, faces = [], [], [], []
 
@@ -56,10 +56,10 @@ def parse_loaded_data(loaded_data):
 
     return vertices, uv, vertices_colors, faces
 
-#----------------------------------#
-# Creates material from hex string #
-#----------------------------------#
+
 def create_material(material_name):
+    '''Creates material from hex string.'''
+    
     # Init material
     material = bpy.data.materials.new(material_name)
     
@@ -107,16 +107,16 @@ def create_material(material_name):
     
     return material
 
-#----------------------------------------------------------------------------#
-# Checks if material names are equal ('material' is equal to 'material.001') #
-#----------------------------------------------------------------------------#
+
 def material_names_equality(template_name, name):
+    '''Checks if material names are equal ('material' is equal to 'material.001').'''
+    
     return re.fullmatch(template_name + r'(?:.\d\d\d|\Z)', name)
 
-#---------------------------------------------#
-# Creates object in scene from geometry data #
-#---------------------------------------------#
+
 def create_object(name, loaded_data, material_name, search_for_materials):
+    '''Creates object in scene from geometry data.'''
+    
     # Parse loaded data to vertices, UVs, vertices_colors and faces
     vertices, uv, vertices_colors, faces = parse_loaded_data(loaded_data)
     

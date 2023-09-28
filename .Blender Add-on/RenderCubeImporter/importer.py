@@ -46,10 +46,9 @@ class RenderCubeImporter(Operator, ImportHelper):
         default=True,
     )
 
-    #-------------------#
-    # Executes operator #
-    #-------------------#
     def execute(self, context):
+        '''Executes operator.'''
+        
         # For each imported file
         for file in self.files:
             # Import data

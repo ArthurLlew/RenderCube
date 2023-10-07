@@ -1,6 +1,6 @@
-package dreadoom.render_cube.utils;
+package com.render_cube.utils;
 
-import dreadoom.render_cube.RenderCube;
+import com.render_cube.RenderCube;
 
 import java.io.BufferedOutputStream;
 import java.io.FileOutputStream;

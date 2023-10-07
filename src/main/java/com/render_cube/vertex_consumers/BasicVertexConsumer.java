@@ -1,4 +1,4 @@
-package dreadoom.render_cube.vertex_consumers;
+package com.render_cube.vertex_consumers;
 
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import org.jetbrains.annotations.NotNull;

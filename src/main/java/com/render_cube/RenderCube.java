@@ -1,6 +1,6 @@
-package dreadoom.render_cube;
+package com.render_cube;
 
-import dreadoom.render_cube.utils.RenderCubeUtils;
+import com.render_cube.utils.RenderCubeUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.AbstractTexture;
 import net.minecraft.client.renderer.texture.TextureAtlas;
@@ -13,7 +13,7 @@ import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.Map;
 
-import static dreadoom.render_cube.utils.TextureAtlasDump.saveTextureAtlas;
+import static com.render_cube.utils.TextureAtlasDump.saveTextureAtlas;
 
 @Mod(RenderCube.MODID)
 public class RenderCube

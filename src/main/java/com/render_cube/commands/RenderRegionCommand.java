@@ -1,9 +1,9 @@
-package dreadoom.render_cube.commands;
+package com.render_cube.commands;
 
 import com.mojang.brigadier.CommandDispatcher;
-import dreadoom.render_cube.RenderCube;
-import dreadoom.render_cube.utils.FileWriters;
-import dreadoom.render_cube.utils.RenderCubeUtils;
+import com.render_cube.RenderCube;
+import com.render_cube.utils.FileWriters;
+import com.render_cube.utils.RenderCubeUtils;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.coordinates.BlockPosArgument;

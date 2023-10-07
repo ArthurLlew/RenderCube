@@ -1,7 +1,7 @@
-package dreadoom.render_cube.events;
+package com.render_cube.events;
 
 import com.mojang.logging.LogUtils;
-import dreadoom.render_cube.RenderCube;
+import com.render_cube.RenderCube;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimplePreparableReloadListener;
 import net.minecraft.util.Unit;

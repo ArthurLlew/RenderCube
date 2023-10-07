@@ -1,10 +1,9 @@
-package dreadoom.render_cube.vertex_consumers;
+package com.render_cube.vertex_consumers;
 
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.core.BlockPos;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.FileNotFoundException;
 import java.io.OutputStream;
 
 /**

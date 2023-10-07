@@ -1,8 +1,8 @@
-package dreadoom.render_cube.events;
+package com.render_cube.events;
 
-import dreadoom.render_cube.RenderCube;
-import dreadoom.render_cube.commands.RenderCubeCommand;
-import dreadoom.render_cube.commands.RenderRegionCommand;
+import com.render_cube.RenderCube;
+import com.render_cube.commands.RenderCubeCommand;
+import com.render_cube.commands.RenderRegionCommand;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;

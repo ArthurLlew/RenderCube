@@ -1,11 +1,11 @@
-package dreadoom.render_cube.utils;
+package com.render_cube.utils;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import dreadoom.render_cube.RenderCube;
-import dreadoom.render_cube.vertex_consumers.BasicVertexConsumer;
-import dreadoom.render_cube.vertex_consumers.CommonVertexConsumer;
-import dreadoom.render_cube.vertex_consumers.DummyMultiBufferSource;
-import dreadoom.render_cube.vertex_consumers.LiquidVertexConsumer;
+import com.render_cube.RenderCube;
+import com.render_cube.vertex_consumers.BasicVertexConsumer;
+import com.render_cube.vertex_consumers.CommonVertexConsumer;
+import com.render_cube.vertex_consumers.DummyMultiBufferSource;
+import com.render_cube.vertex_consumers.LiquidVertexConsumer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.commands.CommandSourceStack;

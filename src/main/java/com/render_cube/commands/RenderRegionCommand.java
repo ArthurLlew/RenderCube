@@ -57,7 +57,7 @@ public class RenderRegionCommand {
                     new int[]{region_min_x, region_min_y, region_min_z, region_max_x, region_max_y, region_max_z});
 
             // Notify about success
-            source.sendSuccess(new TextComponent("Operation succeeded."), true);
+            source.sendSuccess(new TextComponent("Render succeeded."), true);
 
             // Finish with success
             return 1;

@@ -39,7 +39,7 @@ public class RenderCubeCommand {
                             position.getZ()});
 
             // Notify about success
-            source.sendSuccess(new TextComponent("Operation succeeded."), true);
+            source.sendSuccess(new TextComponent("Render succeeded."), true);
 
             // Finish with success
             return 1;

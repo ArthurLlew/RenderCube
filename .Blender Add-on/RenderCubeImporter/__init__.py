@@ -2,6 +2,7 @@
 # Imports #
 ###########
 
+
 # Blender
 import bpy
 # Package import
@@ -12,12 +13,15 @@ if "load_modules" in locals():
 else:
 	from . import importer
 
+
 ###############
 # Add-on info #
 ###############
+
+
 bl_info = {
     "name": "RenderCubeImporter",
-    "author": "Dreadoom",
+    "author": "Raven",
     "version": (0, 1),
     "blender": (3, 6, 0),
     "description": "Imports RenderCube data",
@@ -26,13 +30,16 @@ bl_info = {
     "category": "Import-Export",
 }
 
+
 #######################
 # Add-on Registration #
 #######################
 
+
 # Only needed if you want to add into a dynamic menu
 def menu_func_import(self, context):
     self.layout.operator(importer.RenderCubeImporter.bl_idname, text='RenderCube (.rcube)')
+
 
 # Register
 def register():
@@ -49,6 +56,7 @@ def unregister():
     
     # Unregister
     bpy.utils.unregister_class(importer.RenderCubeImporter)
+
 
 # This allows you to run the script directly from Blender's Text editor
 # to test the add-on without having to install it.

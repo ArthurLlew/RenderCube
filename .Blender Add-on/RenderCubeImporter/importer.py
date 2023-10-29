@@ -2,6 +2,7 @@
 # Imports #
 ###########
 
+
 # Operating system
 import os
 # Blender
@@ -11,11 +12,14 @@ from bpy_extras.io_utils import ImportHelper
 # Custom lib
 from . import utils
 
+
 #########################
 # Add-on Operator Class #
 #########################
+
+
 class RenderCubeImporter(Operator, ImportHelper):
-    """RenderCube data import"""
+    """RenderCube data importer"""
     # Important since its how bpy.ops.import_test.some_data is constructed
     bl_idname = 'rendercube_import.rendercube_data'
     bl_label = 'Import RenderCube Data'
@@ -51,17 +55,22 @@ class RenderCubeImporter(Operator, ImportHelper):
         
         # For each imported file
         for file in self.files:
-            # Import data
-            loaded_data = utils.import_data(os.path.join(self.directory, file.name))
+            # Path of the file
+            filepath = os.path.join(self.directory, file.name)
             
-            # If loaded file is not empty
-            if len(loaded_data) != 0 and len(loaded_data) % 192 == 0:
-                # Create object from loaded data
-                utils.create_object(
-                    file.name.split('.', 1)[0],
-                    loaded_data,
-                    file.name.split('.', 1)[0] + 'Mat',
-                    self.search_for_materials)
+            # Open file
+            with open(filepath, mode="rb") as f:
+                # File size
+                file_bytes_count = os.fstat(f.fileno()).st_size
+                
+                # If it is not empty and consists of blocks 192 bytes long
+                if file_bytes_count != 0 and file_bytes_count % 192 == 0:
+                    # Create object from loaded data
+                    utils.create_object(
+                        file.name.split('.', 1)[0],
+                        f, file_bytes_count,
+                        file.name.split('.', 1)[0] + 'Mat',
+                        self.search_for_materials)
 
         # Operation was successful
         return {'FINISHED'}

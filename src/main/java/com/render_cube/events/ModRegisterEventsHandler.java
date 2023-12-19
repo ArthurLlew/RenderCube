@@ -26,6 +26,7 @@ public class ModRegisterEventsHandler {
         // Render region command
         new RenderRegionCommand(event.getDispatcher());
 
+        // ?
         ConfigCommand.register(event.getDispatcher());
     }
 }

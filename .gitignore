@@ -29,6 +29,7 @@ forge*changelog.txt
 .Blender Add-on/RenderCubeImporter.zip
 .Blender Test Scenes
 gradle
+run-data
 src/generated
 src/test
 .gitattributes

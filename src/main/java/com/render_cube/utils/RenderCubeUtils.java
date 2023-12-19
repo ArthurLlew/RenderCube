@@ -1,24 +1,24 @@
 package com.render_cube.utils;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.render_cube.RenderCube;
 import com.render_cube.vertex_consumers.BasicVertexConsumer;
 import com.render_cube.vertex_consumers.CommonVertexConsumer;
-import com.render_cube.vertex_consumers.DummyMultiBufferSource;
+import com.render_cube.vertex_consumers.FakeMultiBufferSource;
 import com.render_cube.vertex_consumers.LiquidVertexConsumer;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
-import net.minecraftforge.client.model.data.EmptyModelData;
-import net.minecraftforge.client.model.data.IModelData;
+import net.minecraftforge.client.model.data.ModelData;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
@@ -26,18 +26,19 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
-import java.util.Random;
+
+import static com.render_cube.RenderCube.TEXTURE_ATLASES_DIR;
 
 /**
  * Contains mod utils.
  **/
 public class RenderCubeUtils{
     /**
-     * Checks if this mod special directory exists, and, if not, creates it.
+     * Checks if mod directory exists, and, if not, creates it.
      **/
-    public static void checkAndCreateModDir() throws IOException {
-        // Check if this mod special directory exists
-        Path path = Paths.get(System.getProperty("user.dir") + "\\" + RenderCube.MODID);
+    public static void checkModDir() throws IOException {
+        // Check if mod directory exists
+        Path path = Paths.get(System.getProperty("user.dir") + "\\" + TEXTURE_ATLASES_DIR);
 
         // If not
         if (!Files.exists(path)) {
@@ -69,15 +70,12 @@ public class RenderCubeUtils{
             CommonVertexConsumer commonVertexConsumer =
                     new CommonVertexConsumer(fileWriters.blockWriter, regionPosition);
 
-            // Init random with block seed at this position
-            Random random = new Random(block.getSeed(levelPosition));
-
             // Block extra model data
-            IModelData data = Minecraft.getInstance().getBlockRenderer().getBlockModel(block).getModelData(
+            ModelData data = Minecraft.getInstance().getBlockRenderer().getBlockModel(block).getModelData(
                     level,
                     levelPosition,
                     block,
-                    EmptyModelData.INSTANCE);
+                    ModelData.EMPTY);
 
             // Consume block vertices
             Minecraft.getInstance().getBlockRenderer().renderBatched(
@@ -87,8 +85,9 @@ public class RenderCubeUtils{
                     new PoseStack(),
                     commonVertexConsumer,
                     true,
-                    random,
-                    data);
+                    RandomSource.create(block.getSeed(levelPosition)),
+                    data,
+                    RenderType.solid());
 
             // If this block contains fluid
             if (!block.getFluidState().isEmpty()){
@@ -105,13 +104,13 @@ public class RenderCubeUtils{
                         block.getFluidState());
             }
 
-            // Get entity at our position
+            // Get additional entity at block position
             BlockEntity entity = level.getBlockEntity(levelPosition);
             // If it is not null
             if(entity != null){
                 // Create dummy MultiBufferSource
-                DummyMultiBufferSource dummyMultiBufferSource =
-                        new DummyMultiBufferSource(
+                FakeMultiBufferSource fakeMultiBufferSource =
+                        new FakeMultiBufferSource(
                                 new CommonVertexConsumer(fileWriters.blockEntityWriter, regionPosition));
 
                 // Render into dummy MultiBufferSource
@@ -119,13 +118,13 @@ public class RenderCubeUtils{
                         entity,
                         1.0F,
                         new PoseStack(),
-                        dummyMultiBufferSource);
+                        fakeMultiBufferSource);
             }
         }
     }
 
     /**
-     * Renders all entities in region.
+     * Renders entities in region.
      * @param source command executioner
      * @param fileWriters writers, used to write captured data
      * @param regionCoordinates array that holds region_min_x, region_min_y, region_min_z, region_max_x, region_max_y,
@@ -161,7 +160,7 @@ public class RenderCubeUtils{
             double entityZ = Mth.lerp(minecraftConstant, entity.zOld, entity.getZ());
 
             // Create dummy MultiBufferSource
-            DummyMultiBufferSource dummyMultiBufferSource = new DummyMultiBufferSource(
+            FakeMultiBufferSource fakeMultiBufferSource = new FakeMultiBufferSource(
                     new BasicVertexConsumer(fileWriters.entityWriter));
 
             // Render entity into dummy MultiBufferSource
@@ -174,7 +173,7 @@ public class RenderCubeUtils{
                     Mth.lerp(minecraftConstant, entity.yRotO, entity.getYRot()),
                     minecraftConstant,
                     new PoseStack(),
-                    dummyMultiBufferSource,
+                    fakeMultiBufferSource,
                     entityRenderDispatcher.getPackedLightCoords(entity, minecraftConstant));
         }
     }

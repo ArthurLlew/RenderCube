@@ -2,6 +2,7 @@ package com.render_cube.events;
 
 import com.mojang.logging.LogUtils;
 import com.render_cube.RenderCube;
+import net.minecraft.client.Minecraft;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimplePreparableReloadListener;
 import net.minecraft.util.Unit;
@@ -10,28 +11,28 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.RegisterClientReloadListenersEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 
-import java.io.IOException;
+import java.nio.file.Paths;
 
 /**
- * Mod events handler.
+ * Mod client events handler.
  */
 @Mod.EventBusSubscriber(modid = RenderCube.MODID, bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
-public class ModEventsHandler {
+public class ModClientEventsHandler {
     private static final Logger LOGGER = LogUtils.getLogger();
 
     /**
-     * Listens to resource reload event.
+     * Listens to resource reload.
      */
     @SubscribeEvent
     public static void reloadListeners(RegisterClientReloadListenersEvent event) {
         event.registerReloadListener(new SimplePreparableReloadListener<Unit>() {
 
             /**
-             * Is invoked before resources load.
+             * Is invoked before resources are loaded.
              * @param resourceManager instance of {@link ResourceManager}
              * @param profiler instance of {@link ProfilerFiller}
              * @return instance of {@link Unit}
@@ -43,7 +44,7 @@ public class ModEventsHandler {
             }
 
             /**
-             * Is invoked after resources load.
+             * Is invoked after resources are loaded.
              * @param ignored instance of {@link Unit}
              * @param resourceManager instance of {@link ResourceManager}
              * @param profiler instance of {@link ProfilerFiller}
@@ -52,25 +53,22 @@ public class ModEventsHandler {
             protected void apply(@NotNull Unit ignored,
                                  @NotNull ResourceManager resourceManager,
                                  @NotNull ProfilerFiller profiler) {
-                LOGGER.info("Dumping texture atlases.");
-                try {
-                    RenderCube.dumpTextureMaps();
-                } catch (IOException e) {
-                    LOGGER.error("Failed to dump texture maps:", e);
-                }
+                LOGGER.info("Dumping texture atlases");
+                // Dump textures via texture manager
+                Minecraft.getInstance().getTextureManager().dumpAllSheets(Paths.get(RenderCube.TEXTURE_ATLASES_DIR));
+                LOGGER.info("Finished dumping texture atlases");
             }
         });
     }
 
     /**
-     * Mod setup.
-     * @param event common setup event
+     * Listens to client setup.
      */
     @SubscribeEvent
-    public static void setup(final FMLCommonSetupEvent event)
+    public static void onClientSetup(FMLClientSetupEvent event)
     {
-        // Some pre-init code
-        LOGGER.info("Starting setup");
-        LOGGER.info("Setup successful");
+        LOGGER.info("RENDERCUBE CLIENT SETUP");
+        LOGGER.info("MINECRAFT NAME >> {}", Minecraft.getInstance().getUser().getName());
+        LOGGER.info("RENDERCUBE CLIENT SETUP COMPLETE");
     }
 }

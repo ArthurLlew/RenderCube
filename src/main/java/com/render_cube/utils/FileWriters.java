@@ -1,11 +1,11 @@
 package com.render_cube.utils;
 
-import com.render_cube.RenderCube;
-
 import java.io.BufferedOutputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+
+import static com.render_cube.RenderCube.MODID;
 
 /**
  * Autocloseable collection of file writers.
@@ -40,13 +40,13 @@ public class FileWriters implements AutoCloseable {
         String FileExtension = ".rcube";
 
         blockWriter= new BufferedOutputStream(
-                new FileOutputStream(RenderCube.MODID + "\\" + "renderedBlocks" + FileExtension), bufferSize);
+                new FileOutputStream(MODID + "\\" + "renderedBlocks" + FileExtension), bufferSize);
         liquidWriter = new BufferedOutputStream(
-                new FileOutputStream(RenderCube.MODID + "\\" + "renderedLiquids" + FileExtension), bufferSize);
+                new FileOutputStream(MODID + "\\" + "renderedLiquids" + FileExtension), bufferSize);
         blockEntityWriter = new BufferedOutputStream(
-                new FileOutputStream(RenderCube.MODID + "\\" + "renderedBlockEntities" + FileExtension), bufferSize);
+                new FileOutputStream(MODID + "\\" + "renderedBlockEntities" + FileExtension), bufferSize);
         entityWriter = new BufferedOutputStream(
-                new FileOutputStream(RenderCube.MODID + "\\" + "renderedEntities" + FileExtension), bufferSize);
+                new FileOutputStream(MODID + "\\" + "renderedEntities" + FileExtension), bufferSize);
     }
 
     /**

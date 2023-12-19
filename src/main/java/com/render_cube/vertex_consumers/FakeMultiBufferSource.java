@@ -9,12 +9,12 @@ import org.jetbrains.annotations.NotNull;
  * Is used to capture geometry, produced by entity renderers.
  * @param buffer stored vertex consumer.
  */
-public record DummyMultiBufferSource(BasicVertexConsumer buffer) implements MultiBufferSource {
+public record FakeMultiBufferSource(BasicVertexConsumer buffer) implements MultiBufferSource {
     /**
      * Constructs instance from given {@link BasicVertexConsumer}.
      * @param buffer vertex consumer
      */
-    public DummyMultiBufferSource {
+    public FakeMultiBufferSource {
     }
 
     /**

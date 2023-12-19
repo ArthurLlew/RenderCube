@@ -1,19 +1,27 @@
 package com.render_cube;
 
+import com.mojang.logging.LogUtils;
 import com.render_cube.utils.RenderCubeUtils;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.texture.AbstractTexture;
-import net.minecraft.client.renderer.texture.TextureAtlas;
-import net.minecraft.client.renderer.texture.TextureManager;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.world.food.FoodProperties;
+import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.CreativeModeTabs;
+import net.minecraft.world.item.Item;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.server.ServerStartingEvent;
+import net.minecraftforge.eventbus.api.IEventBus;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.config.ModConfig;
+import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.minecraftforge.registries.DeferredRegister;
+import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraftforge.registries.RegistryObject;
+import org.slf4j.Logger;
 
 import java.io.IOException;
-import java.nio.file.Paths;
-import java.util.Map;
-
-import static com.render_cube.utils.TextureAtlasDump.saveTextureAtlas;
 
 @Mod(RenderCube.MODID)
 public class RenderCube
@@ -22,43 +30,76 @@ public class RenderCube
     public static final String MODID = "rendercube";
 
     /**
+     * Mod texture atlases directory.
+     */
+    public static final String TEXTURE_ATLASES_DIR = MODID + "\\" + "texture_atlases";
+
+    // Directly reference a slf4j logger
+    private static final Logger LOGGER = LogUtils.getLogger();
+    // Create a Deferred Register to hold Items which will all be registered under the MODID namespace
+    public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, MODID);
+    // Create a Deferred Register to hold CreativeModeTabs which will all be registered under the MODID namespace
+    public static final DeferredRegister<CreativeModeTab> CREATIVE_MODE_TABS = DeferredRegister.create(Registries.CREATIVE_MODE_TAB, MODID);
+
+    // Creates a new food item with the id "MODID:rendercube_item", nutrition 1 and saturation 2
+    public static final RegistryObject<Item> EXAMPLE_ITEM = ITEMS.register("rendercube_item", () -> new Item(new Item.Properties().food(new FoodProperties.Builder()
+            .alwaysEat().nutrition(1).saturationMod(2f).build())));
+
+    // Creates a creative tab with the id "MODID:rendercube_tab" for the example item, that is placed after the combat tab
+    public static final RegistryObject<CreativeModeTab> EXAMPLE_TAB = CREATIVE_MODE_TABS.register("rendercube_tab", () -> CreativeModeTab.builder()
+            .withTabsBefore(CreativeModeTabs.COMBAT)
+            .icon(() -> EXAMPLE_ITEM.get().getDefaultInstance())
+            .displayItems((parameters, output) -> {
+                output.accept(EXAMPLE_ITEM.get()); // Add the item to the tab.
+            }).build());
+
+    /**
      * Mod init.
      */
     public RenderCube()
     {
-        // Register ourselves for server and other game events we are interested in
+        // Get event bus
+        IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
+
+        // Register the commonSetup method for mod loading
+        modEventBus.addListener(this::commonSetup);
+
+        // Register the Deferred Register to the mod event bus so items get registered
+        ITEMS.register(modEventBus);
+        // Register the Deferred Register to the mod event bus so tabs get registered
+        CREATIVE_MODE_TABS.register(modEventBus);
+
+        // Register mod for server and other game events
         MinecraftForge.EVENT_BUS.register(this);
+
+        // Register mod's ForgeConfigSpec so that Forge can create and load the config file
+        ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, Config.SPEC);
     }
 
     /**
-     * Dumps all loaded texture atlases to separate files.
-     * @throws IOException if file exceptions are encountered
+     * Listens to mod setup event.
      */
-    public static void dumpTextureMaps() throws IOException {
-        // Validate mod directory
-        RenderCubeUtils.checkAndCreateModDir();
+    private void commonSetup(final FMLCommonSetupEvent event)
+    {
+        LOGGER.info("RENDERCUBE SETUP");
 
-        // Gets minecraft texture manager
-        TextureManager textureManager = Minecraft.getInstance().getTextureManager();
-
-        // Iterate over map of texture resources
-        for (Map.Entry<ResourceLocation, AbstractTexture> entry : textureManager.byPath.entrySet()) {
-            // Get value of map
-            AbstractTexture textureObject = entry.getValue();
-
-            // If it is texture atlas
-            if (textureObject instanceof TextureAtlas textureAtlas) {
-                // Get entry key as string. In this case this string will represent texture atlas resource location.
-                String name = entry.getKey().toString();
-
-                // Name of texture atlas is name of .png file
-                name = name.substring(name.lastIndexOf("/") + 1);
-                // without '.png'
-                name = name.substring(0, name.lastIndexOf(".png"));
-
-                // Save texture atlas
-                saveTextureAtlas(name, textureAtlas.getId(), Paths.get(MODID));
-            }
+        LOGGER.info("Validating mod directory");
+        try {
+            RenderCubeUtils.checkModDir();
         }
+        catch (IOException e){
+            LOGGER.error("Unable to validate mod directory: " + e);
+        }
+
+        LOGGER.info("RENDERCUBE SETUP COMPLETE");
+    }
+
+    /**
+     * Listens to server startup.
+     */
+    @SubscribeEvent
+    public void onServerStarting(ServerStartingEvent event)
+    {
+        LOGGER.info("RENDERCUBE server started");
     }
 }

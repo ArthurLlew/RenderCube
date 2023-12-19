@@ -8,7 +8,7 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.coordinates.BlockPosArgument;
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.Component;
 
 public class RenderCubeCommand {
     /**
@@ -39,7 +39,7 @@ public class RenderCubeCommand {
                             position.getZ()});
 
             // Notify about success
-            source.sendSuccess(new TextComponent("Render succeeded."), true);
+            source.sendSuccess(() -> Component.literal("Render succeeded."), true);
 
             // Finish with success
             return 1;
@@ -47,7 +47,7 @@ public class RenderCubeCommand {
         catch(Exception e) {
             // Notify about exception
             source.sendFailure(
-                    new TextComponent(new Throwable().getStackTrace()[0].getMethodName() + ": " + e));
+                    Component.literal(new Throwable().getStackTrace()[0].getMethodName() + ": " + e));
 
             // Finish with failure
             return -1;

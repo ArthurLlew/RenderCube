@@ -7,7 +7,7 @@ importer addon, that imports exported geometry.
 Usage:
 ------------------------------
 
-There are currently 2 commands:
+There are currently two commands:
 1) rendercube render cube \<position>
 2) rendercube render region \<position 1> \<position 2>
 
@@ -15,18 +15,19 @@ First one is mainly used for debugging one single cube (cube can
 contain block, entity or/and liquid).
 
 The second one is aimed primary for exporting large parts of the
-world. Exported part should be <= 450 cubes by X and Z axis. If
-you ask to render more, appropriate error will be shown in
+world. Exported part should be <= 450 cubes by both X and Z axis.
+If you ask to render more, appropriate error will be shown in
 console.
 
-After you hit _Enter_, try not to move, because will lag. 
-It may take up to 5-10 minutes to render world
+After you hit _Enter_, try not to move, because it may slow down
+the operation. It may take up to 5-10 minutes to render world
 portion of maximum allowed size (depending on geometry
 complexity and your computer power). Once it's done, navigate 
 to you game folder (_.../.minecraft_) where you will notice new 
-directory named _rendercube_. There you will see files with
-extension _.rcube_ (contains geometry) and some _.png_
-files (these are minecraft texture atlases).
+directory called _rendercube_. There you will see files with
+extension _.rcube_ (contains geometry) and another directory,
+called _texture_atlases_. It contains minecraft texture atlases
+(they are renewed every time game resources are reloaded).
 
 After successful export open _Blender_ and activate provided
 addon. Use new option in import menu, named _RenderCube
@@ -62,11 +63,14 @@ time they are obviously visible, because most faces tend to
 occupy one square texture part in atlas), and separate them all
 into another object. Then duplicate material on that object and
 assign material _Blend Mode_ to _Alpha Blend_.
-2) Mod currently does not support mods like _chisel and bits_
+2) Currently, mod does not support mods like _chisel and bits_
 which use custom renders.
+3) Some optimization mods (like _entity culling_) that tweak
+rendering may cause the mod to malfunction. Luckily, _Optifine_
+is not included in this list.
 
 Credits:
 ------------------------------
-I borrowed some code for texture atlas export from this
-repository:
+For the version 1.18.2 I borrowed some code for texture atlas
+export from this repository:
 https://github.com/mezz/TextureDump/tree/06e730da6f16a064637135ae32d2a4bf34585698

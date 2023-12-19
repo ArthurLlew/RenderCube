@@ -56,7 +56,7 @@ public class ModEventsHandler {
                 try {
                     RenderCube.dumpTextureMaps();
                 } catch (IOException e) {
-                    LOGGER.error("Failed to dump texture maps with error.", e);
+                    LOGGER.error("Failed to dump texture maps:", e);
                 }
             }
         });

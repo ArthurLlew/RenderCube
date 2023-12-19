@@ -1,0 +1,36 @@
+# eclipse
+bin
+*.launch
+.settings
+.metadata
+.classpath
+.project
+
+# idea
+out
+*.ipr
+*.iws
+*.iml
+.idea
+
+# gradle
+build
+.gradle
+
+# other
+eclipse
+run
+
+# Files from Forge MDK
+forge*changelog.txt
+
+# Custom
+.Blender Add-on/Test.py
+.Blender Add-on/RenderCubeImporter.zip
+.Blender Test Scenes
+gradle
+src/generated
+src/test
+.gitattributes
+gradlew
+gradlew.bat

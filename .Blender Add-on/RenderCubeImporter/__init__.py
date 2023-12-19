@@ -19,7 +19,7 @@ bl_info = {
     "name": "RenderCubeImporter",
     "author": "Dreadoom",
     "version": (0, 1),
-    "blender": (3, 6, 0),
+    "blender": (4, 0, 2),
     "description": "Imports RenderCube data",
     "warning": "",
     "doc_url": "",

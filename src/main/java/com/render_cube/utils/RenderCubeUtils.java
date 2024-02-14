@@ -8,13 +8,12 @@ import com.render_cube.vertex_consumers.LiquidVertexConsumer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
-import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.core.BlockPos;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
@@ -49,18 +48,15 @@ public class RenderCubeUtils{
 
     /**
      * Renders one cube.
-     * @param source command executioner
+     * @param level Minecraft level where procedure will run
      * @param fileWriters writers, used to write captured data
      * @param levelPosition block position in level
      * @param regionPosition block position in region
      **/
-    public static void renderCube(@NotNull CommandSourceStack source,
+    public static void renderCube(@NotNull Level level,
                                   @NotNull FileWriters fileWriters,
                                   @NotNull BlockPos levelPosition,
                                   @NotNull BlockPos regionPosition) {
-        // Get level, where command is executed
-        ServerLevel level = source.getLevel();
-
         // Get BlockState at position
         BlockState block = level.getBlockState(levelPosition);
 
@@ -125,17 +121,14 @@ public class RenderCubeUtils{
 
     /**
      * Renders entities in region.
-     * @param source command executioner
+     * @param level Minecraft level where procedure will run
      * @param fileWriters writers, used to write captured data
      * @param regionCoordinates array that holds region_min_x, region_min_y, region_min_z, region_max_x, region_max_y,
      *                          region_max_z positions of region in world
      **/
-    public static void renderRegionEntities(@NotNull CommandSourceStack source,
+    public static void renderRegionEntities(@NotNull Level level,
                                             @NotNull FileWriters fileWriters,
                                             int[] regionCoordinates){
-        // Get level, where command is executed
-        ServerLevel level = source.getLevel();
-
         // Get all entities in region (except player entity)
         List<Entity> entities = level.getEntities(
                 (Entity)null, new AABB(
@@ -180,12 +173,12 @@ public class RenderCubeUtils{
 
     /**
      * Renders world region.
-     * @param source command executioner
+     * @param level Minecraft level where procedure will run
      * @param fileWriters writers, used to write captured data
      * @param regionCoordinates coordinates of region to render
-     * @see RenderCubeUtils#renderRegionEntities(CommandSourceStack, FileWriters, int[])
+     * @see RenderCubeUtils#renderRegionEntities(Level, FileWriters, int[])
      **/
-    public static void renderRegion(@NotNull CommandSourceStack source,
+    public static void renderRegion(@NotNull Level level,
                                     @NotNull FileWriters fileWriters,
                                     int[] regionCoordinates){
         // Loop over coordinates included in region
@@ -194,7 +187,7 @@ public class RenderCubeUtils{
                 for(int z = regionCoordinates[2]; z <= regionCoordinates[5]; z++){
                     // Process cube
                     RenderCubeUtils.renderCube(
-                            source,
+                            level,
                             fileWriters,
                             new BlockPos(x, y, z),
                             new BlockPos(
@@ -207,6 +200,6 @@ public class RenderCubeUtils{
         }
 
         // Process region entities
-        RenderCubeUtils.renderRegionEntities(source, fileWriters, regionCoordinates);
+        RenderCubeUtils.renderRegionEntities(level, fileWriters, regionCoordinates);
     }
 }

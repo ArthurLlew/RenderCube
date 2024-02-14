@@ -52,7 +52,7 @@ public class RenderRegionCommand {
 
             // Render region
             RenderCubeUtils.renderRegion(
-                    source,
+                    source.getLevel(),
                     fileWriters,
                     new int[]{region_min_x, region_min_y, region_min_z, region_max_x, region_max_y, region_max_z});
 

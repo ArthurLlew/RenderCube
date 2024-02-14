@@ -33,7 +33,7 @@ public class RenderCubeCommand {
         try (FileWriters fileWriters = new FileWriters()){
             // Render cube (region of 1 block)
             RenderCubeUtils.renderRegion(
-                    source,
+                    source.getLevel(),
                     fileWriters,
                     new int[]{position.getX(), position.getY(), position.getZ(), position.getX(), position.getY(),
                             position.getZ()});

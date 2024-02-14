@@ -2,6 +2,7 @@ package com.render_cube.events;
 
 import com.mojang.logging.LogUtils;
 import com.render_cube.RenderCube;
+import com.render_cube.utils.RenderCubeUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimplePreparableReloadListener;
@@ -15,10 +16,11 @@ import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 
+import java.io.IOException;
 import java.nio.file.Paths;
 
 /**
- * Mod client events handler.
+ * Client events handler.
  */
 @Mod.EventBusSubscriber(modid = RenderCube.MODID, bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
 public class ModClientEventsHandler {
@@ -65,10 +67,18 @@ public class ModClientEventsHandler {
      * Listens to client setup.
      */
     @SubscribeEvent
-    public static void onClientSetup(FMLClientSetupEvent event)
-    {
+    public static void onClientSetup(FMLClientSetupEvent event) throws IOException {
         LOGGER.info("RENDERCUBE CLIENT SETUP");
-        LOGGER.info("MINECRAFT NAME >> {}", Minecraft.getInstance().getUser().getName());
+
+        LOGGER.info("Validating " + RenderCube.MODID + " directory");
+        try {
+            RenderCubeUtils.checkModDir();
+        }
+        catch (IOException e){
+            LOGGER.error("Failed to validate " + RenderCube.MODID + " directory");
+            throw e;
+        }
+
         LOGGER.info("RENDERCUBE CLIENT SETUP COMPLETE");
     }
 }

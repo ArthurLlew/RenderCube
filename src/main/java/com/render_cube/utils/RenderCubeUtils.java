@@ -206,7 +206,7 @@ public class RenderCubeUtils{
             }
         }
 
-        // Process region entities (result of this function determines final result of region rendering operation)
+        // Process region entities
         RenderCubeUtils.renderRegionEntities(source, fileWriters, regionCoordinates);
     }
 }

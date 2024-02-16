@@ -7,27 +7,26 @@ importer addon, that imports exported geometry.
 Usage:
 ------------------------------
 
-There are currently two commands:
-1) rendercube render cube \<position>
-2) rendercube render region \<position 1> \<position 2>
+There are currently two commands with keybindings:
+1) Render
+2) Dump Textures
 
-First one is mainly used for debugging one single cube (cube can
-contain block, entity or/and liquid).
+(1) exports a small cubic region around the player. (2) dumps
+all texture atlases used by game at the moment of pressing a
+button.
 
-The second one is aimed primary for exporting large parts of the
+The first one is aimed primary for exporting large parts of the
 world. Exported part should be <= 450 cubes by both X and Z axis.
 If you ask to render more, appropriate error will be shown in
 console.
 
-After you hit _Enter_, try not to move, because it may slow down
-the operation. It may take up to 5-10 minutes to render world
-portion of maximum allowed size (depending on geometry
-complexity and your computer power). Once it's done, navigate 
-to you game folder (_.../.minecraft_) where you will notice new 
-directory called _rendercube_. There you will see files with
-extension _.rcube_ (contains geometry) and another directory,
-called _texture_atlases_. It contains minecraft texture atlases
-(they are renewed every time game resources are reloaded).
+After you hit _Render_ key, try not to move, because it may
+slow down the operation. It may take some time. Once it's done,
+navigate to you game folder (_.../.minecraft_) where you will
+notice new directory called _rendercube_. There you will find
+files with extension _.rcube_ (contains geometry) and another
+directory, called _texture_atlases_. The latter contains dumped
+texture atlases.
 
 After successful export open _Blender_ and activate provided
 addon. Use new option in import menu, named _RenderCube

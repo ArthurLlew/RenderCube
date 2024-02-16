@@ -47,7 +47,7 @@ class RenderCubeImporter(Operator, ImportHelper):
     )
 
     def execute(self, context):
-        '''Executes operator.'''
+        """Executes operator."""
         
         # For each imported file
         for file in self.files:

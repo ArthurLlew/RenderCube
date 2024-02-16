@@ -8,9 +8,9 @@ import bpy
 import importlib
 # Custom lib
 if "load_modules" in locals():
-	importlib.reload(importer)
+    importlib.reload(importer)
 else:
-	from . import importer
+    from . import importer
 
 ###############
 # Add-on info #

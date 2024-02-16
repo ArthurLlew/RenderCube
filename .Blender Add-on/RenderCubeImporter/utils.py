@@ -15,7 +15,7 @@ import struct
 
 
 def import_data(filepath):
-    '''Reads file contents.'''
+    """Reads file contents."""
     
     # Open file
     with open(filepath, mode="rb") as f:
@@ -24,7 +24,7 @@ def import_data(filepath):
 
 
 def parse_loaded_data(loaded_data):
-    '''Creates vertices and faces from imported data.'''
+    """Creates vertices and faces from imported data."""
     
     # Unit data
     vertices, uv, vertices_colors, faces = [], [], [], []
@@ -58,7 +58,7 @@ def parse_loaded_data(loaded_data):
 
 
 def create_material(material_name):
-    '''Creates material from hex string.'''
+    """Creates material from hex string."""
     
     # Init material
     material = bpy.data.materials.new(material_name)
@@ -103,13 +103,13 @@ def create_material(material_name):
 
 
 def material_names_equality(template_name, name):
-    '''Checks if material names are equal ('material' is equal to 'material.001').'''
+    """Checks if material names are equal ('material' is equal to 'material.001')."""
     
     return re.fullmatch(template_name + r'(?:.\d\d\d|\Z)', name)
 
 
 def create_object(name, loaded_data, material_name, search_for_materials):
-    '''Creates object in scene from imported data.'''
+    """Creates object in scene from imported data."""
     
     # Parse loaded data to vertices, UVs, vertices_colors and faces
     vertices, uv, vertices_colors, faces = parse_loaded_data(loaded_data)
@@ -141,17 +141,16 @@ def create_object(name, loaded_data, material_name, search_for_materials):
     # Assign materials to faces of mesh
     for face in mesh.polygons:
         # Try to find material name with may be additional number suffix in mesh materials
-        for material_key in mesh.materials.keys():
-            if material_names_equality(material_name, material_key):
+        for material in mesh.materials:
+            if material_names_equality(material_name, material.name):
                 break
         # If this material is not yet present in mesh
         else:
-            # If we want to search for such material in scene
+            # If we must search for material in other scene objects
             if search_for_materials:
-                # Try to find material in scene
                 for object in bpy.context.scene.objects:
                     for material_slot in object.material_slots:
-                        if material_slot.name == material_name:
+                        if material_names_equality(material_name, material_slot.name):
                             mesh.materials.append(material_slot.material)
                             # Signal, that material was found
                             break

@@ -11,18 +11,11 @@ import java.io.OutputStream;
  */
 public class LiquidVertexConsumer extends CommonVertexConsumer {
     /**
-     * Liquid position in level.
-     */
-    private final BlockPos levelPosition;
-
-    /**
      * Constructs instance from position in region.
      * @param regionPosition liquid position in region
      */
-    public LiquidVertexConsumer(OutputStream fileStream, BlockPos regionPosition, BlockPos levelPosition) {
+    public LiquidVertexConsumer(OutputStream fileStream, BlockPos regionPosition) {
         super(fileStream, regionPosition);
-
-        this.levelPosition = levelPosition;
     }
 
     /**
@@ -34,9 +27,14 @@ public class LiquidVertexConsumer extends CommonVertexConsumer {
      */
     @Override
     public @NotNull VertexConsumer vertex(double x, double y, double z){
+        // Rendering process of liquid adds a block position in a chunk to vertex coordinate
+        int shiftX = ((int)Math.ceil(x) >> 1) << 1;
+        int shiftY = ((int)Math.ceil(y) >> 1) << 1;
+        int shiftZ = ((int)Math.ceil(z) >> 1) << 1;
+
         return super.vertex(
-                x - (levelPosition.getX() & 15),
-                y - (levelPosition.getY() & 15),
-                z - (levelPosition.getZ() & 15));
+                x - shiftX,
+                y - shiftY,
+                z - shiftZ);
     }
 }

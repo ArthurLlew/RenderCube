@@ -26,12 +26,4 @@ public record FakeMultiBufferSource(BasicVertexConsumer buffer) implements Multi
     public @NotNull VertexConsumer getBuffer(@NotNull RenderType type) {
         return buffer;
     }
-
-    /**
-     * Returns stored instance of {@link BasicVertexConsumer}.
-     * @return instance of {@link BasicVertexConsumer}
-     */
-    public @NotNull BasicVertexConsumer getBuffer() {
-        return buffer;
-    }
 }

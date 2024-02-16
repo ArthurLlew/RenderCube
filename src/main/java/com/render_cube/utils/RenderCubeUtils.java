@@ -16,6 +16,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.phys.AABB;
 import net.minecraftforge.client.model.data.ModelData;
 import org.jetbrains.annotations.NotNull;
@@ -85,11 +86,12 @@ public class RenderCubeUtils{
                     data,
                     RenderType.solid());
 
-            // If this block contains fluid
-            if (!block.getFluidState().isEmpty()){
+            // If there is fluid
+            FluidState fluid = block.getFluidState();
+            if (!fluid.isEmpty()){
                 // Init liquid consumer
                 LiquidVertexConsumer liquidVertexConsumer =
-                        new LiquidVertexConsumer(fileWriters.liquidWriter, regionPosition, levelPosition);
+                        new LiquidVertexConsumer(fileWriters.liquidWriter, regionPosition);
 
                 // Consume liquid vertices
                 Minecraft.getInstance().getBlockRenderer().renderLiquid(
@@ -97,12 +99,11 @@ public class RenderCubeUtils{
                         level,
                         liquidVertexConsumer,
                         block,
-                        block.getFluidState());
+                        fluid);
             }
 
-            // Get additional entity at block position
+            // If there is a block-entity
             BlockEntity entity = level.getBlockEntity(levelPosition);
-            // If it is not null
             if(entity != null){
                 // Create dummy MultiBufferSource
                 FakeMultiBufferSource fakeMultiBufferSource =

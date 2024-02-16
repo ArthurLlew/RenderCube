@@ -40,12 +40,12 @@ public class ClientEventsHandler {
                     LocalPlayer player = Minecraft.getInstance().player;
 
                     // Min and max coordinates over each axes
-                    int region_min_x = Math.min(player.getBlockX() - 64, player.getBlockX() + 64);
-                    int region_max_x = Math.max(player.getBlockX() - 64, player.getBlockX() + 64);
-                    int region_min_y = Math.min(player.getBlockY() - 64, player.getBlockY() + 64);
-                    int region_max_y = Math.max(player.getBlockY() - 64, player.getBlockY() + 64);
-                    int region_min_z = Math.min(player.getBlockZ() - 64, player.getBlockZ() + 64);
-                    int region_max_z = Math.max(player.getBlockZ() - 64, player.getBlockZ() + 64);
+                    int region_min_x = Math.min(player.getBlockX() - 16, player.getBlockX() + 16);
+                    int region_max_x = Math.max(player.getBlockX() - 16, player.getBlockX() + 16);
+                    int region_min_y = Math.min(player.getBlockY() - 16, player.getBlockY() + 16);
+                    int region_max_y = Math.max(player.getBlockY() - 16, player.getBlockY() + 16);
+                    int region_min_z = Math.min(player.getBlockZ() - 16, player.getBlockZ() + 16);
+                    int region_max_z = Math.max(player.getBlockZ() - 16, player.getBlockZ() + 16);
 
                     // Region size by X or Z can't be > 450
                     if (region_max_x - region_min_x > 320) {

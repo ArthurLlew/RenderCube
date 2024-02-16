@@ -1,5 +1,5 @@
 {
   "key.category.rendercube.rendercube": "RenderCube",
-  "key.rendercube.render": "Render Region",
+  "key.rendercube.render": "Render",
   "key.rendercube.dump_textures": "Dump Textures"
 }

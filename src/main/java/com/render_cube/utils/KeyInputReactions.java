@@ -9,7 +9,7 @@ import org.slf4j.Logger;
 
 import java.nio.file.Paths;
 
-import static com.render_cube.utils.RenderCubeUtils.renderRegion;
+import static com.render_cube.utils.CubesRenderer.renderRegion;
 
 public class KeyInputReactions {
     private static final Logger LOGGER = LogUtils.getLogger();

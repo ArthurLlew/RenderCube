@@ -21,32 +21,12 @@ import net.minecraft.world.phys.AABB;
 import net.minecraftforge.client.model.data.ModelData;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
-
-import static com.render_cube.RenderCube.TEXTURE_ATLASES_DIR;
 
 /**
  * Contains mod utils.
  **/
-public class RenderCubeUtils{
-    /**
-     * Checks if mod directory exists, and, if not, creates it.
-     **/
-    public static void checkModDir() throws IOException {
-        // Check if mod directory exists
-        Path path = Paths.get(System.getProperty("user.dir") + "\\" + TEXTURE_ATLASES_DIR);
-
-        // If not
-        if (!Files.exists(path)) {
-            // create it
-            Files.createDirectories(path);
-        }
-    }
-
+public class CubesRenderer {
     /**
      * Renders one cube.
      * @param level Minecraft level where procedure will run
@@ -177,7 +157,7 @@ public class RenderCubeUtils{
      * @param level Minecraft level where procedure will run
      * @param fileWriters writers, used to write captured data
      * @param regionCoordinates coordinates of region to render
-     * @see RenderCubeUtils#renderRegionEntities(Level, FileWriters, int[])
+     * @see CubesRenderer#renderRegionEntities(Level, FileWriters, int[])
      **/
     public static void renderRegion(@NotNull Level level,
                                     @NotNull FileWriters fileWriters,
@@ -187,7 +167,7 @@ public class RenderCubeUtils{
             for(int y = regionCoordinates[1]; y <= regionCoordinates[4]; y++){
                 for(int z = regionCoordinates[2]; z <= regionCoordinates[5]; z++){
                     // Process cube
-                    RenderCubeUtils.renderCube(
+                    CubesRenderer.renderCube(
                             level,
                             fileWriters,
                             new BlockPos(x, y, z),
@@ -201,6 +181,6 @@ public class RenderCubeUtils{
         }
 
         // Process region entities
-        RenderCubeUtils.renderRegionEntities(level, fileWriters, regionCoordinates);
+        CubesRenderer.renderRegionEntities(level, fileWriters, regionCoordinates);
     }
 }

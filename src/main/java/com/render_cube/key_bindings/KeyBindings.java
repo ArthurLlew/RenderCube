@@ -1,4 +1,4 @@
-package com.render_cube.utils;
+package com.render_cube.key_bindings;
 
 import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.KeyMapping;

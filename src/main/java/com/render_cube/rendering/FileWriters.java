@@ -1,4 +1,4 @@
-package com.render_cube.utils;
+package com.render_cube.rendering;
 
 import java.io.BufferedOutputStream;
 import java.io.FileOutputStream;

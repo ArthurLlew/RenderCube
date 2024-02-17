@@ -1,7 +1,8 @@
-package com.render_cube.utils;
+package com.render_cube.key_bindings;
 
 import com.mojang.logging.LogUtils;
 import com.render_cube.RenderCube;
+import com.render_cube.rendering.FileWriters;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
@@ -10,7 +11,7 @@ import org.slf4j.Logger;
 
 import java.nio.file.Paths;
 
-import static com.render_cube.utils.CubesRenderer.renderRegion;
+import static com.render_cube.rendering.CubesRenderer.renderRegion;
 
 public class KeyInputReactions {
     private static final Logger LOGGER = LogUtils.getLogger();

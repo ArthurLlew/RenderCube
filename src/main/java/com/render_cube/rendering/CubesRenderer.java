@@ -1,4 +1,4 @@
-package com.render_cube.utils;
+package com.render_cube.rendering;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.render_cube.vertex_consumers.BasicVertexConsumer;

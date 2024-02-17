@@ -38,12 +38,10 @@ public class CubesRenderer {
                                   @NotNull FileWriters fileWriters,
                                   @NotNull BlockPos levelPosition,
                                   @NotNull BlockPos regionPosition) {
-        // Get BlockState at position
         BlockState block = level.getBlockState(levelPosition);
 
-        // We do not want to render air
+        // If block is not empty
         if (!block.isAir()) {
-            // Init block consumer
             CommonVertexConsumer commonVertexConsumer =
                     new CommonVertexConsumer(fileWriters.blockWriter, regionPosition);
 
@@ -85,12 +83,11 @@ public class CubesRenderer {
             // If there is a block-entity
             BlockEntity entity = level.getBlockEntity(levelPosition);
             if(entity != null){
-                // Create dummy MultiBufferSource
                 FakeMultiBufferSource fakeMultiBufferSource =
                         new FakeMultiBufferSource(
                                 new CommonVertexConsumer(fileWriters.blockEntityWriter, regionPosition));
 
-                // Render into dummy MultiBufferSource
+                // Render block-entity using dummy MultiBufferSource
                 Minecraft.getInstance().getBlockEntityRenderDispatcher().render(
                         entity,
                         1.0F,
@@ -104,8 +101,7 @@ public class CubesRenderer {
      * Renders entities in region.
      * @param level Minecraft level where procedure will run
      * @param fileWriters writers, used to write captured data
-     * @param regionCoordinates array that holds region_min_x, region_min_y, region_min_z, region_max_x, region_max_y,
-     *                          region_max_z positions of region in world
+     * @param regionCoordinates coordinates of region to render
      **/
     public static void renderRegionEntities(@NotNull Level level,
                                             @NotNull FileWriters fileWriters,
@@ -133,11 +129,10 @@ public class CubesRenderer {
             double entityY = Mth.lerp(minecraftConstant, entity.yOld, entity.getY());
             double entityZ = Mth.lerp(minecraftConstant, entity.zOld, entity.getZ());
 
-            // Create dummy MultiBufferSource
             FakeMultiBufferSource fakeMultiBufferSource = new FakeMultiBufferSource(
                     new BasicVertexConsumer(fileWriters.entityWriter));
 
-            // Render entity into dummy MultiBufferSource
+            // Render entity using dummy MultiBufferSource
             entityRenderDispatcher.render(
                     entity,
                     entityX - regionCoordinates[0],

@@ -1,7 +1,7 @@
 package com.render_cube.events;
 
 import com.render_cube.RenderCube;
-import com.render_cube.utils.KeyBinding;
+import com.render_cube.utils.KeyBindings;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.InputEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -17,10 +17,10 @@ public class ClientEventsHandler {
      */
     @SubscribeEvent
     public static void onKeyInput(InputEvent.Key event){
-        if(KeyBinding.RENDER_KEY.consumeClick()){
+        if(KeyBindings.INSTANCE.RENDER_KEY.consumeClick()){
             renderCubes();
         }
-        else if(KeyBinding.DUMP_TEXTURES_KEY.consumeClick()){
+        else if(KeyBindings.INSTANCE.DUMP_TEXTURES_KEY.consumeClick()){
             dumpTextures();
         }
     }

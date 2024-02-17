@@ -2,7 +2,7 @@ package com.render_cube.events;
 
 import com.mojang.logging.LogUtils;
 import com.render_cube.RenderCube;
-import com.render_cube.utils.KeyBinding;
+import com.render_cube.utils.KeyBindings;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.RegisterKeyMappingsEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -28,7 +28,7 @@ public class ClientModBusEventsHandler {
      */
     @SubscribeEvent
     public static void onKeyRegister(RegisterKeyMappingsEvent event){
-        event.register(KeyBinding.RENDER_KEY);
-        event.register(KeyBinding.DUMP_TEXTURES_KEY);
+        event.register(KeyBindings.INSTANCE.RENDER_KEY);
+        event.register(KeyBindings.INSTANCE.DUMP_TEXTURES_KEY);
     }
 }

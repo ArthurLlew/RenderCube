@@ -4,6 +4,7 @@ import com.mojang.logging.LogUtils;
 import com.render_cube.RenderCube;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import org.slf4j.Logger;
 
@@ -20,10 +21,10 @@ public class KeyInputReactions {
             try (FileWriters fileWriters = new FileWriters()){
                 // Min and max coordinates over each axes
                 int region_min_x = Math.min(player.getBlockX() - 16, player.getBlockX() + 16);
-                int region_max_x = Math.max(player.getBlockX() - 16, player.getBlockX() + 16);
                 int region_min_y = Math.min(player.getBlockY() - 16, player.getBlockY() + 16);
-                int region_max_y = Math.max(player.getBlockY() - 16, player.getBlockY() + 16);
                 int region_min_z = Math.min(player.getBlockZ() - 16, player.getBlockZ() + 16);
+                int region_max_x = Math.max(player.getBlockX() - 16, player.getBlockX() + 16);
+                int region_max_y = Math.max(player.getBlockY() - 16, player.getBlockY() + 16);
                 int region_max_z = Math.max(player.getBlockZ() - 16, player.getBlockZ() + 16);
 
                 // Restrict region size
@@ -35,10 +36,9 @@ public class KeyInputReactions {
                 }
 
                 // Render region
-                renderRegion(
-                        player.level(),
-                        fileWriters,
-                        new int[]{region_min_x, region_min_y, region_min_z, region_max_x, region_max_y, region_max_z});
+                renderRegion(player.level(), fileWriters,
+                        new BlockPos(region_min_x, region_min_y, region_min_z),
+                        new BlockPos(region_max_x, region_max_y, region_max_z));
 
                 // Notify about success
                 player.sendSystemMessage(Component.literal("Render succeeded."));

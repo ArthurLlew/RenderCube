@@ -30,7 +30,7 @@ public class CubesRenderer {
     /**
      * Renders one cube.
      * @param level Minecraft level where procedure will run
-     * @param fileWriters writers, used to write captured data
+     * @param fileWriters used to write captured data
      * @param levelPosition block position in level
      * @param regionPosition block position in region
      **/
@@ -100,21 +100,23 @@ public class CubesRenderer {
     /**
      * Renders entities in region.
      * @param level Minecraft level where procedure will run
-     * @param fileWriters writers, used to write captured data
-     * @param regionCoordinates coordinates of region to render
+     * @param fileWriters used to write captured data
+     * @param minPos min coordinate of the region to render
+     * @param maxPos max coordinate of the region to render
      **/
     public static void renderRegionEntities(@NotNull Level level,
                                             @NotNull FileWriters fileWriters,
-                                            int[] regionCoordinates){
+                                            @NotNull BlockPos minPos,
+                                            @NotNull BlockPos maxPos){
         // Get all entities in region (except player entity)
         List<Entity> entities = level.getEntities(
                 (Entity)null, new AABB(
-                        regionCoordinates[0],
-                        regionCoordinates[1],
-                        regionCoordinates[2],
-                        regionCoordinates[3],
-                        regionCoordinates[4],
-                        regionCoordinates[5]),
+                        minPos.getX(),
+                        minPos.getY(),
+                        minPos.getZ(),
+                        maxPos.getX(),
+                        maxPos.getY(),
+                        maxPos.getZ()),
                 (entity) -> !(entity instanceof Player));
 
         // Saves instance of minecraft entity render dispatcher for multiple use in loop
@@ -135,9 +137,9 @@ public class CubesRenderer {
             // Render entity using dummy MultiBufferSource
             entityRenderDispatcher.render(
                     entity,
-                    entityX - regionCoordinates[0],
-                    entityY - regionCoordinates[1],
-                    entityZ - regionCoordinates[2],
+                    entityX - minPos.getX(),
+                    entityY - minPos.getY(),
+                    entityZ - minPos.getZ(),
                     // This float stands for entity rotation
                     Mth.lerp(minecraftConstant, entity.yRotO, entity.getYRot()),
                     minecraftConstant,
@@ -150,32 +152,27 @@ public class CubesRenderer {
     /**
      * Renders world region.
      * @param level Minecraft level where procedure will run
-     * @param fileWriters writers, used to write captured data
-     * @param regionCoordinates coordinates of region to render
-     * @see CubesRenderer#renderRegionEntities(Level, FileWriters, int[])
+     * @param fileWriters used to write captured data
+     * @param minPos min coordinate of the region to render
+     * @param maxPos max coordinate of the region to render
      **/
     public static void renderRegion(@NotNull Level level,
                                     @NotNull FileWriters fileWriters,
-                                    int[] regionCoordinates){
-        // Loop over coordinates included in region
-        for(int x = regionCoordinates[0]; x <= regionCoordinates[3]; x++){
-            for(int y = regionCoordinates[1]; y <= regionCoordinates[4]; y++){
-                for(int z = regionCoordinates[2]; z <= regionCoordinates[5]; z++){
+                                    @NotNull BlockPos minPos,
+                                    @NotNull BlockPos maxPos){
+        // Loop over coordinates inside the region
+        for(int x = minPos.getX(); x <= maxPos.getX(); x++){
+            for(int y = minPos.getY(); y <= maxPos.getY(); y++){
+                for(int z = minPos.getZ(); z <= maxPos.getZ(); z++){
                     // Process cube
-                    CubesRenderer.renderCube(
-                            level,
-                            fileWriters,
+                    CubesRenderer.renderCube(level, fileWriters,
                             new BlockPos(x, y, z),
-                            new BlockPos(
-                                    x - regionCoordinates[0],
-                                    y - regionCoordinates[1],
-                                    z - regionCoordinates[2])
-                    );
+                            new BlockPos(x - minPos.getX(), y - minPos.getY(), z - minPos.getZ()));
                 }
             }
         }
 
         // Process region entities
-        CubesRenderer.renderRegionEntities(level, fileWriters, regionCoordinates);
+        CubesRenderer.renderRegionEntities(level, fileWriters, minPos, maxPos);
     }
 }

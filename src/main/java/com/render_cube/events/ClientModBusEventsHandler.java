@@ -28,7 +28,7 @@ public class ClientModBusEventsHandler {
      */
     @SubscribeEvent
     public static void onKeyRegister(RegisterKeyMappingsEvent event){
-        event.register(KeyBindings.INSTANCE.RENDER_KEY);
+        event.register(KeyBindings.INSTANCE.RENDER_SCREEN_KEY);
         event.register(KeyBindings.INSTANCE.DUMP_TEXTURES_KEY);
     }
 }

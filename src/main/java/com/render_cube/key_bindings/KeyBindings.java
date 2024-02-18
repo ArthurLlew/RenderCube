@@ -14,7 +14,7 @@ public final class KeyBindings {
 
     public static final String MOD_KEY_CATEGORY = "key.category." + MODID + ".rendercube";
 
-    public final KeyMapping RENDER_KEY = new KeyMapping("key." + MODID + ".render",
+    public final KeyMapping RENDER_SCREEN_KEY = new KeyMapping("key." + MODID + ".render_screen",
             KeyConflictContext.IN_GAME,
             InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_R,
             MOD_KEY_CATEGORY);

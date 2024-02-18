@@ -8,7 +8,7 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
 import static com.render_cube.key_bindings.KeyInputReactions.dumpTextures;
-import static com.render_cube.key_bindings.KeyInputReactions.renderCubes;
+import static com.render_cube.key_bindings.KeyInputReactions.openRenderScreen;
 
 @Mod.EventBusSubscriber(modid = RenderCube.MODID, value = Dist.CLIENT)
 public class ClientEventsHandler {
@@ -17,8 +17,8 @@ public class ClientEventsHandler {
      */
     @SubscribeEvent
     public static void onKeyInput(InputEvent.Key event){
-        if(KeyBindings.INSTANCE.RENDER_KEY.consumeClick()){
-            renderCubes();
+        if(KeyBindings.INSTANCE.RENDER_SCREEN_KEY.consumeClick()){
+            openRenderScreen();
         }
         else if(KeyBindings.INSTANCE.DUMP_TEXTURES_KEY.consumeClick()){
             dumpTextures();

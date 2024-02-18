@@ -1,5 +1,8 @@
 {
   "key.category.rendercube.rendercube": "RenderCube",
-  "key.rendercube.render": "Render",
-  "key.rendercube.dump_textures": "Dump Textures"
+  "key.rendercube.render_screen": "Open Render Menu",
+  "key.rendercube.dump_textures": "Dump Textures",
+  "gui.rendercube.render_screen.prr_tab": "Player Relative Render",
+  "gui.rendercube.render_screen.apr_tab": "Absolute Position Render",
+  "gui.rendercube.render_screen.button.render": "Render"
 }

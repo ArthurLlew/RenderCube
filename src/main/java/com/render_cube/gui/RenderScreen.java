@@ -3,7 +3,7 @@ package com.render_cube.gui;
 import com.render_cube.rendering.FileWriters;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.AbstractButton;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
@@ -28,20 +28,25 @@ public class RenderScreen extends Screen {
     /**
      * Background texture dimensions.
      */
-    private final int imageWidth, imageHeight;
+    private final int bgWidth, bgHeight;
 
     /**
      * Background texture positions.
      */
     private int leftPos, topPos;
 
-    private Button button;
+    /**
+     * Currently selected tab
+     */
+    private RenderScreenTab currentTab = new RenderScreenTab(this::renderPRR);
+
+    private RenderButton renderButton;
 
     public RenderScreen() {
         super(CommonComponents.EMPTY);
 
-        this.imageWidth = 195;
-        this.imageHeight = 136;
+        this.bgWidth = 195;
+        this.bgHeight = 136;
     }
 
     @Override
@@ -54,13 +59,16 @@ public class RenderScreen extends Screen {
         super.init();
 
         // Set background texture coordinates in screen center
-        leftPos = (this.width - imageWidth) / 2;
-        topPos = (this.height - imageHeight) / 2;
+        leftPos = (this.width - bgWidth) / 2;
+        topPos = (this.height - bgHeight) / 2;
 
         // Render button
-        button = addWidget(ReleasableVanillaButton.builder(RENDER_BUTTON, this::handleRenderButton)
-                .bounds(leftPos + imageWidth / 2 - 30, topPos + imageHeight - 26, 60, 20)
-                .build()
+        renderButton = addWidget(new RenderButton(leftPos + bgWidth / 2 - 30,
+                topPos + bgHeight - 26,
+                60,
+                20,
+                RENDER_BUTTON,
+                this::handleRenderButton)
         );
     }
 
@@ -69,21 +77,31 @@ public class RenderScreen extends Screen {
         this.renderBackground(guiGraphics, mouseX, mouseY, partialTicks);
 
         // Background texture
-        guiGraphics.blit(RENDER_SCREEN_TEXTURE, leftPos, topPos, 0, 0, imageWidth, imageHeight);
+        guiGraphics.blit(RENDER_SCREEN_TEXTURE, leftPos, topPos, 0, 0, bgWidth, bgHeight);
         // Tab 1
         guiGraphics.blit(RENDER_SCREEN_TEXTURE, leftPos, topPos - 28, 0, 136, 26, 32);
         // Tab 2
         guiGraphics.blit(RENDER_SCREEN_TEXTURE, leftPos + 27, topPos - 28, 26, 136, 26, 32);
 
-        // String
-        guiGraphics.drawString(this.font, PRR_TAB, leftPos + 8, topPos + 6, 0x404040, false);
-
-        // Render button
-        this.button.setFocused(false);
-        button.render(guiGraphics, mouseX, mouseY, partialTicks);
+        // Render current tab contents
+        currentTab.renderMethod.render(guiGraphics, mouseX, mouseY, partialTicks);
     }
 
-    private void handleRenderButton(Button button){
+    public void renderPRR(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks){
+        // Tab title
+        guiGraphics.drawString(this.font, PRR_TAB, leftPos + 8, topPos + 6, 0x404040, false);
+
+        renderButton.render(guiGraphics, mouseX, mouseY, partialTicks);
+    }
+
+    public void renderAPR(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks){
+        // Tab title
+        guiGraphics.drawString(this.font, APR_TAB, leftPos + 8, topPos + 6, 0x404040, false);
+
+        renderButton.render(guiGraphics, mouseX, mouseY, partialTicks);
+    }
+
+    private void handleRenderButton(AbstractButton button){
         // Safely get minecraft player
         LocalPlayer player = Minecraft.getInstance().player;
         if (player == null) {throw new UnsupportedOperationException("Player is null");}

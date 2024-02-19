@@ -80,7 +80,7 @@ public class RenderScreen extends Screen {
                 bgPosTop - 28,
                 RENDER_SCREEN_TEXTURE,
                 this::renderPRR));
-        tabs.add(new RenderScreenTab(RenderScreenTabType.PLAYER_RELATIVE_RENDER,
+        tabs.add(new RenderScreenTab(RenderScreenTabType.ABSOLUTE_POSITION_RENDER,
                 bgPosLeft + 27,
                 bgPosTop - 28,
                 RENDER_SCREEN_TEXTURE,
@@ -113,6 +113,13 @@ public class RenderScreen extends Screen {
         currentTab.renderMethod.render(guiGraphics, mouseX, mouseY, partialTicks);
     }
 
+    /**
+     * Renders player relative render tab.
+     * @param guiGraphics the GuiGraphics object used for rendering.
+     * @param mouseX the x-coordinate of the mouse cursor.
+     * @param mouseY the y-coordinate of the mouse cursor.
+     * @param partialTicks the partial tick time.
+     */
     public void renderPRR(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks){
         // Tab title
         guiGraphics.drawString(this.font, PRR_TAB, bgPosLeft + 8, bgPosTop + 6, 0x404040, false);
@@ -120,6 +127,13 @@ public class RenderScreen extends Screen {
         renderButton.render(guiGraphics, mouseX, mouseY, partialTicks);
     }
 
+    /**
+     * Renders absolute position render tab.
+     * @param guiGraphics the GuiGraphics object used for rendering.
+     * @param mouseX the x-coordinate of the mouse cursor.
+     * @param mouseY the y-coordinate of the mouse cursor.
+     * @param partialTicks the partial tick time.
+     */
     public void renderAPR(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks){
         // Tab title
         guiGraphics.drawString(this.font, APR_TAB, bgPosLeft + 8, bgPosTop + 6, 0x404040, false);
@@ -144,6 +158,8 @@ public class RenderScreen extends Screen {
     }
 
     private void handleRenderButton(AbstractButton button){
+        // TODO: edit-box input being processed differently in different tabs
+
         // Safely get minecraft player
         LocalPlayer player = Minecraft.getInstance().player;
         if (player == null) {throw new UnsupportedOperationException("Player is null");}
@@ -175,6 +191,7 @@ public class RenderScreen extends Screen {
 
         }
         catch(Exception e) {
+            // TODO: log errors
             player.sendSystemMessage(Component.literal(
                     new Throwable().getStackTrace()[0].getMethodName() + ": " + e));
         }

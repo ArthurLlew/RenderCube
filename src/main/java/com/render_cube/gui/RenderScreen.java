@@ -1,5 +1,6 @@
 package com.render_cube.gui;
 
+import com.google.common.collect.Lists;
 import com.render_cube.rendering.FileWriters;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -14,14 +15,25 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.List;
+
 import static com.render_cube.RenderCube.MODID;
 import static com.render_cube.rendering.CubesRenderer.renderRegion;
 
+// TODO: edit-boxes for position input
 @OnlyIn(Dist.CLIENT)
 public class RenderScreen extends Screen {
-    // Resources
+    /**
+     * Player relative render tab title.
+     */
     private static final Component PRR_TAB = Component.translatable("gui." + MODID + ".render_screen.prr_tab");
+    /**
+     * Absolute position render tab title.
+     */
     private static final Component APR_TAB = Component.translatable("gui." + MODID + ".render_screen.apr_tab");
+    /**
+     * Render button text.
+     */
     private static final Component RENDER_BUTTON = Component.translatable("gui." + MODID + ".render_screen.button.render");
     private static final ResourceLocation RENDER_SCREEN_TEXTURE = new ResourceLocation(MODID, "textures/gui/render_screen.png");
 
@@ -33,12 +45,12 @@ public class RenderScreen extends Screen {
     /**
      * Background texture positions.
      */
-    private int leftPos, topPos;
+    private int bgPosLeft, bgPosTop;
 
-    /**
-     * Renders contents of currently selected tab.
-     */
-    private TabRenderMethod currentTab = this::renderPRR;
+    private final List<RenderScreenTab> tabs = Lists.newArrayList();
+
+    // TODO: load this from forge config
+    private RenderScreenTab currentTab;
 
     private RenderButton renderButton;
 
@@ -59,12 +71,26 @@ public class RenderScreen extends Screen {
         super.init();
 
         // Set background texture coordinates in screen center
-        leftPos = (this.width - bgWidth) / 2;
-        topPos = (this.height - bgHeight) / 2;
+        bgPosLeft = (this.width - bgWidth) / 2;
+        bgPosTop = (this.height - bgHeight) / 2;
+
+        // Populate tabs
+        tabs.add(new RenderScreenTab(RenderScreenTabType.PLAYER_RELATIVE_RENDER,
+                bgPosLeft,
+                bgPosTop - 28,
+                RENDER_SCREEN_TEXTURE,
+                this::renderPRR));
+        tabs.add(new RenderScreenTab(RenderScreenTabType.PLAYER_RELATIVE_RENDER,
+                bgPosLeft + 27,
+                bgPosTop - 28,
+                RENDER_SCREEN_TEXTURE,
+                this::renderAPR));
+        // Select current tab // TODO: remove this line
+        currentTab = tabs.get(0);
 
         // Render button
-        renderButton = addWidget(new RenderButton(leftPos + bgWidth / 2 - 30,
-                topPos + bgHeight - 26,
+        renderButton = addWidget(new RenderButton(bgPosLeft + bgWidth / 2 - 30,
+                bgPosTop + bgHeight - 26,
                 60,
                 20,
                 RENDER_BUTTON,
@@ -77,28 +103,44 @@ public class RenderScreen extends Screen {
         this.renderBackground(guiGraphics, mouseX, mouseY, partialTicks);
 
         // Background texture
-        guiGraphics.blit(RENDER_SCREEN_TEXTURE, leftPos, topPos, 0, 0, bgWidth, bgHeight);
+        guiGraphics.blit(RENDER_SCREEN_TEXTURE, bgPosLeft, bgPosTop, 0, 0, bgWidth, bgHeight);
         // Tab 1
-        guiGraphics.blit(RENDER_SCREEN_TEXTURE, leftPos, topPos - 28, 0, 136, 26, 32);
+        guiGraphics.blit(RENDER_SCREEN_TEXTURE, bgPosLeft, bgPosTop - 28, 0, 136, 26, 32);
         // Tab 2
-        guiGraphics.blit(RENDER_SCREEN_TEXTURE, leftPos + 27, topPos - 28, 26, 136, 26, 32);
+        guiGraphics.blit(RENDER_SCREEN_TEXTURE, bgPosLeft + 27, bgPosTop - 28, 26, 136, 26, 32);
 
         // Render current tab contents
-        currentTab.render(guiGraphics, mouseX, mouseY, partialTicks);
+        currentTab.renderMethod.render(guiGraphics, mouseX, mouseY, partialTicks);
     }
 
     public void renderPRR(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks){
         // Tab title
-        guiGraphics.drawString(this.font, PRR_TAB, leftPos + 8, topPos + 6, 0x404040, false);
+        guiGraphics.drawString(this.font, PRR_TAB, bgPosLeft + 8, bgPosTop + 6, 0x404040, false);
 
         renderButton.render(guiGraphics, mouseX, mouseY, partialTicks);
     }
 
     public void renderAPR(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks){
         // Tab title
-        guiGraphics.drawString(this.font, APR_TAB, leftPos + 8, topPos + 6, 0x404040, false);
+        guiGraphics.drawString(this.font, APR_TAB, bgPosLeft + 8, bgPosTop + 6, 0x404040, false);
 
         renderButton.render(guiGraphics, mouseX, mouseY, partialTicks);
+    }
+
+    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        // Do only if button will not be consumed anyway
+        if (button == 0) {
+
+            // Check every tab for being clicked
+            for(RenderScreenTab tab : tabs){
+                if (tab.checkClicked(mouseX, mouseY)){
+                    currentTab = tab;
+                    return true;
+                }
+            }
+        }
+
+        return super.mouseClicked(mouseX, mouseY, button);
     }
 
     private void handleRenderButton(AbstractButton button){
@@ -136,10 +178,5 @@ public class RenderScreen extends Screen {
             player.sendSystemMessage(Component.literal(
                     new Throwable().getStackTrace()[0].getMethodName() + ": " + e));
         }
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    public interface TabRenderMethod {
-        void render(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks);
     }
 }

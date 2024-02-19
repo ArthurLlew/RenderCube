@@ -36,9 +36,9 @@ public class RenderScreen extends Screen {
     private int leftPos, topPos;
 
     /**
-     * Currently selected tab
+     * Renders contents of currently selected tab.
      */
-    private RenderScreenTab currentTab = new RenderScreenTab(this::renderPRR);
+    private TabRenderMethod currentTab = this::renderPRR;
 
     private RenderButton renderButton;
 
@@ -84,7 +84,7 @@ public class RenderScreen extends Screen {
         guiGraphics.blit(RENDER_SCREEN_TEXTURE, leftPos + 27, topPos - 28, 26, 136, 26, 32);
 
         // Render current tab contents
-        currentTab.renderMethod.render(guiGraphics, mouseX, mouseY, partialTicks);
+        currentTab.render(guiGraphics, mouseX, mouseY, partialTicks);
     }
 
     public void renderPRR(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks){
@@ -136,5 +136,10 @@ public class RenderScreen extends Screen {
             player.sendSystemMessage(Component.literal(
                     new Throwable().getStackTrace()[0].getMethodName() + ": " + e));
         }
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    public interface TabRenderMethod {
+        void render(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks);
     }
 }

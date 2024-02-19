@@ -10,6 +10,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Supplier;
 
+@OnlyIn(Dist.CLIENT)
 public class RenderButton extends AbstractButton {
     protected final RenderButton.OnPress onPress;
     protected final RenderButton.CreateNarration createNarration;

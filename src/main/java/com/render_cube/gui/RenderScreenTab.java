@@ -5,6 +5,8 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
+import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipPositioner;
+import net.minecraft.client.gui.screens.inventory.tooltip.DefaultTooltipPositioner;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
@@ -82,6 +84,14 @@ public class RenderScreenTab extends AbstractWidget {
     }
 
     /**
+     * Defines position of tooltip.
+     * @return {@link DefaultTooltipPositioner}
+     */
+    protected @NotNull ClientTooltipPositioner createTooltipPositioner() {
+        return DefaultTooltipPositioner.INSTANCE;
+    }
+
+    /**
      * Changes texture to selected version.
      */
     public void setSelected(){
@@ -95,9 +105,22 @@ public class RenderScreenTab extends AbstractWidget {
         currentTexture = unselectedTexture;
     }
 
+    /**
+     * Defines reaction after being clicked by mouse.
+     * @param pMouseX the x-coordinate of the mouse cursor.
+     * @param pMouseY the y-coordinate of the mouse cursor.
+     */
     @Override
     public void onClick(double pMouseX, double pMouseY) {
         this.onClick.onClick(this);
+    }
+
+    /**
+     * Tab types.
+     */
+    public enum Type {
+        PLAYER_RELATIVE_RENDER,
+        ABSOLUTE_POSITION_RENDER
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -108,10 +131,5 @@ public class RenderScreenTab extends AbstractWidget {
     @OnlyIn(Dist.CLIENT)
     public interface OnClick {
         void onClick(RenderScreenTab tab);
-    }
-
-    public enum Type {
-        PLAYER_RELATIVE_RENDER,
-        ABSOLUTE_POSITION_RENDER
     }
 }

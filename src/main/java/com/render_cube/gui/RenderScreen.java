@@ -27,41 +27,21 @@ import static com.render_cube.rendering.CubesRenderer.renderRegion;
 public class RenderScreen extends Screen {
     private static final Logger LOGGER = LogUtils.getLogger();
 
-    /**
-     * Screen background texture.
-     */
-    private static final ResourceLocation RENDER_SCREEN_TEXTURE =
+    private static final ResourceLocation BACKGROUND_TEXTURE =
             new ResourceLocation(MODID, "textures/gui/render_screen.png");
-    /**
-     * Tabs textures.
-     */
-    private static final ResourceLocation[] TABS_TEXTURES =
+    private static final ResourceLocation[] TAB_TEXTURES =
             new ResourceLocation[]{
                     new ResourceLocation(MODID, "textures/gui/tab_top_right_selected.png"),
                     new ResourceLocation(MODID, "textures/gui/tab_top_right_unselected.png"),
                     new ResourceLocation(MODID, "textures/gui/tab_top_middle_selected.png"),
                     new ResourceLocation(MODID, "textures/gui/tab_top_middle_unselected.png")};
-    /**
-     * Player relative render tab title.
-     */
-    private static final Component TAB_PRR = Component.translatable("gui." + MODID + ".render_screen.prr_tab");
-    /**
-     * Absolute position render tab title.
-     */
-    private static final Component TAB_APR = Component.translatable("gui." + MODID + ".render_screen.apr_tab");
-    /**
-     * Render button text.
-     */
-    private static final Component RENDER_BUTTON =
+    private static final Component[] TAB_TITLES = new Component[]{
+            Component.translatable("gui." + MODID + ".render_screen.prr_tab"),
+            Component.translatable("gui." + MODID + ".render_screen.apr_tab")};
+    private static final Component RENDER_BUTTON_TEXT =
             Component.translatable("gui." + MODID + ".render_screen.button.render");
-    /**
-     * Message, shown upon successful render.
-     */
     private static final Component RENDER_SUCCESS_MSG =
             Component.translatable("gui." + MODID + ".render_screen.button.render.success");
-    /**
-     * Message, shown upon encountering error while rendering.
-     */
     private static final Component RENDER_ERROR_MSG =
             Component.translatable("gui." + MODID + ".render_screen.button.render.error");
 
@@ -114,11 +94,11 @@ public class RenderScreen extends Screen {
 
         // Populate tabs
         deselectedTabs.add(addWidget(new RenderScreenTab(bgPosLeft, bgPosTop - 28,
-                TABS_TEXTURES[0], TABS_TEXTURES[1], TAB_PRR,
+                TAB_TEXTURES[0], TAB_TEXTURES[1], TAB_TITLES[0],
                 this::renderPRR, this::onTabPressed,
                 RenderScreenTabType.PLAYER_RELATIVE_RENDER)));
         deselectedTabs.add(addWidget(new RenderScreenTab(bgPosLeft + 27, bgPosTop - 28,
-                TABS_TEXTURES[2], TABS_TEXTURES[3], TAB_APR,
+                TAB_TEXTURES[2], TAB_TEXTURES[3], TAB_TITLES[1],
                 this::renderAPR, this::onTabPressed,
                 RenderScreenTabType.ABSOLUTE_POSITION_RENDER)));
         // Select current tab // TODO: remove this line
@@ -130,7 +110,7 @@ public class RenderScreen extends Screen {
                 bgPosTop + bgHeight - 26,
                 60,
                 20,
-                RENDER_BUTTON,
+                RENDER_BUTTON_TEXT,
                 this::onRenderButtonPressed)
         );
     }
@@ -148,7 +128,7 @@ public class RenderScreen extends Screen {
         }
 
         // Background texture
-        guiGraphics.blit(RENDER_SCREEN_TEXTURE, bgPosLeft, bgPosTop,0, 0,
+        guiGraphics.blit(BACKGROUND_TEXTURE, bgPosLeft, bgPosTop,0, 0,
                 bgWidth, bgHeight, bgWidth, bgHeight);
 
         // Render selected tab
@@ -167,7 +147,8 @@ public class RenderScreen extends Screen {
      */
     public void renderPRR(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks){
         // Tab title
-        guiGraphics.drawString(this.font, TAB_PRR, bgPosLeft + 8, bgPosTop + 6, 0x404040, false);
+        guiGraphics.drawString(this.font, TAB_TITLES[0], bgPosLeft + 8, bgPosTop + 6,
+                0x404040, false);
 
         renderButton.render(guiGraphics, mouseX, mouseY, partialTicks);
     }
@@ -181,7 +162,8 @@ public class RenderScreen extends Screen {
      */
     public void renderAPR(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks){
         // Tab title
-        guiGraphics.drawString(this.font, TAB_APR, bgPosLeft + 8, bgPosTop + 6, 0x404040, false);
+        guiGraphics.drawString(this.font, TAB_TITLES[1], bgPosLeft + 8, bgPosTop + 6,
+                0x404040, false);
 
         renderButton.render(guiGraphics, mouseX, mouseY, partialTicks);
     }

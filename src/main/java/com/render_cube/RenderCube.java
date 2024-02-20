@@ -36,9 +36,6 @@ public class RenderCube
         // Register mod for server and other game events
         MinecraftForge.EVENT_BUS.register(this);
 
-        // Register mod's ForgeConfigSpec so that Forge can create and load the config file
-        ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, Config.SPEC);
-
         // The mod being absent on the other network side does not cause the client to display the server as incompatible
         ModLoadingContext.get().registerExtensionPoint(IExtensionPoint.DisplayTest.class,
                 () -> new IExtensionPoint.DisplayTest(() -> IExtensionPoint.DisplayTest.IGNORESERVERONLY, (a, b) -> true));

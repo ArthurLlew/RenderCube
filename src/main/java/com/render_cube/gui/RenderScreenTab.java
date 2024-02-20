@@ -1,6 +1,6 @@
 package com.render_cube.gui;
 
-import com.mojang.logging.LogUtils;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Tooltip;
@@ -8,6 +8,7 @@ import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.NotNull;
@@ -19,6 +20,18 @@ public class RenderScreenTab extends AbstractWidget {
      */
     protected final OnClick onClick;
     /**
+     * Used textures.
+     */
+    protected final ResourceLocation selectedTexture, unselectedTexture;
+    /**
+     * Item being displayed over tab.
+     */
+    protected final ItemStack itemstack;
+    /**
+     * Currently rendered texture.
+     */
+    protected ResourceLocation currentTexture;
+    /**
      * Tab type.
      */
     public final RenderScreenTabType type;
@@ -29,19 +42,14 @@ public class RenderScreenTab extends AbstractWidget {
     /**
      * Tab textures.
      */
-    public final ResourceLocation selectedTexture, unselectedTexture;
-
-    /**
-     * Currently rendered texture.
-     */
-    public ResourceLocation currentTexture;
-
 
     RenderScreenTab(int posLeft, int posTop, ResourceLocation selectedTexture, ResourceLocation unselectedTexture,
-                    Component title, RenderMethod renderMethod, OnClick onClick, RenderScreenTabType type){
+                    Component title, RenderMethod renderMethod, OnClick onClick, ItemStack itemstack,
+                    RenderScreenTabType type){
         super(posLeft, posTop, 26, 32, CommonComponents.EMPTY);
         this.selectedTexture = selectedTexture;
         this.unselectedTexture = unselectedTexture;
+        this.itemstack = itemstack;
         this.renderMethod = renderMethod;
         this.onClick = onClick;
         this.type = type;
@@ -62,6 +70,12 @@ public class RenderScreenTab extends AbstractWidget {
         // Tab button texture
         guiGraphics.blit(currentTexture, this.getX(), this.getY(),0, 0,
                 width, height, width, height);
+
+        // Render on top of texture item
+        int posX = this.getX() + 5;
+        int popY = this.getY() + 8;
+        guiGraphics.renderItem(itemstack, posX, popY);
+        guiGraphics.renderItemDecorations(Minecraft.getInstance().font, itemstack, posX, popY);
     }
 
     public void updateWidgetNarration(@NotNull NarrationElementOutput narrationElementOutput) {

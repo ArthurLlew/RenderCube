@@ -12,6 +12,8 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.NotNull;
@@ -55,10 +57,15 @@ public class RenderScreen extends Screen {
      */
     private int bgPosLeft, bgPosTop;
 
+    /**
+     * Tabs, that should not display their contents and render their buttons below the background.
+     */
     private final List<RenderScreenTab> deselectedTabs = Lists.newArrayList();
 
-    // TODO: load this from forge config
-    private RenderScreenTab selectedTab;
+    /**
+     * Active tab.
+     */
+    private static RenderScreenTab selectedTab;
 
     /**
      * Holds render button instance.
@@ -95,15 +102,18 @@ public class RenderScreen extends Screen {
         // Populate tabs
         deselectedTabs.add(addWidget(new RenderScreenTab(bgPosLeft, bgPosTop - 28,
                 TAB_TEXTURES[0], TAB_TEXTURES[1], TAB_TITLES[0],
-                this::renderPRR, this::onTabPressed,
+                this::renderPRR, this::onTabPressed, new ItemStack(Items.PLAYER_HEAD),
                 RenderScreenTabType.PLAYER_RELATIVE_RENDER)));
         deselectedTabs.add(addWidget(new RenderScreenTab(bgPosLeft + 27, bgPosTop - 28,
                 TAB_TEXTURES[2], TAB_TEXTURES[3], TAB_TITLES[1],
-                this::renderAPR, this::onTabPressed,
+                this::renderAPR, this::onTabPressed, new ItemStack(Items.GRASS_BLOCK),
                 RenderScreenTabType.ABSOLUTE_POSITION_RENDER)));
-        // Select current tab // TODO: remove this line
-        selectedTab = deselectedTabs.get(0);
-        selectedTab.setSelected();
+
+        // If no tab was selected, select the first one
+        if (selectedTab == null){
+            selectedTab = deselectedTabs.get(0);
+            selectedTab.setSelected();
+        }
 
         // Render button
         renderButton = addWidget(new RenderButton(bgPosLeft + bgWidth / 2 - 30,

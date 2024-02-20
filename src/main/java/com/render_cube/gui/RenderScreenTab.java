@@ -5,7 +5,6 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
-import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
@@ -26,7 +25,7 @@ public class RenderScreenTab extends AbstractWidget {
     /**
      * Item being displayed over tab.
      */
-    protected final ItemStack itemstack;
+    protected final ItemStack itemIcon;
     /**
      * Currently rendered texture.
      */
@@ -44,17 +43,17 @@ public class RenderScreenTab extends AbstractWidget {
      */
 
     RenderScreenTab(int posLeft, int posTop, ResourceLocation selectedTexture, ResourceLocation unselectedTexture,
-                    Component title, RenderMethod renderMethod, OnClick onClick, ItemStack itemstack,
+                    Component title, RenderMethod renderMethod, OnClick onClick, ItemStack itemIcon,
                     RenderScreenTab.Type type){
-        super(posLeft, posTop, 26, 32, CommonComponents.EMPTY);
+        super(posLeft, posTop, 26, 32, title);
         this.selectedTexture = selectedTexture;
         this.unselectedTexture = unselectedTexture;
-        this.itemstack = itemstack;
+        this.itemIcon = itemIcon;
         this.renderMethod = renderMethod;
         this.onClick = onClick;
         this.type = type;
 
-        this.setTooltip(Tooltip.create(title));
+        setTooltip(Tooltip.create(title));
 
         this.setUnselected();
     }
@@ -74,8 +73,8 @@ public class RenderScreenTab extends AbstractWidget {
         // Render on top of texture item
         int posX = this.getX() + 5;
         int popY = this.getY() + 8;
-        guiGraphics.renderItem(itemstack, posX, popY);
-        guiGraphics.renderItemDecorations(Minecraft.getInstance().font, itemstack, posX, popY);
+        guiGraphics.renderItem(itemIcon, posX, popY);
+        guiGraphics.renderItemDecorations(Minecraft.getInstance().font, itemIcon, posX, popY);
     }
 
     public void updateWidgetNarration(@NotNull NarrationElementOutput narrationElementOutput) {

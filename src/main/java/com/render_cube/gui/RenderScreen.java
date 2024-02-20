@@ -134,7 +134,7 @@ public class RenderScreen extends Screen {
 
         // Render all unselected tabs under background texture
         for(RenderScreenTab tab : this.deselectedTabs){
-            tab.renderWidget(guiGraphics, mouseX, mouseY, partialTicks);
+            tab.render(guiGraphics, mouseX, mouseY, partialTicks);
         }
 
         // Background texture
@@ -142,7 +142,7 @@ public class RenderScreen extends Screen {
                 bgWidth, bgHeight, bgWidth, bgHeight);
 
         // Render selected tab
-        selectedTab.renderWidget(guiGraphics, mouseX, mouseY, partialTicks);
+        selectedTab.render(guiGraphics, mouseX, mouseY, partialTicks);
 
         // Render current tab contents
         selectedTab.renderMethod.render(guiGraphics, mouseX, mouseY, partialTicks);

@@ -3,12 +3,9 @@ package com.render_cube.gui;
 import net.minecraft.client.gui.components.AbstractButton;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.function.Supplier;
 
 @OnlyIn(Dist.CLIENT)
 public class RenderButton extends AbstractButton {

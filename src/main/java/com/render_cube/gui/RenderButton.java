@@ -13,19 +13,11 @@ import java.util.function.Supplier;
 @OnlyIn(Dist.CLIENT)
 public class RenderButton extends AbstractButton {
     protected final RenderButton.OnPress onPress;
-    protected final RenderButton.CreateNarration createNarration;
-
-    public RenderButton(int posX, int posY, int width, int height, Component message,
-                        RenderButton.OnPress onPress,
-                        RenderButton.CreateNarration createNarration) {
-        super(posX, posY, width, height, message);
-        this.onPress = onPress;
-        this.createNarration = createNarration;
-    }
 
     public RenderButton(int posX, int posY, int width, int height, Component message,
                         RenderButton.OnPress onPress) {
-        this(posX, posY, width, height, message, onPress, Supplier::get);
+        super(posX, posY, width, height, message);
+        this.onPress = onPress;
     }
 
     public void onPress() {
@@ -38,17 +30,8 @@ public class RenderButton extends AbstractButton {
         setFocused(false);
     }
 
-    protected @NotNull MutableComponent createNarrationMessage() {
-        return this.createNarration.createNarrationMessage(super::createNarrationMessage);
-    }
-
     public void updateWidgetNarration(@NotNull NarrationElementOutput narrationElementOutput) {
         this.defaultButtonNarrationText(narrationElementOutput);
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    public interface CreateNarration {
-        MutableComponent createNarrationMessage(Supplier<MutableComponent> messageSupplier);
     }
 
     @OnlyIn(Dist.CLIENT)

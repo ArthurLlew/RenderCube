@@ -1,6 +1,7 @@
 package com.render_cube.gui;
 
 import com.google.common.collect.Lists;
+import com.mojang.logging.LogUtils;
 import com.render_cube.rendering.FileWriters;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -14,6 +15,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
 
 import java.util.List;
 
@@ -23,19 +25,45 @@ import static com.render_cube.rendering.CubesRenderer.renderRegion;
 // TODO: edit-boxes for position input
 @OnlyIn(Dist.CLIENT)
 public class RenderScreen extends Screen {
+    private static final Logger LOGGER = LogUtils.getLogger();
+
+    /**
+     * Screen background texture.
+     */
+    private static final ResourceLocation RENDER_SCREEN_TEXTURE =
+            new ResourceLocation(MODID, "textures/gui/render_screen.png");
+    /**
+     * Tabs textures.
+     */
+    private static final ResourceLocation[] TABS_TEXTURES =
+            new ResourceLocation[]{
+                    new ResourceLocation(MODID, "textures/gui/tab_top_right_selected.png"),
+                    new ResourceLocation(MODID, "textures/gui/tab_top_right_unselected.png"),
+                    new ResourceLocation(MODID, "textures/gui/tab_top_middle_selected.png"),
+                    new ResourceLocation(MODID, "textures/gui/tab_top_middle_unselected.png")};
     /**
      * Player relative render tab title.
      */
-    private static final Component PRR_TAB = Component.translatable("gui." + MODID + ".render_screen.prr_tab");
+    private static final Component TAB_PRR = Component.translatable("gui." + MODID + ".render_screen.prr_tab");
     /**
      * Absolute position render tab title.
      */
-    private static final Component APR_TAB = Component.translatable("gui." + MODID + ".render_screen.apr_tab");
+    private static final Component TAB_APR = Component.translatable("gui." + MODID + ".render_screen.apr_tab");
     /**
      * Render button text.
      */
-    private static final Component RENDER_BUTTON = Component.translatable("gui." + MODID + ".render_screen.button.render");
-    private static final ResourceLocation RENDER_SCREEN_TEXTURE = new ResourceLocation(MODID, "textures/gui/render_screen.png");
+    private static final Component RENDER_BUTTON =
+            Component.translatable("gui." + MODID + ".render_screen.button.render");
+    /**
+     * Message, shown upon successful render.
+     */
+    private static final Component RENDER_SUCCESS_MSG =
+            Component.translatable("gui." + MODID + ".render_screen.button.render.success");
+    /**
+     * Message, shown upon encountering error while rendering.
+     */
+    private static final Component RENDER_ERROR_MSG =
+            Component.translatable("gui." + MODID + ".render_screen.button.render.error");
 
     /**
      * Background texture dimensions.
@@ -47,11 +75,14 @@ public class RenderScreen extends Screen {
      */
     private int bgPosLeft, bgPosTop;
 
-    private final List<RenderScreenTab> tabs = Lists.newArrayList();
+    private final List<RenderScreenTab> deselectedTabs = Lists.newArrayList();
 
     // TODO: load this from forge config
-    private RenderScreenTab currentTab;
+    private RenderScreenTab selectedTab;
 
+    /**
+     * Holds render button instance.
+     */
     private RenderButton renderButton;
 
     public RenderScreen() {
@@ -61,11 +92,18 @@ public class RenderScreen extends Screen {
         this.bgHeight = 136;
     }
 
+    /**
+     * Tells, if game should be paused.
+     * @return {@code false}
+     */
     @Override
     public boolean isPauseScreen() {
         return false;
     }
 
+    /**
+     * Initializes GUI element.
+     */
     @Override
     protected void init(){
         super.init();
@@ -75,18 +113,17 @@ public class RenderScreen extends Screen {
         bgPosTop = (this.height - bgHeight) / 2;
 
         // Populate tabs
-        tabs.add(new RenderScreenTab(RenderScreenTabType.PLAYER_RELATIVE_RENDER,
-                bgPosLeft,
-                bgPosTop - 28,
-                RENDER_SCREEN_TEXTURE,
-                this::renderPRR));
-        tabs.add(new RenderScreenTab(RenderScreenTabType.ABSOLUTE_POSITION_RENDER,
-                bgPosLeft + 27,
-                bgPosTop - 28,
-                RENDER_SCREEN_TEXTURE,
-                this::renderAPR));
+        deselectedTabs.add(addWidget(new RenderScreenTab(bgPosLeft, bgPosTop - 28,
+                TABS_TEXTURES[0], TABS_TEXTURES[1], TAB_PRR,
+                this::renderPRR, this::onTabPressed,
+                RenderScreenTabType.PLAYER_RELATIVE_RENDER)));
+        deselectedTabs.add(addWidget(new RenderScreenTab(bgPosLeft + 27, bgPosTop - 28,
+                TABS_TEXTURES[2], TABS_TEXTURES[3], TAB_APR,
+                this::renderAPR, this::onTabPressed,
+                RenderScreenTabType.ABSOLUTE_POSITION_RENDER)));
         // Select current tab // TODO: remove this line
-        currentTab = tabs.get(0);
+        selectedTab = deselectedTabs.get(0);
+        selectedTab.setSelected();
 
         // Render button
         renderButton = addWidget(new RenderButton(bgPosLeft + bgWidth / 2 - 30,
@@ -94,23 +131,31 @@ public class RenderScreen extends Screen {
                 60,
                 20,
                 RENDER_BUTTON,
-                this::handleRenderButton)
+                this::onRenderButtonPressed)
         );
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void render(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks){
         this.renderBackground(guiGraphics, mouseX, mouseY, partialTicks);
 
+        // Render all unselected tabs under background texture
+        for(RenderScreenTab tab : this.deselectedTabs){
+            tab.renderWidget(guiGraphics, mouseX, mouseY, partialTicks);
+        }
+
         // Background texture
-        guiGraphics.blit(RENDER_SCREEN_TEXTURE, bgPosLeft, bgPosTop, 0, 0, bgWidth, bgHeight);
-        // Tab 1
-        guiGraphics.blit(RENDER_SCREEN_TEXTURE, bgPosLeft, bgPosTop - 28, 0, 136, 26, 32);
-        // Tab 2
-        guiGraphics.blit(RENDER_SCREEN_TEXTURE, bgPosLeft + 27, bgPosTop - 28, 26, 136, 26, 32);
+        guiGraphics.blit(RENDER_SCREEN_TEXTURE, bgPosLeft, bgPosTop,0, 0,
+                bgWidth, bgHeight, bgWidth, bgHeight);
+
+        // Render selected tab
+        selectedTab.renderWidget(guiGraphics, mouseX, mouseY, partialTicks);
 
         // Render current tab contents
-        currentTab.renderMethod.render(guiGraphics, mouseX, mouseY, partialTicks);
+        selectedTab.renderMethod.render(guiGraphics, mouseX, mouseY, partialTicks);
     }
 
     /**
@@ -122,7 +167,7 @@ public class RenderScreen extends Screen {
      */
     public void renderPRR(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks){
         // Tab title
-        guiGraphics.drawString(this.font, PRR_TAB, bgPosLeft + 8, bgPosTop + 6, 0x404040, false);
+        guiGraphics.drawString(this.font, TAB_PRR, bgPosLeft + 8, bgPosTop + 6, 0x404040, false);
 
         renderButton.render(guiGraphics, mouseX, mouseY, partialTicks);
     }
@@ -136,64 +181,88 @@ public class RenderScreen extends Screen {
      */
     public void renderAPR(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks){
         // Tab title
-        guiGraphics.drawString(this.font, APR_TAB, bgPosLeft + 8, bgPosTop + 6, 0x404040, false);
+        guiGraphics.drawString(this.font, TAB_APR, bgPosLeft + 8, bgPosTop + 6, 0x404040, false);
 
         renderButton.render(guiGraphics, mouseX, mouseY, partialTicks);
     }
 
-    public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        // Do only if button will not be consumed anyway
-        if (button == 0) {
-
-            // Check every tab for being clicked
-            for(RenderScreenTab tab : tabs){
-                if (tab.checkClicked(mouseX, mouseY)){
-                    currentTab = tab;
-                    return true;
-                }
-            }
+    /**
+     * Handles tab being pressed.
+     * @param tab pressed tab instance
+     */
+    private void onTabPressed(RenderScreenTab tab){
+        if (tab != selectedTab){
+            // Deselect current tab
+            selectedTab.setUnselected();
+            // Remove selected tab from unselected list
+            deselectedTabs.remove(tab);
+            // Add deselected tab to unselected list
+            deselectedTabs.add(selectedTab);
+            // Assign new selected tab
+            selectedTab = tab;
+            // Set its state as active
+            selectedTab.setSelected();
         }
-
-        return super.mouseClicked(mouseX, mouseY, button);
     }
 
-    private void handleRenderButton(AbstractButton button){
-        // TODO: edit-box input being processed differently in different tabs
-
+    /**
+     * Handles render button being pressed.
+     * @param button pressed button instance
+     */
+    private void onRenderButtonPressed(AbstractButton button){
         // Safely get minecraft player
         LocalPlayer player = Minecraft.getInstance().player;
         if (player == null) {throw new UnsupportedOperationException("Player is null");}
 
         try (FileWriters fileWriters = new FileWriters()){
-            // Min and max coordinates over each axes
-            int region_min_x = Math.min(player.getBlockX() - 16, player.getBlockX() + 16);
-            int region_min_y = Math.min(player.getBlockY() - 16, player.getBlockY() + 16);
-            int region_min_z = Math.min(player.getBlockZ() - 16, player.getBlockZ() + 16);
-            int region_max_x = Math.max(player.getBlockX() - 16, player.getBlockX() + 16);
-            int region_max_y = Math.max(player.getBlockY() - 16, player.getBlockY() + 16);
-            int region_max_z = Math.max(player.getBlockZ() - 16, player.getBlockZ() + 16);
+            // TODO: bound this to edit-boxes
+            int region_x1 = Math.min(player.getBlockX() - 16, player.getBlockX() + 16);
+            int region_y1 = Math.min(player.getBlockY() - 16, player.getBlockY() + 16);
+            int region_z1 = Math.min(player.getBlockZ() - 16, player.getBlockZ() + 16);
+            int region_x2 = Math.max(player.getBlockX() - 16, player.getBlockX() + 16);
+            int region_y2 = Math.max(player.getBlockY() - 16, player.getBlockY() + 16);
+            int region_z2 = Math.max(player.getBlockZ() - 16, player.getBlockZ() + 16);
+
+            // Min/max positions in region
+            BlockPos posMin, posMax;
+
+            if (selectedTab.type == RenderScreenTabType.PLAYER_RELATIVE_RENDER){
+                // We do not need to check positions
+                posMin = new BlockPos(region_x1, region_y1, region_z1);
+                posMax = new BlockPos(region_x2, region_y2, region_z2);
+            }
+            else{
+                // Place min x/y/z into minPos and max x/y/z into maxPos
+                int regionMinX = Math.min(region_x1, region_x2);
+                int regionMinY = Math.min(region_y1, region_y2);
+                int regionMinZ = Math.min(region_z1, region_z2);
+                int regionMaxX = Math.max(region_x1, region_x2);
+                int regionMaxY = Math.max(region_y1, region_y2);
+                int regionMaxZ = Math.max(region_z1, region_z2);
+
+                posMin = new BlockPos(regionMinX, regionMinY, regionMinZ);
+                posMax = new BlockPos(regionMaxX, regionMaxY, regionMaxZ);
+
+            }
 
             // Restrict region size
-            if (region_max_x - region_min_x > 320) {
+            if (posMax.getX() - posMin.getX() > 320) {
                 throw new IllegalArgumentException("Region size by X axis can't be > 450");
             }
-            if (region_max_z - region_min_z > 320) {
+            if (posMax.getZ() - posMin.getZ() > 320) {
                 throw new IllegalArgumentException("Region size by Z axis can't be > 450");
             }
 
             // Render region
-            renderRegion(player.level(), fileWriters,
-                    new BlockPos(region_min_x, region_min_y, region_min_z),
-                    new BlockPos(region_max_x, region_max_y, region_max_z));
+            renderRegion(player.level(), fileWriters, posMin, posMax);
 
             // Notify about success
-            player.sendSystemMessage(Component.literal("Render succeeded"));
+            player.sendSystemMessage(RENDER_SUCCESS_MSG);
 
         }
         catch(Exception e) {
-            // TODO: log errors
-            player.sendSystemMessage(Component.literal(
-                    new Throwable().getStackTrace()[0].getMethodName() + ": " + e));
+            LOGGER.error("RenderCube encountered error while rendering", e);
+            player.sendSystemMessage(RENDER_ERROR_MSG);
         }
     }
 }

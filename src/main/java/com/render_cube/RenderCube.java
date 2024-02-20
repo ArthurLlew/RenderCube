@@ -51,7 +51,7 @@ public class RenderCube
     {
         Logger LOGGER = LogUtils.getLogger();
 
-        LOGGER.info("RENDERCUBE COMMON SETUP");
-        LOGGER.info("RENDERCUBE COMMON SETUP COMPLETE");
+        LOGGER.info("RenderCube common setup");
+        LOGGER.info("RenderCube common setup complete");
     }
 }

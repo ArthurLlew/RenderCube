@@ -8,5 +8,7 @@
   "gui.rendercube.render_screen.apr_tab": "Absolute Position Render",
   "gui.rendercube.render_screen.apr_position1": "Position 1",
   "gui.rendercube.render_screen.apr_position2": "Position 2",
-  "gui.rendercube.render_screen.button.render": "Render"
+  "gui.rendercube.render_screen.button.render": "Render",
+  "gui.rendercube.render_screen.button.render.success": "Render succeeded",
+  "gui.rendercube.render_screen.button.render.error": "Encountered error while rendering (check logs for more info)"
 }

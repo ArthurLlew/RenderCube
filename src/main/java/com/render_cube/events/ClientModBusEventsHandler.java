@@ -19,8 +19,8 @@ public class ClientModBusEventsHandler {
      */
     @SubscribeEvent
     public static void onClientSetup(FMLClientSetupEvent event){
-        LOGGER.info("RENDERCUBE CLIENT SETUP");
-        LOGGER.info("RENDERCUBE CLIENT SETUP COMPLETE");
+        LOGGER.info("RenderCube Client setup");
+        LOGGER.info("RenderCube Client setup complete");
     }
 
     /**

@@ -34,7 +34,7 @@ public class RenderScreenTab extends AbstractWidget {
     /**
      * Tab type.
      */
-    public final RenderScreenTabType type;
+    public final RenderScreenTab.Type type;
     /**
      * Renders tab contents.
      */
@@ -45,7 +45,7 @@ public class RenderScreenTab extends AbstractWidget {
 
     RenderScreenTab(int posLeft, int posTop, ResourceLocation selectedTexture, ResourceLocation unselectedTexture,
                     Component title, RenderMethod renderMethod, OnClick onClick, ItemStack itemstack,
-                    RenderScreenTabType type){
+                    RenderScreenTab.Type type){
         super(posLeft, posTop, 26, 32, CommonComponents.EMPTY);
         this.selectedTexture = selectedTexture;
         this.unselectedTexture = unselectedTexture;
@@ -109,5 +109,10 @@ public class RenderScreenTab extends AbstractWidget {
     @OnlyIn(Dist.CLIENT)
     public interface OnClick {
         void onClick(RenderScreenTab tab);
+    }
+
+    public enum Type {
+        PLAYER_RELATIVE_RENDER,
+        ABSOLUTE_POSITION_RENDER
     }
 }

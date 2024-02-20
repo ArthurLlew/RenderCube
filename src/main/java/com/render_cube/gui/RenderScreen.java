@@ -103,11 +103,11 @@ public class RenderScreen extends Screen {
         deselectedTabs.add(addWidget(new RenderScreenTab(bgPosLeft, bgPosTop - 28,
                 TAB_TEXTURES[0], TAB_TEXTURES[1], TAB_TITLES[0],
                 this::renderPRR, this::onTabPressed, new ItemStack(Items.PLAYER_HEAD),
-                RenderScreenTabType.PLAYER_RELATIVE_RENDER)));
+                RenderScreenTab.Type.PLAYER_RELATIVE_RENDER)));
         deselectedTabs.add(addWidget(new RenderScreenTab(bgPosLeft + 27, bgPosTop - 28,
                 TAB_TEXTURES[2], TAB_TEXTURES[3], TAB_TITLES[1],
                 this::renderAPR, this::onTabPressed, new ItemStack(Items.GRASS_BLOCK),
-                RenderScreenTabType.ABSOLUTE_POSITION_RENDER)));
+                RenderScreenTab.Type.ABSOLUTE_POSITION_RENDER)));
 
         // If no tab was selected, select the first one
         if (selectedTab == null){
@@ -218,7 +218,7 @@ public class RenderScreen extends Screen {
             // Min/max positions in region
             BlockPos posMin, posMax;
 
-            if (selectedTab.type == RenderScreenTabType.PLAYER_RELATIVE_RENDER){
+            if (selectedTab.type == RenderScreenTab.Type.PLAYER_RELATIVE_RENDER){
                 // We do not need to check positions
                 posMin = new BlockPos(region_x1, region_y1, region_z1);
                 posMax = new BlockPos(region_x2, region_y2, region_z2);

@@ -24,7 +24,7 @@ public class KeyInputReactions {
             player.sendSystemMessage(Component.literal("Texture atlases saved successfully"));
         }
         else{
-            LOGGER.info("Player is suddenly null");
+            LOGGER.error("Player is suddenly null");
         }
     }
 }

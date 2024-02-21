@@ -1,72 +1,66 @@
 RenderCube (alpha):
 ==============================
-This mod allows to export parts of minecraft world (even with
-mods) into _Blender_ . This repository also contains _Blender_
-importer addon, that imports exported geometry.
+This mod implements a method of exporting parts of the
+Minecraft world into _Blender_. Method even works with
+mods (most of them, at least). This repository also
+contains _Blender_ importer addon, that loads exported
+geometry.
 
 Usage:
 ------------------------------
 
-There are currently two commands with keybindings:
-1) Render
-2) Dump Textures
+Currently, the mod has two functions with keybindings:
+1) Render _(default key = R )_
+2) Dump Textures _(default key = \\ )_
 
-(1) exports a small cubic region around the player. (2) dumps
-all texture atlases used by game at the moment of pressing a
-button.
+(1) opens a GUI that provides controls for world export.
+(2) dumps all texture atlases used by the game at the moment
+of pressing the button.
 
-The first one is aimed primary for exporting large parts of the
-world. Exported part should be <= 450 cubes by both X and Z axis.
-If you ask to render more, appropriate error will be shown in
-console.
-
-After you hit _Render_ key, try not to move, because it may
-slow down the operation. It may take some time. Once it's done,
-navigate to you game folder (_.../.minecraft_) where you will
-notice new directory called _rendercube_. There you will find
+After you hit the _Render_ button, do not close the menu.
+Otherwise, you will abort the operation. Once it's done,
+navigate to your game folder (_.../.minecraft_) where you will
+notice a new directory called _rendercube_. There you will find
 files with extension _.rcube_ (contains geometry) and another
 directory, called _texture_atlases_. The latter contains dumped
 texture atlases.
 
-After successful export open _Blender_ and activate provided
-addon. Use new option in import menu, named _RenderCube
-(.rcube)_ and navigate to exported _.rcube_ files. 
+After successful export, open _Blender_ and activate the
+provided addon. Use a new option in the import menu, named
+_RenderCube (.rcube)_ and navigate to exported _.rcube_ files. 
 
 **Note:** you can select multiple files at once.
 
-After it will load meshes (may take up to 5-10 minutes)
+Once meshes are loaded (may take some time)
 you will see as many new objects as there were files to
-import. They will all already have proper materials.
-
-**Note:** most non-block entities will have different texture
-atlases or even single textures (which are not automatically
-exported) in use. So, you should figure out (mostly, by names
-of atlases and textures) which one is which.
-
-**Note:**  there is an option (checked by default) to check
-if a material, that is about to be created, already exists
-in a scene (is performed name wise). You can turn this off,
-if you export mesh with different texture atlases into scene
-with existing materials.
+import. All of them have proper materials already.
 
 ### **Important notes:**
-1) Minecraft uses overlapping faces. This
-means, that some objects cannot be rendered in cycles and in
-eevee  require extra tweaks. This is, for example, true for
-grass blocks. They have extra outer faces on sides (they hold
-biome colored layer). Such faces will render black. To fix this
-in eevee you can open UV editing menu, select all faces, that
-cause issue (find place in texture atlas where one is situated
-and then select all of them in the same place; most of the
-time they are obviously visible, because most faces tend to
-occupy one square texture part in atlas), and separate them all
-into another object. Then duplicate material on that object and
+1) Most non-block entities will use different texture
+atlases or even single textures (which are not automatically
+exported). You should figure out (mostly, by names
+of atlases and textures) which one is which.
+2) In importer there is an option (checked by default)
+to reuse materials already existing in the scene (is
+performed name wise, omitting .<numbers> at the end).
+You can turn this off, if you wish to export geometry
+with different texture atlases in use.
+3) Minecraft uses _'overlapping'_ faces (faces being very
+close to one another. This means that some objects WILL have
+overlapping faces. For example, that will happen with grass
+blocks. They have extra outer faces on sides (they hold biome
+colored layers). Such faces will render black. In eevee you
+can fix that by opening the UV editing menu, selecting
+all faces  that cause the issue (find a place in the
+texture atlas where one is located and then select all of
+them in the same place), and separate all of them into
+another object. Then duplicate material for that object and
 assign material _Blend Mode_ to _Alpha Blend_.
-2) Currently, mod does not support mods like _chisel and bits_
-which use custom renders.
-3) Some optimization mods (like _entity culling_) that tweak
+4) Currently, the rendering method does not support mods
+like _chisel and bits_ which use custom renders.
+5) Some optimization mods (like _entity culling_) that tweak
 rendering may cause the mod to malfunction. Luckily, _Optifine_
-is not included in this list.
+is not included in that list.
 
 Credits:
 ------------------------------

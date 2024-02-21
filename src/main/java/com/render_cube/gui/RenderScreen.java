@@ -1,11 +1,14 @@
 package com.render_cube.gui;
 
 import com.google.common.collect.Lists;
+import com.mojang.brigadier.StringReader;
 import com.mojang.logging.LogUtils;
 import com.render_cube.rendering.FileWriters;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractButton;
+import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
@@ -24,11 +27,11 @@ import java.util.List;
 import static com.render_cube.RenderCube.MODID;
 import static com.render_cube.rendering.CubesRenderer.renderRegion;
 
-// TODO: edit-boxes for position input
 @OnlyIn(Dist.CLIENT)
 public class RenderScreen extends Screen {
     private static final Logger LOGGER = LogUtils.getLogger();
 
+    // Resources
     private static final ResourceLocation BACKGROUND_TEXTURE =
             new ResourceLocation(MODID, "textures/gui/render_screen.png");
     private static final ResourceLocation[] TAB_TEXTURES =
@@ -40,8 +43,19 @@ public class RenderScreen extends Screen {
     private static final Component[] TAB_TITLES = new Component[]{
             Component.translatable("gui." + MODID + ".render_screen.prr_tab"),
             Component.translatable("gui." + MODID + ".render_screen.apr_tab")};
+    private static final Component[] EDITBOX_TITLES = new Component[]{
+            Component.translatable("gui." + MODID + ".render_screen.prr.edit_box.pos1"),
+            Component.translatable("gui." + MODID + ".render_screen.prr.edit_box.pos2"),
+            Component.translatable("gui." + MODID + ".render_screen.apr.edit_box.pos1"),
+            Component.translatable("gui." + MODID + ".render_screen.apr.edit_box.pos2")};
+    private static final Component EDITBOX_TOOLTIP =
+            Component.translatable("gui." + MODID + ".render_screen.edit_box.tooltip");
     private static final Component RENDER_BUTTON_TEXT =
             Component.translatable("gui." + MODID + ".render_screen.button.render");
+    private static final Component RENDER_WRONG_INPUT_MSG =
+            Component.translatable("gui." + MODID + ".render_screen.button.render.wrong_input");
+    private static final Component RENDER_REGION_TOO_LARGE_MSG =
+            Component.translatable("gui." + MODID + ".render_screen.button.render.region_too_large");
     private static final Component RENDER_SUCCESS_MSG =
             Component.translatable("gui." + MODID + ".render_screen.button.render.success");
     private static final Component RENDER_ERROR_MSG =
@@ -71,6 +85,8 @@ public class RenderScreen extends Screen {
      * Holds render button instance.
      */
     private RenderButton renderButton;
+
+    private EditBox editbox1, editbox2;
 
     public RenderScreen() {
         super(CommonComponents.EMPTY);
@@ -115,9 +131,19 @@ public class RenderScreen extends Screen {
             selectedTab.setSelected();
         }
 
+        // Editbox
+        editbox1 = addWidget(new EditBox(this.font,bgPosLeft + 8, bgPosTop + 32,
+                179, 16, Component.literal("editbox1")));
+        editbox1.setTooltip(Tooltip.create(EDITBOX_TOOLTIP));
+        editbox1.setMaxLength(29);
+        editbox2 = addWidget(new EditBox(this.font,bgPosLeft + 8, bgPosTop + 67,
+                179, 16, Component.literal("editbox2")));
+        editbox2.setTooltip(Tooltip.create(EDITBOX_TOOLTIP));
+        editbox2.setMaxLength(29);
+
         // Render button
         renderButton = addWidget(new RenderButton(bgPosLeft + bgWidth / 2 - 30,
-                bgPosTop + bgHeight - 26,
+                bgPosTop + 92,
                 60,
                 20,
                 RENDER_BUTTON_TEXT,
@@ -160,6 +186,16 @@ public class RenderScreen extends Screen {
         guiGraphics.drawString(this.font, TAB_TITLES[0], bgPosLeft + 8, bgPosTop + 6,
                 0x404040, false);
 
+        // Editbox 1
+        guiGraphics.drawString(this.font, EDITBOX_TITLES[0], bgPosLeft + 12, bgPosTop + 19,
+                0x404040, false);
+        editbox1.render(guiGraphics, mouseX, mouseY, partialTicks);
+
+        //Editbox 2
+        guiGraphics.drawString(this.font, EDITBOX_TITLES[1], bgPosLeft + 12, bgPosTop + 54,
+                0x404040, false);
+        editbox2.render(guiGraphics, mouseX, mouseY, partialTicks);
+
         renderButton.render(guiGraphics, mouseX, mouseY, partialTicks);
     }
 
@@ -174,6 +210,16 @@ public class RenderScreen extends Screen {
         // Tab title
         guiGraphics.drawString(this.font, TAB_TITLES[1], bgPosLeft + 8, bgPosTop + 6,
                 0x404040, false);
+
+        // Editbox 1
+        guiGraphics.drawString(this.font, EDITBOX_TITLES[2], bgPosLeft + 12, bgPosTop + 19,
+                0x404040, false);
+        editbox1.render(guiGraphics, mouseX, mouseY, partialTicks);
+
+        //Editbox 2
+        guiGraphics.drawString(this.font, EDITBOX_TITLES[3], bgPosLeft + 12, bgPosTop + 54,
+                0x404040, false);
+        editbox2.render(guiGraphics, mouseX, mouseY, partialTicks);
 
         renderButton.render(guiGraphics, mouseX, mouseY, partialTicks);
     }
@@ -206,43 +252,59 @@ public class RenderScreen extends Screen {
         LocalPlayer player = Minecraft.getInstance().player;
         if (player == null) {throw new UnsupportedOperationException("Player is null");}
 
+        // Load input
+        int x1, y1, z1, x2, y2, z2;
+        try{
+            // Editbox1
+            StringReader r = new StringReader(editbox1.getValue());
+            x1 = r.readInt();
+            r.skipWhitespace();
+            y1 = r.readInt();
+            r.skipWhitespace();
+            z1 = r.readInt();
+
+            // Editbox2
+            r = new StringReader(editbox2.getValue());
+            x2 = r.readInt();
+            r.skipWhitespace();
+            y2 = r.readInt();
+            r.skipWhitespace();
+            z2 = r.readInt();
+        }
+        catch (Exception e){
+            player.sendSystemMessage(RENDER_WRONG_INPUT_MSG);
+            return;
+        }
+
         try (FileWriters fileWriters = new FileWriters()){
-            // TODO: bound this to edit-boxes
-            int region_x1 = Math.min(player.getBlockX() - 16, player.getBlockX() + 16);
-            int region_y1 = Math.min(player.getBlockY() - 16, player.getBlockY() + 16);
-            int region_z1 = Math.min(player.getBlockZ() - 16, player.getBlockZ() + 16);
-            int region_x2 = Math.max(player.getBlockX() - 16, player.getBlockX() + 16);
-            int region_y2 = Math.max(player.getBlockY() - 16, player.getBlockY() + 16);
-            int region_z2 = Math.max(player.getBlockZ() - 16, player.getBlockZ() + 16);
+            // Place min x/y/z into minPos and max x/y/z into maxPos
+            int minX = Math.min(x1, x2);
+            int minY = Math.min(y1, y2);
+            int minZ = Math.min(z1, z2);
+            int maxX = Math.max(x1, x2);
+            int maxY = Math.max(y1, y2);
+            int maxZ = Math.max(z1, z2);
+
+            // Restrict region size
+            if ((maxX - minX > 400) || (maxZ - minZ > 400)){
+                player.sendSystemMessage(RENDER_REGION_TOO_LARGE_MSG);
+                return;
+            }
 
             // Min/max positions in region
             BlockPos posMin, posMax;
-
             if (selectedTab.type == RenderScreenTab.Type.PLAYER_RELATIVE_RENDER){
-                // We do not need to check positions
-                posMin = new BlockPos(region_x1, region_y1, region_z1);
-                posMax = new BlockPos(region_x2, region_y2, region_z2);
+                // Add player position
+                posMin = new BlockPos(player.getBlockX() + minX,
+                        player.getBlockY() + minY,
+                        player.getBlockZ() + minZ);
+                posMax = new BlockPos(player.getBlockX() + maxX,
+                        player.getBlockY() + maxY,
+                        player.getBlockZ() + maxZ);
             }
             else{
-                // Place min x/y/z into minPos and max x/y/z into maxPos
-                int regionMinX = Math.min(region_x1, region_x2);
-                int regionMinY = Math.min(region_y1, region_y2);
-                int regionMinZ = Math.min(region_z1, region_z2);
-                int regionMaxX = Math.max(region_x1, region_x2);
-                int regionMaxY = Math.max(region_y1, region_y2);
-                int regionMaxZ = Math.max(region_z1, region_z2);
-
-                posMin = new BlockPos(regionMinX, regionMinY, regionMinZ);
-                posMax = new BlockPos(regionMaxX, regionMaxY, regionMaxZ);
-
-            }
-
-            // Restrict region size
-            if (posMax.getX() - posMin.getX() > 320) {
-                throw new IllegalArgumentException("Region size by X axis can't be > 450");
-            }
-            if (posMax.getZ() - posMin.getZ() > 320) {
-                throw new IllegalArgumentException("Region size by Z axis can't be > 450");
+                posMin = new BlockPos(minX, minY, minZ);
+                posMax = new BlockPos(maxX, maxY, maxZ);
             }
 
             // Render region

@@ -6,7 +6,6 @@ import com.render_cube.vertex_consumers.CommonVertexConsumer;
 import com.render_cube.vertex_consumers.FakeMultiBufferSource;
 import com.render_cube.vertex_consumers.LiquidVertexConsumer;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.Mth;
@@ -62,7 +61,7 @@ public class CubesRenderer {
                     true,
                     RandomSource.create(block.getSeed(levelPosition)),
                     data,
-                    RenderType.solid());
+                    null);
 
             // If there is fluid
             FluidState fluid = block.getFluidState();

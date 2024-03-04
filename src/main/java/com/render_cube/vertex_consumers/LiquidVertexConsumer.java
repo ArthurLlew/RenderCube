@@ -11,11 +11,20 @@ import java.io.OutputStream;
  */
 public class LiquidVertexConsumer extends CommonVertexConsumer {
     /**
-     * Constructs instance from position in region.
-     * @param regionPosition liquid position in region
+     * Position in level.
      */
-    public LiquidVertexConsumer(OutputStream fileStream, BlockPos regionPosition) {
-        super(fileStream, regionPosition);
+    private final BlockPos levelPos;
+
+    /**
+     * Constructs instance from position in region.
+     * @param fileStream opened file output stream where data will be saved
+     * @param regionPos liquid position in region
+     * @param levelPos liquid position in level
+     */
+    public LiquidVertexConsumer(OutputStream fileStream, BlockPos regionPos, BlockPos levelPos) {
+        super(fileStream, regionPos);
+
+        this.levelPos = levelPos;
     }
 
     /**
@@ -27,14 +36,19 @@ public class LiquidVertexConsumer extends CommonVertexConsumer {
      */
     @Override
     public @NotNull VertexConsumer vertex(double x, double y, double z){
-        // Rendering process of liquid adds a block position in a chunk to vertex coordinate
-        int shiftX = ((int)Math.ceil(x) >> 1) << 1;
-        int shiftY = ((int)Math.ceil(y) >> 1) << 1;
-        int shiftZ = ((int)Math.ceil(z) >> 1) << 1;
+        // Rendering process of liquid adds a block position in a chunk to vertex coordinate:
+        // vertex position + (level position & 15)
+        // This operation puts liquid into a chunk space.
+        // In some mods, like Optifine value 15 is changed to 255 (bigger chunks or whatever).
+        // So, the first part of shift takes care of Vanilla version tweaks and the second fixes Optifine tweaks
+        // (moves given point to chunk of size 16x16, so Vanilla shifting will work properly).
+        int chunckPosX = levelPos.getX() & 15;
+        int chunckPosY = levelPos.getY() & 15;
+        int chunckPosZ = levelPos.getZ() & 15;
+        int shiftX = chunckPosX + (((int)Math.floor(x) - chunckPosX) & 240);
+        int shiftY = chunckPosY + (((int)Math.floor(y) - chunckPosY) & 240);
+        int shiftZ = chunckPosZ + (((int)Math.floor(z) - chunckPosZ) & 240);
 
-        return super.vertex(
-                x - shiftX,
-                y - shiftY,
-                z - shiftZ);
+        return super.vertex(x - shiftX, y - shiftY, z - shiftZ);
     }
 }

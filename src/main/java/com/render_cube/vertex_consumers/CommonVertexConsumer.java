@@ -13,16 +13,17 @@ public class CommonVertexConsumer extends BasicVertexConsumer {
     /**
      * Position in region.
      */
-    private final BlockPos regionPosition;
+    private final BlockPos regionPos;
 
     /**
      * Constructs instance from position in region.
-     * @param regionPosition liquid position in region
+     * @param fileStream opened file output stream where data will be saved
+     * @param regionPos liquid position in region
      */
-    public CommonVertexConsumer(OutputStream fileStream, BlockPos regionPosition) {
+    public CommonVertexConsumer(OutputStream fileStream, BlockPos regionPos) {
         super(fileStream);
 
-        this.regionPosition = regionPosition;
+        this.regionPos = regionPos;
     }
 
     /**
@@ -34,7 +35,7 @@ public class CommonVertexConsumer extends BasicVertexConsumer {
      */
     @Override
     public @NotNull VertexConsumer vertex(double x, double y, double z){
-        super.vertex(regionPosition.getX() + x, regionPosition.getY() + y, regionPosition.getZ() + z);
+        super.vertex(regionPos.getX() + x, regionPos.getY() + y, regionPos.getZ() + z);
         return this;
     }
 }

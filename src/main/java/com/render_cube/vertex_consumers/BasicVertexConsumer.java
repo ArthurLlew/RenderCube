@@ -32,6 +32,7 @@ public class BasicVertexConsumer implements VertexConsumer{
 
     /**
      * Constructs empty instance.
+     * @param fileStream opened file output stream where data will be saved
      */
     public BasicVertexConsumer(OutputStream fileStream){
         outputStream = fileStream;

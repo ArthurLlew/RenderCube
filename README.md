@@ -46,16 +46,15 @@ performed name wise, omitting .<numbers> at the end).
 You can turn this off, if you wish to export geometry
 with different texture atlases in use.
 3) Minecraft uses _'overlapping'_ faces (faces being very
-close to one another. This means that some objects WILL have
-overlapping faces. For example, that will happen with grass
+close to one another). For example, that will happen with grass
 blocks. They have extra outer faces on sides (they hold biome
-colored layers). Such faces will render black. In eevee you
-can fix that by opening the UV editing menu, selecting
-all faces  that cause the issue (find a place in the
-texture atlas where one is located and then select all of
-them in the same place), and separate all of them into
-another object. Then duplicate material for that object and
-assign material _Blend Mode_ to _Alpha Blend_.
+colored layers). Such faces will render black. You can fix it
+via selecting all faces that cause issue with the help of the
+_UV Editing_ Blender menu, setting _Transform Orientations_ to
+_Normal_ (so that all transforms happen along normals), setting
+_Transform Pivot Point_ to _Individual Origins_ and then
+finally pressing _G_ and _Z_ (move along Z-axis) to move them
+away just a bit. For me distance 0.0001 works just fine.
 4) Currently, the rendering method does not support mods
 like _chisel and bits_ which use custom renders.
 5) Some optimization mods (like _entity culling_) that tweak

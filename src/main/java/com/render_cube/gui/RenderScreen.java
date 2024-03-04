@@ -125,11 +125,23 @@ public class RenderScreen extends Screen {
                 this::renderAPR, this::onTabPressed, new ItemStack(Items.GRASS_BLOCK),
                 RenderScreenTab.Type.ABSOLUTE_POSITION_RENDER)));
 
-        // If no tab was selected, select the first one
+        // Check tab selection
         if (selectedTab == null){
+            // Select the first one
             selectedTab = deselectedTabs.get(0);
-            selectedTab.setSelected();
+        } else{
+            // Replace with brand new of the same type
+            for (RenderScreenTab tab : deselectedTabs){
+                if (tab.type == selectedTab.type){
+                    selectedTab = tab;
+                    break;
+                }
+            }
         }
+        // Set current tab state as active
+        selectedTab.setSelected();
+        // Remove selected tab from unselected list
+        deselectedTabs.remove(selectedTab);
 
         // Editbox
         editbox1 = addWidget(new EditBox(this.font,bgPosLeft + 8, bgPosTop + 32,

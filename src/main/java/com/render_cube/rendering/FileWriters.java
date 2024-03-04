@@ -4,6 +4,8 @@ import java.io.BufferedOutputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 import static com.render_cube.RenderCube.MODID;
 
@@ -36,7 +38,10 @@ public class FileWriters implements AutoCloseable {
      * @throws IOException when file exceptions are encountered
      */
     public FileWriters() throws IOException {
-        int bufferSize = 8064;	// Buffer size: 48 (size of one vertex) * 4 (4 in a quad) * 42
+        // Make sure, that mod directory exists
+        Files.createDirectories(Paths.get(MODID));
+
+        int bufferSize = 8064;	// Buffer size = 48 (size of one vertex) * 4 (4 in a quad) * 42 (arbitrary number)
         String FileExtension = ".rcube";
 
         blockWriter= new BufferedOutputStream(

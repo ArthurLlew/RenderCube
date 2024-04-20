@@ -1,8 +1,8 @@
-package com.render_cube.key_bindings;
+package com.rendercube.key_bindings;
 
 import com.mojang.logging.LogUtils;
-import com.render_cube.RenderCube;
-import com.render_cube.gui.RenderScreen;
+import com.rendercube.RenderCube;
+import com.rendercube.gui.RenderScreen;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.chat.Component;

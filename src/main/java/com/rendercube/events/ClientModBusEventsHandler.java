@@ -1,8 +1,8 @@
-package com.render_cube.events;
+package com.rendercube.events;
 
 import com.mojang.logging.LogUtils;
-import com.render_cube.RenderCube;
-import com.render_cube.key_bindings.KeyBindings;
+import com.rendercube.RenderCube;
+import com.rendercube.key_bindings.KeyBindings;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.RegisterKeyMappingsEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;

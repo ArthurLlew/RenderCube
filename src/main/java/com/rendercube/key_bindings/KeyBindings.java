@@ -1,11 +1,11 @@
-package com.render_cube.key_bindings;
+package com.rendercube.key_bindings;
 
 import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.KeyMapping;
 import net.minecraftforge.client.settings.KeyConflictContext;
 import org.lwjgl.glfw.GLFW;
 
-import static com.render_cube.RenderCube.MODID;
+import static com.rendercube.RenderCube.MODID;
 
 public final class KeyBindings {
     public static final KeyBindings INSTANCE = new KeyBindings();

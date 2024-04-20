@@ -1,10 +1,10 @@
-package com.render_cube.rendering;
+package com.rendercube.rendering;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.render_cube.vertex_consumers.BasicVertexConsumer;
-import com.render_cube.vertex_consumers.CommonVertexConsumer;
-import com.render_cube.vertex_consumers.FakeMultiBufferSource;
-import com.render_cube.vertex_consumers.LiquidVertexConsumer;
+import com.rendercube.vertex_consumers.BasicVertexConsumer;
+import com.rendercube.vertex_consumers.CommonVertexConsumer;
+import com.rendercube.vertex_consumers.FakeMultiBufferSource;
+import com.rendercube.vertex_consumers.LiquidVertexConsumer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.core.BlockPos;

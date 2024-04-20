@@ -1,4 +1,4 @@
-package com.render_cube.rendering;
+package com.rendercube.rendering;
 
 import java.io.BufferedOutputStream;
 import java.io.FileOutputStream;
@@ -7,7 +7,7 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
-import static com.render_cube.RenderCube.MODID;
+import static com.rendercube.RenderCube.MODID;
 
 /**
  * Autocloseable collection of file writers.

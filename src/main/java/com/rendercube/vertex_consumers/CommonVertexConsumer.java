@@ -1,4 +1,4 @@
-package com.render_cube.vertex_consumers;
+package com.rendercube.vertex_consumers;
 
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.core.BlockPos;

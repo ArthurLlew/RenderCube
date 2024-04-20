@@ -1,14 +1,14 @@
-package com.render_cube.events;
+package com.rendercube.events;
 
-import com.render_cube.RenderCube;
-import com.render_cube.key_bindings.KeyBindings;
+import com.rendercube.RenderCube;
+import com.rendercube.key_bindings.KeyBindings;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.InputEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
-import static com.render_cube.key_bindings.KeyInputReactions.dumpTextures;
-import static com.render_cube.key_bindings.KeyInputReactions.openRenderScreen;
+import static com.rendercube.key_bindings.KeyInputReactions.dumpTextures;
+import static com.rendercube.key_bindings.KeyInputReactions.openRenderScreen;
 
 @Mod.EventBusSubscriber(modid = RenderCube.MODID, value = Dist.CLIENT)
 public class ClientEventsHandler {

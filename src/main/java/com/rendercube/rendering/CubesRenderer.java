@@ -6,7 +6,10 @@ import com.rendercube.vertex_consumers.CommonVertexConsumer;
 import com.rendercube.vertex_consumers.FakeMultiBufferSource;
 import com.rendercube.vertex_consumers.LiquidVertexConsumer;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.block.BlockRenderDispatcher;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
+import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
@@ -44,26 +47,33 @@ public class CubesRenderer {
             CommonVertexConsumer commonVertexConsumer =
                     new CommonVertexConsumer(fileWriters.blockWriter, regionPos);
 
-            // Block extra model data
-            ModelData data = Minecraft.getInstance().getBlockRenderer().getBlockModel(block).getModelData(
+            // Block baked model
+            BakedModel blockModel = Minecraft.getInstance().getBlockRenderer().getBlockModel(block);
+
+            // Block model extra data
+            ModelData blockModelData = blockModel.getModelData(
                     level,
                     levelPos,
                     block,
                     ModelData.EMPTY);
 
-            // Consume block vertices
-            Minecraft.getInstance().getBlockRenderer().renderBatched(
-                    block,
-                    levelPos,
-                    level,
-                    new PoseStack(),
-                    commonVertexConsumer,
-                    true,
-                    RandomSource.create(block.getSeed(levelPos)),
-                    data,
-                    null);
+            // Consume block vertices for every render type available
+            BlockRenderDispatcher blockRenderDispatcher = Minecraft.getInstance().getBlockRenderer();
+            RandomSource randomSource = RandomSource.create(block.getSeed(levelPos));
+            for (RenderType rendertype : blockModel.getRenderTypes(block, randomSource, blockModelData)) {
+                blockRenderDispatcher.renderBatched(
+                        block,
+                        levelPos,
+                        level,
+                        new PoseStack(),
+                        commonVertexConsumer,
+                        true,
+                        randomSource,
+                        blockModelData,
+                        rendertype);
+            }
 
-            // If there is fluid
+            // If there is a fluid
             FluidState fluid = block.getFluidState();
             if (!fluid.isEmpty()){
                 // Init liquid consumer

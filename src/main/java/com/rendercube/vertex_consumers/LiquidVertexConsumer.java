@@ -42,12 +42,12 @@ public class LiquidVertexConsumer extends CommonVertexConsumer {
         // In some mods, like Optifine value 15 is changed to 255 (bigger chunks or whatever).
         // So, the first part of shift takes care of Vanilla version tweaks and the second fixes Optifine tweaks
         // (moves given point to chunk of size 16x16, so Vanilla shifting will work properly).
-        int chunckPosX = levelPos.getX() & 15;
-        int chunckPosY = levelPos.getY() & 15;
-        int chunckPosZ = levelPos.getZ() & 15;
-        int shiftX = chunckPosX + (((int)Math.floor(x) - chunckPosX) & 240);
-        int shiftY = chunckPosY + (((int)Math.floor(y) - chunckPosY) & 240);
-        int shiftZ = chunckPosZ + (((int)Math.floor(z) - chunckPosZ) & 240);
+        int chunkPosX = levelPos.getX() & 15;
+        int chunkPosY = levelPos.getY() & 15;
+        int chunkPosZ = levelPos.getZ() & 15;
+        int shiftX = chunkPosX + (((int)Math.floor(x) - chunkPosX) & 240);
+        int shiftY = chunkPosY + (((int)Math.floor(y) - chunkPosY) & 240);
+        int shiftZ = chunkPosZ + (((int)Math.floor(z) - chunkPosZ) & 240);
 
         return super.vertex(x - shiftX, y - shiftY, z - shiftZ);
     }

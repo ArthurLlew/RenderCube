@@ -25,9 +25,6 @@ run
 forge*changelog.txt
 
 # Custom
-.Blender Add-on/Test.py
-.Blender Add-on/RenderCubeImporter.zip
-.Blender Test Scenes
 gradle
 run-data
 src/generated

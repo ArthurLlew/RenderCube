@@ -168,7 +168,7 @@ public class RenderScreen extends Screen {
      */
     @Override
     public void render(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks){
-        this.renderBackground(guiGraphics, mouseX, mouseY, partialTicks);
+        this.renderBackground(guiGraphics);
 
         // Render all unselected tabs under background texture
         for(RenderScreenTab tab : this.deselectedTabs){

@@ -1,6 +1,6 @@
 RenderCube (Beta):
 ==============================
-This Minecraft tool ames to provide a way for exporting
+This Minecraft tool aims to provide a way for exporting
 Minecraft builds into _Blender_ even if the game uses
 other mods. The tool consists of a Minecraft mod and a
 _Blender_ addon, used to load exported geometry.

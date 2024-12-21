@@ -62,9 +62,6 @@ def create_material(material_name):
     
     # Init material
     material = bpy.data.materials.new(material_name)
-    # Set alpha settings to HASHED
-    material.blend_method = 'HASHED'
-    material.shadow_method = 'HASHED'
     # Hide back surfaces of faces
     material.use_backface_culling = True
     # Start using nodes
@@ -90,11 +87,11 @@ def create_material(material_name):
     material.node_tree.links.new(mix_node.outputs[2], principled_node.inputs[0])
     
     # Create 'Color Attribute' node
-    vertex_color = material.node_tree.nodes.new('ShaderNodeVertexColor')
+    vertex_color = material.node_tree.nodes.new('ShaderNodeAttribute')
     # Move it away from Principled BSDF shader node
     vertex_color.location = (-500, 350)
     # Select color attribute
-    vertex_color.layer_name = 'Color'
+    vertex_color.attribute_name = 'Color'
     
     # Connect Color Attribute node output to 'A' input of mix node
     material.node_tree.links.new(vertex_color.outputs[0], mix_node.inputs[6])

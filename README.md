@@ -5,8 +5,7 @@ RenderCube (Beta):
 This _Minecraft_ toolchain is designed to export
 _Minecraft_ builds into _Blender_ even if the game is
 using other mods. The toolchain consists of a
-_Minecraft_ mod and a _Blender_ addon, used to load
-exported geometry.
+_Minecraft_ mod (export) and a _Blender_ addon (import).
 
 Setup:
 ------------------------------

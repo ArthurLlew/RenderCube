@@ -1,4 +1,4 @@
-RenderCube (Beta):
+RenderCube:
 ==============================
 ![Image alt](https://github.com/ArthurLlew/RenderCube/raw/1.20.1-fabric/preview.png)
 

@@ -1,16 +1,15 @@
-package com.rendercube.gui;
+package net.arthurllew.rendercube.gui;
 
 import com.google.common.collect.Lists;
 import com.mojang.brigadier.StringReader;
 import com.mojang.logging.LogUtils;
-import com.rendercube.rendering.FileWriters;
+import net.arthurllew.rendercube.rendering.FileWriters;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.tooltip.Tooltip;
-import net.minecraft.client.gui.widget.EditBoxWidget;
 import net.minecraft.client.gui.widget.PressableWidget;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.client.network.ClientPlayerEntity;
@@ -25,8 +24,8 @@ import org.slf4j.Logger;
 
 import java.util.List;
 
-import static com.rendercube.RenderCube.MODID;
-import static com.rendercube.rendering.CubesRenderer.renderRegion;
+import static net.arthurllew.rendercube.RenderCube.MODID;
+import static net.arthurllew.rendercube.rendering.CubesRenderer.renderRegion;
 
 @Environment(value= EnvType.CLIENT)
 public class RenderScreen extends Screen {

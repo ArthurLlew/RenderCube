@@ -40,8 +40,4 @@ replay_*.log
 *.jfr
 
 # Custom
-gradle/
-.gitattributes
-gradlew
-gradlew.bat
 RenderCubeImporter.zip

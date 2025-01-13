@@ -2,37 +2,25 @@
 	"schemaVersion": 1,
 	"id": "rendercube",
 	"version": "${version}",
-	"name": "Render Cube",
-	"description": "A tool to export parts of Minecraft world into Blender.",
+	"name": "RenderCube",
+	"description": "A toolchain for exporting modded Minecraft worlds into Blender.",
 	"authors": [
 		"Arthur Llew"
 	],
-	"contact": {
-		"homepage": "",
-		"sources": ""
-	},
 	"license": "MIT",
-	"icon": "assets/rendercube/icon.png",
 	"environment": "*",
 	"entrypoints": {
 		"main": [
-			"com.rendercube.RenderCube"
+			"net.arthurllew.rendercube.RenderCube"
 		],
 		"client": [
-			"com.rendercube.RenderCubeClient"
-		],
-		"fabric-datagen": [
-			"com.rendercube.RenderCubeDataGenerator"
+			"net.arthurllew.rendercube.RenderCubeClient"
 		]
 	},
-	"mixins": [],
 	"depends": {
 		"fabricloader": ">=0.15.10",
 		"minecraft": "~1.20.1",
 		"java": ">=17",
 		"fabric-api": "*"
-	},
-	"suggests": {
-		"another-mod": "*"
 	}
 }

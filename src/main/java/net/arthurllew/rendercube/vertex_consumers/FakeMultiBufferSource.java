@@ -1,4 +1,4 @@
-package com.rendercube.vertex_consumers;
+package net.arthurllew.rendercube.vertex_consumers;
 
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumer;

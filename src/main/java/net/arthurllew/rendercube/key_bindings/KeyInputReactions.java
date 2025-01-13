@@ -1,8 +1,8 @@
-package com.rendercube.key_bindings;
+package net.arthurllew.rendercube.key_bindings;
 
 import com.mojang.logging.LogUtils;
-import com.rendercube.RenderCube;
-import com.rendercube.gui.RenderScreen;
+import net.arthurllew.rendercube.RenderCube;
+import net.arthurllew.rendercube.gui.RenderScreen;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.text.Text;

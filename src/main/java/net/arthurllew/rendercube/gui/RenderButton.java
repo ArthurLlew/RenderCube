@@ -1,4 +1,4 @@
-package com.rendercube.gui;
+package net.arthurllew.rendercube.gui;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;

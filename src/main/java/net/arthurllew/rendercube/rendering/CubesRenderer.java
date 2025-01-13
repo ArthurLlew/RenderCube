@@ -1,9 +1,9 @@
-package com.rendercube.rendering;
+package net.arthurllew.rendercube.rendering;
 
-import com.rendercube.vertex_consumers.BasicVertexConsumer;
-import com.rendercube.vertex_consumers.CommonVertexConsumer;
-import com.rendercube.vertex_consumers.FakeMultiBufferSource;
-import com.rendercube.vertex_consumers.LiquidVertexConsumer;
+import net.arthurllew.rendercube.vertex_consumers.BasicVertexConsumer;
+import net.arthurllew.rendercube.vertex_consumers.CommonVertexConsumer;
+import net.arthurllew.rendercube.vertex_consumers.FakeMultiBufferSource;
+import net.arthurllew.rendercube.vertex_consumers.LiquidVertexConsumer;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.client.MinecraftClient;

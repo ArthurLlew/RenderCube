@@ -1,10 +1,10 @@
-package com.rendercube.key_bindings;
+package net.arthurllew.rendercube.key_bindings;
 
 import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.util.InputUtil;
 import org.lwjgl.glfw.GLFW;
 
-import static com.rendercube.RenderCube.MODID;
+import static net.arthurllew.rendercube.RenderCube.MODID;
 
 public final class KeyBindings {
     public static final KeyBindings INSTANCE = new KeyBindings();

@@ -1,4 +1,4 @@
-package com.rendercube;
+package net.arthurllew.rendercube;
 
 import net.fabricmc.api.ModInitializer;
 
@@ -8,12 +8,12 @@ import org.slf4j.LoggerFactory;
 public class RenderCube implements ModInitializer {
 	public static final String MODID = "rendercube";
 
+    public static final Logger LOGGER = LoggerFactory.getLogger(MODID);
+
 	/**
 	 * Mod texture atlases directory.
 	 */
 	public static final String TEXTURE_ATLASES_DIR = MODID + "\\" + "texture_atlases";
-
-    public static final Logger LOGGER = LoggerFactory.getLogger(MODID);
 
 	@Override
 	public void onInitialize() {

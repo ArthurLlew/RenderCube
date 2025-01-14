@@ -1,6 +1,6 @@
 RenderCube:
 ==============================
-![Image alt](https://github.com/ArthurLlew/RenderCube/raw/1.20.1-fabric/preview.png)
+![Image alt](https://github.com/ArthurLlew/RenderCube/raw/fabric-1.20.1/preview.png)
 
 This _Minecraft_ toolchain is designed to export
 _Minecraft_ builds into _Blender_ even if the game is

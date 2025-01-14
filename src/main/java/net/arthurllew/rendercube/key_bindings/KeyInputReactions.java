@@ -14,7 +14,13 @@ public class KeyInputReactions {
     private static final Logger LOGGER = LogUtils.getLogger();
 
     public static void openRenderScreen(){
-        MinecraftClient.getInstance().setScreen(new RenderScreen());
+        ClientPlayerEntity player = MinecraftClient.getInstance().player;
+        if (player != null) {
+            MinecraftClient.getInstance().setScreen(new RenderScreen());
+        }
+        else{
+            LOGGER.error("Attempt to open render screen while player is NULL");
+        }
     }
 
     public static void dumpTextures(){
@@ -24,7 +30,7 @@ public class KeyInputReactions {
             player.sendMessage(Text.literal("Texture atlases saved successfully"));
         }
         else{
-            LOGGER.error("Player is suddenly null");
+            LOGGER.error("Attempt to dump textures while player is NULL");
         }
     }
 }

@@ -82,11 +82,19 @@ public class RenderScreen extends Screen {
     private static RenderScreenTab selectedTab;
 
     /**
-     * Holds render button instance.
+     * Render button.
      */
     private RenderButton renderButton;
 
+    /**
+     * Text widgets.
+     */
     private EditBox editbox1, editbox2;
+
+    /**
+     * Screen state (is it rendering or not).
+     */
+    private boolean isIdle = true;
 
     public RenderScreen() {
         super(CommonComponents.EMPTY);
@@ -97,11 +105,20 @@ public class RenderScreen extends Screen {
 
     /**
      * Tells, if game should be paused.
-     * @return {@code false}
+     * @return {@code true} (probably sometimes player would love to render a fixed scene).
      */
     @Override
     public boolean isPauseScreen() {
-        return false;
+        return true;
+    }
+
+    /**
+     * Tells, if player can close the screen with the ESC key. When rendering, this returns {@code false}.
+     * @return whether the player can close the screen with the ESC key.
+     */
+    @Override
+    public boolean shouldCloseOnEsc() {
+        return isIdle;
     }
 
     /**
@@ -260,6 +277,9 @@ public class RenderScreen extends Screen {
      * @param button pressed button instance
      */
     private void onRenderButtonPressed(AbstractButton button){
+        // Seal screen
+        isIdle = false;
+
         // Safely get minecraft player
         LocalPlayer player = Minecraft.getInstance().player;
         if (player == null) {throw new UnsupportedOperationException("Player is null");}
@@ -330,5 +350,8 @@ public class RenderScreen extends Screen {
             LOGGER.error("RenderCube encountered error while rendering", e);
             player.sendSystemMessage(RENDER_ERROR_MSG);
         }
+
+        // Unseal screen
+        isIdle = true;
     }
 }

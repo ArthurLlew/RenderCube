@@ -1,11 +1,14 @@
 package net.arthurllew.rendercube.key_bindings;
 
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.util.InputUtil;
 import org.lwjgl.glfw.GLFW;
 
 import static net.arthurllew.rendercube.RenderCube.MODID;
 
+@Environment(EnvType.CLIENT)
 public final class KeyBindings {
     public static final KeyBindings INSTANCE = new KeyBindings();
 

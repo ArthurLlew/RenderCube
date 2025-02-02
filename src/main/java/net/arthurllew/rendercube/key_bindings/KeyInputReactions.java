@@ -3,6 +3,8 @@ package net.arthurllew.rendercube.key_bindings;
 import com.mojang.logging.LogUtils;
 import net.arthurllew.rendercube.RenderCube;
 import net.arthurllew.rendercube.gui.RenderScreen;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.text.Text;
@@ -10,6 +12,7 @@ import org.slf4j.Logger;
 
 import java.nio.file.Paths;
 
+@Environment(EnvType.CLIENT)
 public class KeyInputReactions {
     private static final Logger LOGGER = LogUtils.getLogger();
 

@@ -27,7 +27,7 @@ import java.util.List;
 import static net.arthurllew.rendercube.RenderCube.MODID;
 import static net.arthurllew.rendercube.rendering.CubesRenderer.renderRegion;
 
-@Environment(value= EnvType.CLIENT)
+@Environment(value=EnvType.CLIENT)
 public class RenderScreen extends Screen {
     private static final Logger LOGGER = LogUtils.getLogger();
 

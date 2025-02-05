@@ -76,7 +76,7 @@ Important notes:
    selecting all faces that cause issue with the
    help of the _UV Editing_ Blender menu, setting
    _Transform Orientations_ to _Normal_ (so that
-5) all transforms happen along normals), setting
+   all transforms happen along normals), setting
    _Transform Pivot Point_ to _Individual Origins_
    and then finally pressing _G_ and _Z_ (move along
    Z-axis) to move them away a bit. For me

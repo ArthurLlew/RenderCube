@@ -36,7 +36,7 @@ public class RenderCube {
     }
 
     /**
-     * Listens to mod common setup.
+     * Mod common setup.
      */
     private void commonSetup(final FMLCommonSetupEvent event) {}
 

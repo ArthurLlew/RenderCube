@@ -35,7 +35,7 @@ public class LiquidVertexConsumer extends CommonVertexConsumer {
      * @return self
      */
     @Override
-    public @NotNull VertexConsumer vertex(double x, double y, double z){
+    public @NotNull VertexConsumer vertex(double x, double y, double z) {
         // Rendering process of liquid adds a block position in a chunk to vertex coordinate:
         // vertex position + (level position & 15)
         // This operation puts liquid into a chunk space.

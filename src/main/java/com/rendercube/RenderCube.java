@@ -13,21 +13,14 @@ import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 
 @Mod(RenderCube.MODID)
-public class RenderCube
-{
+public class RenderCube {
     // The value here should match an entry in the META-INF/mods.toml file
     public static final String MODID = "rendercube";
 
     /**
-     * Mod texture atlases directory.
-     */
-    public static final String TEXTURE_ATLASES_DIR = MODID + "\\" + "texture_atlases";
-
-    /**
      * Mod init.
      */
-    public RenderCube()
-    {
+    public RenderCube() {
         // Get event bus
         IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
 

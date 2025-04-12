@@ -56,20 +56,11 @@ public class BasicVertexConsumer implements VertexConsumer {
      * @param normal_z Z normal vector coordinate
      */
     @Override
-    public void vertex(float x,
-                       float y,
-                       float z,
-                       float r,
-                       float g,
-                       float b,
-                       float a,
-                       float u,
-                       float v,
-                       int overlayCords,
-                       int uv2,
-                       float normal_x,
-                       float normal_y,
-                       float normal_z){
+    public void vertex(float x, float y, float z,
+                       float r, float g, float b, float a,
+                       float u, float v,
+                       int overlayCords, int uv2,
+                       float normal_x, float normal_y, float normal_z) {
         this.vertex(x, y, z);
         this.uv(u, v);
         this.color(r, g, b, a);
@@ -126,7 +117,7 @@ public class BasicVertexConsumer implements VertexConsumer {
      * Writes vertex sata, constructed from saved coordinates, UVs and color, to file.
      */
     @Override
-    public void endVertex(){
+    public void endVertex() {
         // ByteBuffer size is 3 double (each is 8 bytes) + 2 floats (each is 4 bytes) + 4 ints (each is 4 bytes)
         byte[] bytes = ByteBuffer.allocate(48)
                 .putDouble(savedVertexCoordinates[0]).putDouble(savedVertexCoordinates[1])

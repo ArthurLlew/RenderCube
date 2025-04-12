@@ -1,10 +1,11 @@
-package com.rendercube.rendering;
+package com.rendercube.client.rendering;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.rendercube.vertex_consumers.BasicVertexConsumer;
-import com.rendercube.vertex_consumers.CommonVertexConsumer;
-import com.rendercube.vertex_consumers.FakeMultiBufferSource;
-import com.rendercube.vertex_consumers.LiquidVertexConsumer;
+import com.rendercube.client.files.DataWriters;
+import com.rendercube.client.rendering.vertex.FakeMultiBufferSource;
+import com.rendercube.client.rendering.vertex.LiquidVertexConsumer;
+import com.rendercube.client.rendering.vertex.BasicVertexConsumer;
+import com.rendercube.client.rendering.vertex.CommonVertexConsumer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.BlockRenderDispatcher;
@@ -32,12 +33,12 @@ public class CubesRenderer {
     /**
      * Renders one cube.
      * @param level Minecraft level where procedure will run
-     * @param fileWriters used to write captured data
+     * @param dataWriters used to write captured data
      * @param levelPos block position in level
      * @param regionPos block position in region
      **/
     public static void renderCube(@NotNull Level level,
-                                  @NotNull FileWriters fileWriters,
+                                  @NotNull DataWriters dataWriters,
                                   @NotNull BlockPos levelPos,
                                   @NotNull BlockPos regionPos) {
         BlockState block = level.getBlockState(levelPos);
@@ -45,7 +46,7 @@ public class CubesRenderer {
         // If block is not empty
         if (!block.isAir()) {
             CommonVertexConsumer commonVertexConsumer =
-                    new CommonVertexConsumer(fileWriters.blockWriter, regionPos);
+                    new CommonVertexConsumer(dataWriters.blockWriter, regionPos);
 
             // Block baked model
             BakedModel blockModel = Minecraft.getInstance().getBlockRenderer().getBlockModel(block);
@@ -78,7 +79,7 @@ public class CubesRenderer {
             if (!fluid.isEmpty()){
                 // Init liquid consumer
                 LiquidVertexConsumer liquidVertexConsumer =
-                        new LiquidVertexConsumer(fileWriters.liquidWriter, regionPos, levelPos);
+                        new LiquidVertexConsumer(dataWriters.liquidWriter, regionPos, levelPos);
 
                 // Consume liquid vertices
                 Minecraft.getInstance().getBlockRenderer().renderLiquid(
@@ -94,7 +95,7 @@ public class CubesRenderer {
             if(entity != null){
                 FakeMultiBufferSource fakeMultiBufferSource =
                         new FakeMultiBufferSource(
-                                new CommonVertexConsumer(fileWriters.blockEntityWriter, regionPos));
+                                new CommonVertexConsumer(dataWriters.blockEntityWriter, regionPos));
 
                 // Render block-entity using dummy MultiBufferSource
                 Minecraft.getInstance().getBlockEntityRenderDispatcher().render(
@@ -109,12 +110,12 @@ public class CubesRenderer {
     /**
      * Renders entities in region.
      * @param level Minecraft level where procedure will run
-     * @param fileWriters used to write captured data
+     * @param dataWriters used to write captured data
      * @param minPos min coordinate of the region to render
      * @param maxPos max coordinate of the region to render
      **/
     public static void renderRegionEntities(@NotNull Level level,
-                                            @NotNull FileWriters fileWriters,
+                                            @NotNull DataWriters dataWriters,
                                             @NotNull BlockPos minPos,
                                             @NotNull BlockPos maxPos){
         // Get all entities in region (except player entity)
@@ -141,7 +142,7 @@ public class CubesRenderer {
             double entityZ = Mth.lerp(minecraftConstant, entity.zOld, entity.getZ());
 
             FakeMultiBufferSource fakeMultiBufferSource = new FakeMultiBufferSource(
-                    new BasicVertexConsumer(fileWriters.entityWriter));
+                    new BasicVertexConsumer(dataWriters.entityWriter));
 
             // Render entity using dummy MultiBufferSource
             entityRenderDispatcher.render(
@@ -161,12 +162,12 @@ public class CubesRenderer {
     /**
      * Renders world region.
      * @param level Minecraft level where procedure will run
-     * @param fileWriters used to write captured data
+     * @param dataWriters used to write captured data
      * @param minPos min coordinate of the region to render
      * @param maxPos max coordinate of the region to render
      **/
     public static void renderRegion(@NotNull Level level,
-                                    @NotNull FileWriters fileWriters,
+                                    @NotNull DataWriters dataWriters,
                                     @NotNull BlockPos minPos,
                                     @NotNull BlockPos maxPos){
         // Loop over coordinates inside the region
@@ -174,7 +175,7 @@ public class CubesRenderer {
             for(int y = minPos.getY(); y <= maxPos.getY(); y++){
                 for(int z = minPos.getZ(); z <= maxPos.getZ(); z++){
                     // Process cube
-                    CubesRenderer.renderCube(level, fileWriters,
+                    CubesRenderer.renderCube(level, dataWriters,
                             new BlockPos(x, y, z),
                             new BlockPos(x - minPos.getX(), y - minPos.getY(), z - minPos.getZ()));
                 }
@@ -182,6 +183,6 @@ public class CubesRenderer {
         }
 
         // Process region entities
-        CubesRenderer.renderRegionEntities(level, fileWriters, minPos, maxPos);
+        CubesRenderer.renderRegionEntities(level, dataWriters, minPos, maxPos);
     }
 }

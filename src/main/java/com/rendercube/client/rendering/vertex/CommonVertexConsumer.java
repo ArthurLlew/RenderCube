@@ -34,7 +34,7 @@ public class CommonVertexConsumer extends BasicVertexConsumer {
      * @return self
      */
     @Override
-    public @NotNull VertexConsumer vertex(double x, double y, double z){
+    public @NotNull VertexConsumer vertex(double x, double y, double z) {
         super.vertex(regionPos.getX() + x, regionPos.getY() + y, regionPos.getZ() + z);
         return this;
     }

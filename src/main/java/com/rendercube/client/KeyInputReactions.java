@@ -9,12 +9,12 @@ import org.slf4j.Logger;
 public class KeyInputReactions {
     private static final Logger LOGGER = LogUtils.getLogger();
 
-    public static void openRenderScreen(){
+    public static void openRenderScreen() {
         LocalPlayer player = Minecraft.getInstance().player;
         if (player != null) {
             Minecraft.getInstance().setScreen(new RenderScreen());
         }
-        else{
+        else {
             LOGGER.error("Attempt to open render screen while player is NULL");
         }
     }

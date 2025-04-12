@@ -1,4 +1,4 @@
-package com.rendercube.client.rendering;
+package com.rendercube.client.files;
 
 import java.io.BufferedOutputStream;
 import java.io.FileOutputStream;
@@ -12,7 +12,7 @@ import static com.rendercube.RenderCube.MODID;
 /**
  * Autocloseable collection of file writers.
  */
-public class FileWriters implements AutoCloseable {
+public class DataWriters implements AutoCloseable {
     /**
      * Holds instance of rendered blocks writer.
      */
@@ -35,9 +35,9 @@ public class FileWriters implements AutoCloseable {
 
     /**
      * Writers init.
-     * @throws IOException when file exceptions are encountered
+     * @throws IOException when file exceptions are encountered.
      */
-    public FileWriters() throws IOException {
+    public DataWriters() throws IOException {
         // Make sure, that mod directory exists
         Files.createDirectories(Paths.get(MODID));
 
@@ -56,7 +56,7 @@ public class FileWriters implements AutoCloseable {
 
     /**
      * Closes file writers.
-     * @throws IOException when file exceptions are encountered
+     * @throws IOException when file exceptions are encountered.
      */
     @Override
     public void close() throws IOException {

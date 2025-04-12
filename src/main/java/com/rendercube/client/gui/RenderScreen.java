@@ -2,8 +2,9 @@ package com.rendercube.client.gui;
 
 import com.google.common.collect.Lists;
 import com.mojang.brigadier.StringReader;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.logging.LogUtils;
-import com.rendercube.client.rendering.FileWriters;
+import com.rendercube.client.files.DataWriters;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractButton;
@@ -127,7 +128,7 @@ public class RenderScreen extends Screen {
      * Initializes GUI element.
      */
     @Override
-    protected void init(){
+    protected void init() {
         super.init();
 
         // Set background texture coordinates in screen center
@@ -186,7 +187,7 @@ public class RenderScreen extends Screen {
      * {@inheritDoc}
      */
     @Override
-    public void render(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks){
+    public void render(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
         this.renderBackground(guiGraphics);
 
         // Render all unselected tabs under background texture
@@ -212,7 +213,7 @@ public class RenderScreen extends Screen {
      * @param mouseY the y-coordinate of the mouse cursor.
      * @param partialTicks the partial tick time.
      */
-    public void renderPRR(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks){
+    public void renderPRR(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
         // Tab title
         guiGraphics.drawString(this.font, TAB_TITLES[0], bgPosLeft + 8, bgPosTop + 6,
                 0x404040, false);
@@ -237,7 +238,7 @@ public class RenderScreen extends Screen {
      * @param mouseY the y-coordinate of the mouse cursor.
      * @param partialTicks the partial tick time.
      */
-    public void renderAPR(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks){
+    public void renderAPR(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
         // Tab title
         guiGraphics.drawString(this.font, TAB_TITLES[1], bgPosLeft + 8, bgPosTop + 6,
                 0x404040, false);
@@ -247,7 +248,7 @@ public class RenderScreen extends Screen {
                 0x404040, false);
         editbox1.render(guiGraphics, mouseX, mouseY, partialTicks);
 
-        //Editbox 2
+        // Editbox 2
         guiGraphics.drawString(this.font, EDITBOX_TITLES[3], bgPosLeft + 12, bgPosTop + 54,
                 0x404040, false);
         editbox2.render(guiGraphics, mouseX, mouseY, partialTicks);
@@ -259,8 +260,8 @@ public class RenderScreen extends Screen {
      * Handles tab being pressed.
      * @param tab pressed tab instance
      */
-    private void onTabPressed(RenderScreenTab tab){
-        if (tab != selectedTab){
+    private void onTabPressed(RenderScreenTab tab) {
+        if (tab != selectedTab) {
             // Deselect current tab
             selectedTab.setUnselected();
             // Remove selected tab from unselected list
@@ -278,7 +279,7 @@ public class RenderScreen extends Screen {
      * Handles render button being pressed.
      * @param button pressed button instance
      */
-    private void onRenderButtonPressed(AbstractButton button){
+    private void onRenderButtonPressed(AbstractButton button) {
         // Seal screen
         isIdle = false;
 
@@ -286,71 +287,70 @@ public class RenderScreen extends Screen {
         LocalPlayer player = Minecraft.getInstance().player;
         if (player == null) {throw new UnsupportedOperationException("Player is null");}
 
-        // Load input
-        int x1, y1, z1, x2, y2, z2;
-        try{
-            // Editbox1
+        try {
+            // Load input from Editbox1
             StringReader r = new StringReader(editbox1.getValue());
-            x1 = r.readInt();
+            int x1 = r.readInt();
             r.skipWhitespace();
-            y1 = r.readInt();
+            int y1 = r.readInt();
             r.skipWhitespace();
-            z1 = r.readInt();
+            int z1 = r.readInt();
 
-            // Editbox2
+            // Load input from Editbox2
             r = new StringReader(editbox2.getValue());
-            x2 = r.readInt();
+            int x2 = r.readInt();
             r.skipWhitespace();
-            y2 = r.readInt();
+            int y2 = r.readInt();
             r.skipWhitespace();
-            z2 = r.readInt();
+            int z2 = r.readInt();
+
+            // Open file
+            try (DataWriters dataWriters = new DataWriters()) {
+                // Place min x/y/z into minPos and max x/y/z into maxPos
+                int minX = Math.min(x1, x2);
+                int minY = Math.min(y1, y2);
+                int minZ = Math.min(z1, z2);
+                int maxX = Math.max(x1, x2);
+                int maxY = Math.max(y1, y2);
+                int maxZ = Math.max(z1, z2);
+
+                // Restrict region size
+                if ((maxX - minX > 400) || (maxZ - minZ > 400)) {
+                    player.sendSystemMessage(RENDER_REGION_TOO_LARGE_MSG);
+                }
+                else {
+                    // Min/max positions in region
+                    BlockPos posMin, posMax;
+                    if (selectedTab.type == RenderScreenTab.Type.PLAYER_RELATIVE_RENDER) {
+                        // Add player position
+                        posMin = new BlockPos(player.getBlockX() + minX,
+                                player.getBlockY() + minY,
+                                player.getBlockZ() + minZ);
+                        posMax = new BlockPos(player.getBlockX() + maxX,
+                                player.getBlockY() + maxY,
+                                player.getBlockZ() + maxZ);
+                    }
+                    else {
+                        posMin = new BlockPos(minX, minY, minZ);
+                        posMax = new BlockPos(maxX, maxY, maxZ);
+                    }
+
+                    // Render region
+                    renderRegion(player.level(), dataWriters, posMin, posMax);
+
+                    // Notify about success
+                    player.sendSystemMessage(RENDER_SUCCESS_MSG);
+                }
+            }
+            catch(Exception e) {
+                // Render error
+                LOGGER.error("RenderCube encountered error while rendering", e);
+                player.sendSystemMessage(RENDER_ERROR_MSG);
+            }
         }
-        catch (Exception e){
+        catch (CommandSyntaxException e) {
+            // Input error
             player.sendSystemMessage(RENDER_WRONG_INPUT_MSG);
-            return;
-        }
-
-        try (FileWriters fileWriters = new FileWriters()){
-            // Place min x/y/z into minPos and max x/y/z into maxPos
-            int minX = Math.min(x1, x2);
-            int minY = Math.min(y1, y2);
-            int minZ = Math.min(z1, z2);
-            int maxX = Math.max(x1, x2);
-            int maxY = Math.max(y1, y2);
-            int maxZ = Math.max(z1, z2);
-
-            // Restrict region size
-            if ((maxX - minX > 400) || (maxZ - minZ > 400)){
-                player.sendSystemMessage(RENDER_REGION_TOO_LARGE_MSG);
-                return;
-            }
-
-            // Min/max positions in region
-            BlockPos posMin, posMax;
-            if (selectedTab.type == RenderScreenTab.Type.PLAYER_RELATIVE_RENDER){
-                // Add player position
-                posMin = new BlockPos(player.getBlockX() + minX,
-                        player.getBlockY() + minY,
-                        player.getBlockZ() + minZ);
-                posMax = new BlockPos(player.getBlockX() + maxX,
-                        player.getBlockY() + maxY,
-                        player.getBlockZ() + maxZ);
-            }
-            else{
-                posMin = new BlockPos(minX, minY, minZ);
-                posMax = new BlockPos(maxX, maxY, maxZ);
-            }
-
-            // Render region
-            renderRegion(player.level(), fileWriters, posMin, posMax);
-
-            // Notify about success
-            player.sendSystemMessage(RENDER_SUCCESS_MSG);
-
-        }
-        catch(Exception e) {
-            LOGGER.error("RenderCube encountered error while rendering", e);
-            player.sendSystemMessage(RENDER_ERROR_MSG);
         }
 
         // Unseal screen

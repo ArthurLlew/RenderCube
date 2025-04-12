@@ -12,7 +12,7 @@ import static com.rendercube.client.KeyInputReactions.openRenderScreen;
 @Mod.EventBusSubscriber(modid = RenderCube.MODID, value = Dist.CLIENT)
 public class ClientEventsHandler {
     /**
-     * Key pressing logic.
+     * Key pressed event.
      */
     @SubscribeEvent
     public static void onKeyInput(InputEvent.Key event){

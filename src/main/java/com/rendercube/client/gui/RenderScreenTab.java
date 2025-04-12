@@ -40,13 +40,13 @@ public class RenderScreenTab extends AbstractWidget {
      * Renders tab contents.
      */
     public final RenderMethod renderMethod;
-    /**
-     * Tab textures.
-     */
 
+    /**
+     * Constructor.
+     */
     RenderScreenTab(int posLeft, int posTop, ResourceLocation selectedTexture, ResourceLocation unselectedTexture,
                     Component title, RenderMethod renderMethod, OnClick onClick, ItemStack itemIcon,
-                    RenderScreenTab.Type type){
+                    RenderScreenTab.Type type) {
         super(posLeft, posTop, 26, 32, title);
         this.selectedTexture = selectedTexture;
         this.unselectedTexture = unselectedTexture;
@@ -67,7 +67,7 @@ public class RenderScreenTab extends AbstractWidget {
      * @param mouseY the y-coordinate of the mouse cursor.
      * @param partialTicks the partial tick time.
      */
-    public void renderWidget(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks){
+    public void renderWidget(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
         // Tab button texture
         guiGraphics.blit(currentTexture, this.getX(), this.getY(),0, 0,
                 width, height, width, height);

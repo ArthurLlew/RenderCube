@@ -1,4 +1,4 @@
-package com.rendercube.gui;
+package com.rendercube.client.gui;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;

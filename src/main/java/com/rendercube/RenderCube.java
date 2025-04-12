@@ -1,7 +1,6 @@
 package com.rendercube;
 
-import com.mojang.logging.LogUtils;
-import com.rendercube.key_bindings.KeyBindings;
+import com.rendercube.client.KeyBindings;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.RegisterKeyMappingsEvent;
 import net.minecraftforge.common.MinecraftForge;
@@ -10,10 +9,8 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.IExtensionPoint;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import org.slf4j.Logger;
 
 @Mod(RenderCube.MODID)
 public class RenderCube
@@ -60,8 +57,7 @@ public class RenderCube
          */
         @SubscribeEvent
         public static void onKeyRegister(RegisterKeyMappingsEvent event){
-            event.register(KeyBindings.INSTANCE.RENDER_SCREEN_KEY);
-            event.register(KeyBindings.INSTANCE.DUMP_TEXTURES_KEY);
+            event.register(KeyBindings.RENDER_SCREEN_KEY);
         }
     }
 }

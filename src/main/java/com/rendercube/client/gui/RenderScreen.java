@@ -1,9 +1,9 @@
-package com.rendercube.gui;
+package com.rendercube.client.gui;
 
 import com.google.common.collect.Lists;
 import com.mojang.brigadier.StringReader;
 import com.mojang.logging.LogUtils;
-import com.rendercube.rendering.FileWriters;
+import com.rendercube.client.rendering.FileWriters;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractButton;
@@ -25,7 +25,7 @@ import org.slf4j.Logger;
 import java.util.List;
 
 import static com.rendercube.RenderCube.MODID;
-import static com.rendercube.rendering.CubesRenderer.renderRegion;
+import static com.rendercube.client.rendering.CubesRenderer.renderRegion;
 
 @OnlyIn(Dist.CLIENT)
 public class RenderScreen extends Screen {

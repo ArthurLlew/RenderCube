@@ -1,4 +1,4 @@
-package com.rendercube.rendering;
+package com.rendercube.client.rendering;
 
 import java.io.BufferedOutputStream;
 import java.io.FileOutputStream;

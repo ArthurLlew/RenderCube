@@ -1,4 +1,4 @@
-package com.rendercube.vertex_consumers;
+package com.rendercube.client.rendering.vertex;
 
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import org.jetbrains.annotations.NotNull;
@@ -9,7 +9,7 @@ import java.nio.ByteBuffer;
 /**
  * Implements basic variables, that stores geometry data, and methods overrides of {@link VertexConsumer}.
  */
-public class BasicVertexConsumer implements VertexConsumer{
+public class BasicVertexConsumer implements VertexConsumer {
     /**
      * Holds consumer file stream
      */

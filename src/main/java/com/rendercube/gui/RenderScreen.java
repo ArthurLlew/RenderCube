@@ -96,6 +96,9 @@ public class RenderScreen extends Screen {
      */
     private boolean isIdle = true;
 
+    /**
+     * Constructor.
+     */
     public RenderScreen() {
         super(CommonComponents.EMPTY);
 
@@ -104,8 +107,8 @@ public class RenderScreen extends Screen {
     }
 
     /**
-     * Tells, if game should be paused.
-     * @return {@code true} (probably sometimes player would love to render a fixed scene).
+     * Tells whether game should be paused.
+     * @return {@code true}.
      */
     @Override
     public boolean isPauseScreen() {
@@ -113,7 +116,6 @@ public class RenderScreen extends Screen {
     }
 
     /**
-     * Tells, if player can close the screen with the ESC key. When rendering, this returns {@code false}.
      * @return whether the player can close the screen with the ESC key.
      */
     @Override

@@ -1,7 +1,7 @@
 package com.rendercube.client.rendering;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.rendercube.client.files.DataWriters;
+import com.rendercube.client.io.DataWriters;
 import com.rendercube.client.rendering.vertex.FakeMultiBufferSource;
 import com.rendercube.client.rendering.vertex.LiquidVertexConsumer;
 import com.rendercube.client.rendering.vertex.BasicVertexConsumer;

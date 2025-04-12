@@ -1,4 +1,6 @@
-package com.rendercube.client.files;
+package com.rendercube.client.io;
+
+import com.rendercube.RenderCube;
 
 import java.io.BufferedOutputStream;
 import java.io.FileOutputStream;
@@ -6,8 +8,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-
-import static com.rendercube.RenderCube.MODID;
+import java.time.LocalDateTime;
 
 /**
  * Autocloseable collection of file writers.
@@ -38,20 +39,26 @@ public class DataWriters implements AutoCloseable {
      * @throws IOException when file exceptions are encountered.
      */
     public DataWriters() throws IOException {
-        // Make sure, that mod directory exists
-        Files.createDirectories(Paths.get(MODID));
+        // Date time string
+        String dateTimeStr = LocalDateTime.now().toString()
+                .replace("T", "_").replace(":", "-");
+        dateTimeStr =  dateTimeStr.substring(0, dateTimeStr.lastIndexOf("."));
 
+        // Create appropriate directory
+        String dirName = RenderCube.MODID + "\\" + dateTimeStr;
+        Files.createDirectories(Paths.get(dirName));
+
+        // Create file writers
         int bufferSize = 8064;	// Buffer size = 48 (size of one vertex) * 4 (4 in a quad) * 42 (arbitrary number)
         String FileExtension = ".rcube";
-
         blockWriter= new BufferedOutputStream(
-                new FileOutputStream(MODID + "\\" + "renderedBlocks" + FileExtension), bufferSize);
+                new FileOutputStream(dirName + "\\" + "renderedBlocks" + FileExtension), bufferSize);
         liquidWriter = new BufferedOutputStream(
-                new FileOutputStream(MODID + "\\" + "renderedLiquids" + FileExtension), bufferSize);
+                new FileOutputStream(dirName + "\\" + "renderedLiquids" + FileExtension), bufferSize);
         blockEntityWriter = new BufferedOutputStream(
-                new FileOutputStream(MODID + "\\" + "renderedBlockEntities" + FileExtension), bufferSize);
+                new FileOutputStream(dirName + "\\" + "renderedBlockEntities" + FileExtension), bufferSize);
         entityWriter = new BufferedOutputStream(
-                new FileOutputStream(MODID + "\\" + "renderedEntities" + FileExtension), bufferSize);
+                new FileOutputStream(dirName + "\\" + "renderedEntities" + FileExtension), bufferSize);
     }
 
     /**

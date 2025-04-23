@@ -26,9 +26,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-/**
- * Contains mod utils.
- **/
 public class CubesRenderer {
     /**
      * Renders one cube.

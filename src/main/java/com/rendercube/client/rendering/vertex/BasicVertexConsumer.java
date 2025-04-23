@@ -7,7 +7,7 @@ import java.io.*;
 import java.nio.ByteBuffer;
 
 /**
- * Implements basic variables, that stores geometry data, and methods overrides of {@link VertexConsumer}.
+ * Implements basic variables (store geometry data) and methods overrides of {@link VertexConsumer}.
  */
 public class BasicVertexConsumer implements VertexConsumer {
     /**

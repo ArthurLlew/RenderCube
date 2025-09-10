@@ -2,10 +2,11 @@ package com.rendercube.client.rendering;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.rendercube.client.io.DataWriters;
-import com.rendercube.client.rendering.vertex.FakeMultiBufferSource;
-import com.rendercube.client.rendering.vertex.LiquidVertexConsumer;
 import com.rendercube.client.rendering.vertex.BasicVertexConsumer;
 import com.rendercube.client.rendering.vertex.CommonVertexConsumer;
+import com.rendercube.client.rendering.vertex.FakeMultiBufferSource;
+import com.rendercube.client.rendering.vertex.LiquidVertexConsumer;
+import com.rendercube.mod.littletiles.LittleTilesManager;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.BlockRenderDispatcher;
@@ -38,33 +39,33 @@ public class CubesRenderer {
                                   @NotNull DataWriters dataWriters,
                                   @NotNull BlockPos levelPos,
                                   @NotNull BlockPos regionPos) {
-        BlockState block = level.getBlockState(levelPos);
+        BlockState blockState = level.getBlockState(levelPos);
 
         // If block is not empty
-        if (!block.isAir()) {
-            CommonVertexConsumer commonVertexConsumer =
+        if (!blockState.isAir()) {
+            CommonVertexConsumer blockVertexConsumer =
                     new CommonVertexConsumer(dataWriters.blockWriter, regionPos);
 
             // Block baked model
-            BakedModel blockModel = Minecraft.getInstance().getBlockRenderer().getBlockModel(block);
+            BakedModel blockModel = Minecraft.getInstance().getBlockRenderer().getBlockModel(blockState);
 
             // Block model extra data
             ModelData blockModelData = blockModel.getModelData(
                     level,
                     levelPos,
-                    block,
+                    blockState,
                     ModelData.EMPTY);
 
             // Consume block vertices for every render type available
             BlockRenderDispatcher blockRenderDispatcher = Minecraft.getInstance().getBlockRenderer();
-            RandomSource randomSource = RandomSource.create(block.getSeed(levelPos));
-            for (RenderType rendertype : blockModel.getRenderTypes(block, randomSource, blockModelData)) {
+            RandomSource randomSource = RandomSource.create(blockState.getSeed(levelPos));
+            for (RenderType rendertype : blockModel.getRenderTypes(blockState, randomSource, blockModelData)) {
                 blockRenderDispatcher.renderBatched(
-                        block,
+                        blockState,
                         levelPos,
                         level,
                         new PoseStack(),
-                        commonVertexConsumer,
+                        blockVertexConsumer,
                         true,
                         randomSource,
                         blockModelData,
@@ -72,7 +73,7 @@ public class CubesRenderer {
             }
 
             // If there is a fluid
-            FluidState fluid = block.getFluidState();
+            FluidState fluid = blockState.getFluidState();
             if (!fluid.isEmpty()){
                 // Init liquid consumer
                 LiquidVertexConsumer liquidVertexConsumer =
@@ -83,20 +84,22 @@ public class CubesRenderer {
                         levelPos,
                         level,
                         liquidVertexConsumer,
-                        block,
+                        blockState,
                         fluid);
             }
 
             // If there is a block-entity
-            BlockEntity entity = level.getBlockEntity(levelPos);
-            if(entity != null){
+            BlockEntity blockEntity = level.getBlockEntity(levelPos);
+            if(blockEntity != null){
                 FakeMultiBufferSource fakeMultiBufferSource =
-                        new FakeMultiBufferSource(
-                                new CommonVertexConsumer(dataWriters.blockEntityWriter, regionPos));
+                        new FakeMultiBufferSource(new CommonVertexConsumer(dataWriters.blockEntityWriter, regionPos));
+
+                // Little tiles check
+                LittleTilesManager.updateBlockEntity(blockEntity, level, levelPos, blockVertexConsumer);
 
                 // Render block-entity using dummy MultiBufferSource
                 Minecraft.getInstance().getBlockEntityRenderDispatcher().render(
-                        entity,
+                        blockEntity,
                         1.0F,
                         new PoseStack(),
                         fakeMultiBufferSource);

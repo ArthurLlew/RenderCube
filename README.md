@@ -54,18 +54,20 @@ Limitations and tips
    the mod to malfunction.
 2) If any mod uses some custom rendering pipeline the
    exported geometry might not contain respective objects.
-3) Most non-block entities use different texture atlases
+   Currently, the only supported mod with custom rendering
+   is Little Tiles (https://modrinth.com/mod/littletiles).
+4) Most non-block entities use different texture atlases
    or even single textures (which are not automatically
    exported and should be manually located in game or mod
    resources).
-4) In importer there is an option (checked by default)
+5) In importer there is an option (checked by default)
    to reuse materials already existing in the scene (is
    performed name wise, omitting '.\<numbers\>' at the
    end). You can turn this off, if you wish to export
    geometry with different texture atlases in use.
-5) When using minecraft textures don't forget to
+6) When using minecraft textures don't forget to
    change _Texture interpolation_ from _Linear_ to _Closest_.
-6) Minecraft uses _'overlapping'_ faces (faces located
+7) Minecraft uses _'overlapping'_ faces (faces located
    very close to one another). For example, that is
    true for grass blocks. They have extra outer faces
    on sides (they hold biome colored layer). Such

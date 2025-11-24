@@ -1,7 +1,7 @@
-package com.rendercube.mod.littletiles;
+package net.arthurllew.rendercube.mod.littletiles;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.rendercube.client.rendering.vertex.CommonVertexConsumer;
+import net.arthurllew.rendercube.client.rendering.vertex.CommonVertexConsumer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.model.BakedQuad;

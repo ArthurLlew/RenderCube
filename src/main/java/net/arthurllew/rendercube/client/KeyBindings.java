@@ -1,11 +1,11 @@
-package com.rendercube.client;
+package net.arthurllew.rendercube.client;
 
 import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.KeyMapping;
 import net.minecraftforge.client.settings.KeyConflictContext;
 import org.lwjgl.glfw.GLFW;
 
-import static com.rendercube.RenderCube.MODID;
+import static net.arthurllew.rendercube.RenderCube.MODID;
 
 public abstract class KeyBindings {
     public static final String MOD_KEY_CATEGORY = "key.category." + MODID + ".rendercube";

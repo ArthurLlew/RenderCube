@@ -1,7 +1,7 @@
-package com.rendercube.client;
+package net.arthurllew.rendercube.client;
 
 import com.mojang.logging.LogUtils;
-import com.rendercube.client.gui.RenderScreen;
+import net.arthurllew.rendercube.client.gui.RenderScreen;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import org.slf4j.Logger;

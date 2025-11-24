@@ -1,13 +1,13 @@
-package com.rendercube.client.events;
+package net.arthurllew.rendercube.client.events;
 
-import com.rendercube.RenderCube;
-import com.rendercube.client.KeyBindings;
+import net.arthurllew.rendercube.RenderCube;
+import net.arthurllew.rendercube.client.KeyBindings;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.InputEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
-import static com.rendercube.client.KeyInputReactions.openRenderScreen;
+import static net.arthurllew.rendercube.client.KeyInputReactions.openRenderScreen;
 
 @Mod.EventBusSubscriber(modid = RenderCube.MODID, value = Dist.CLIENT)
 public class ClientEventsHandler {

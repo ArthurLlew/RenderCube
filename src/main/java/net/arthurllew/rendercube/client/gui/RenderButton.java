@@ -1,4 +1,4 @@
-package com.rendercube.client.gui;
+package net.arthurllew.rendercube.client.gui;
 
 import net.minecraft.client.gui.components.AbstractButton;
 import net.minecraft.client.gui.narration.NarrationElementOutput;

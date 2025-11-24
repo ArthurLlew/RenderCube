@@ -1,4 +1,4 @@
-package com.rendercube.client.rendering.vertex;
+package net.arthurllew.rendercube.client.rendering.vertex;
 
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.renderer.MultiBufferSource;

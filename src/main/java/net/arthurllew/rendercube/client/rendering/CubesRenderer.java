@@ -1,12 +1,12 @@
-package com.rendercube.client.rendering;
+package net.arthurllew.rendercube.client.rendering;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.rendercube.client.io.DataWriters;
-import com.rendercube.client.rendering.vertex.BasicVertexConsumer;
-import com.rendercube.client.rendering.vertex.CommonVertexConsumer;
-import com.rendercube.client.rendering.vertex.FakeMultiBufferSource;
-import com.rendercube.client.rendering.vertex.LiquidVertexConsumer;
-import com.rendercube.mod.littletiles.LittleTilesManager;
+import net.arthurllew.rendercube.client.io.DataWriters;
+import net.arthurllew.rendercube.client.rendering.vertex.BasicVertexConsumer;
+import net.arthurllew.rendercube.client.rendering.vertex.CommonVertexConsumer;
+import net.arthurllew.rendercube.client.rendering.vertex.FakeMultiBufferSource;
+import net.arthurllew.rendercube.client.rendering.vertex.LiquidVertexConsumer;
+import net.arthurllew.rendercube.mod.littletiles.LittleTilesManager;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.BlockRenderDispatcher;

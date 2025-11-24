@@ -1,6 +1,6 @@
-package com.rendercube.client.io;
+package net.arthurllew.rendercube.client.io;
 
-import com.rendercube.RenderCube;
+import net.arthurllew.rendercube.RenderCube;
 
 import java.io.BufferedOutputStream;
 import java.io.FileOutputStream;

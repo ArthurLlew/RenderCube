@@ -20,13 +20,13 @@ build
 # other
 eclipse
 run
+run-data
 
 # Files from Forge MDK
 forge*changelog.txt
 
 # Custom
-run-data
+.gitattributes
 src/generated
 src/test
-.gitattributes
 RenderCubeImporter.zip

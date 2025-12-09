@@ -50,11 +50,10 @@ public class CubesRenderer {
             BakedModel blockModel = Minecraft.getInstance().getBlockRenderer().getBlockModel(blockState);
 
             // Block model extra data
-            ModelData blockModelData = blockModel.getModelData(
-                    level,
-                    levelPos,
-                    blockState,
-                    ModelData.EMPTY);
+            ModelData blockModelData = level.getModelDataManager().getAt(levelPos);
+            if (blockModelData == null) {
+                blockModelData = ModelData.EMPTY;
+            }
 
             // Consume block vertices for every render type available
             BlockRenderDispatcher blockRenderDispatcher = Minecraft.getInstance().getBlockRenderer();

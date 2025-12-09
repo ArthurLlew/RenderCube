@@ -22,9 +22,9 @@ public class RenderCube {
     /**
      * Mod init.
      */
-    public RenderCube() {
+    public RenderCube(FMLJavaModLoadingContext context) {
         // Get event bus
-        IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
+        IEventBus modEventBus = context.getModEventBus();
 
         // Register the commonSetup method for mod loading
         modEventBus.addListener(this::commonSetup);
@@ -32,9 +32,11 @@ public class RenderCube {
         // Register mod for server and other game events
         MinecraftForge.EVENT_BUS.register(this);
 
-        // The mod being absent on the other network side does not cause the client to display the server as incompatible
+        // The mod being absent on the other network side does not cause the client
+        // to display the server as incompatible
         ModLoadingContext.get().registerExtensionPoint(IExtensionPoint.DisplayTest.class,
-                () -> new IExtensionPoint.DisplayTest(() -> IExtensionPoint.DisplayTest.IGNORESERVERONLY, (a, b) -> true));
+                () -> new IExtensionPoint.DisplayTest(
+                        () -> IExtensionPoint.DisplayTest.IGNORESERVERONLY, (a, b) -> true));
     }
 
     /**

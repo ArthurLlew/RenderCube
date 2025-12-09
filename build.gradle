@@ -125,9 +125,6 @@ dependencies {
     // Minecraft
     minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
 
-    // Mixins
-    annotationProcessor 'org.spongepowered:mixin:0.8.7:processor'
-
     // Little tiles mod
     implementation fg.deobf("curse.maven:creativecore-257814:6383884")
     implementation fg.deobf("curse.maven:littletiles-257818:6610285")
@@ -136,19 +133,10 @@ dependencies {
     implementation fg.deobf("curse.maven:copycats-968398:6650089")
     // Framed blocks
     implementation fg.deobf("curse.maven:framedblocks-441647:6297988")
-
-    // Mixin Extras for more mixin functionality
-    compileOnly(annotationProcessor("io.github.llamalad7:mixinextras-common:0.5.0"))
-    implementation(jarJar("io.github.llamalad7:mixinextras-forge:0.5.0")) {
-        jarJar.ranged(it, "[0.5.0,)")
-    }
 }
 
 // MixinGradle Settings
 mixin {
-    add sourceSets.main, "mixins.${project.mod_id}.refmap.json"
-    config "mixins.${project.mod_id}.json"
-
     mixin.env.remapRefMap = true
     mixin.env.refMapRemappingFile="${projectDir}/build/createSrgToMcp/output.srg"
 }

@@ -54,6 +54,7 @@ public class CubesRenderer {
             if (blockModelData == null) {
                 blockModelData = ModelData.EMPTY;
             }
+            blockModelData = blockModel.getModelData(level, levelPos, blockState, blockModelData);
 
             // Consume block vertices for every render type available
             BlockRenderDispatcher blockRenderDispatcher = Minecraft.getInstance().getBlockRenderer();

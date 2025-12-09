@@ -37,22 +37,14 @@ public class LittleTilesManager {
     private static final boolean INSTALLED = ModList.get().isLoaded(MODID);
 
     /**
-     * @return whether little tiles mod is installed.
-     */
-    public static boolean installed() {
-        return INSTALLED;
-    }
-
-    /**
      * Renders little tiles into provided vertex consumer.
      * @param blockEntity little tiles entity
      * @param level level
      * @param pos block position
      * @param vertexConsumer vertex consumer
      */
-    public static void updateBlockEntity(BlockEntity blockEntity,
-                                         LevelAccessor level, BlockPos pos,
-                                         CommonVertexConsumer vertexConsumer) {
+    public static void render(BlockEntity blockEntity, LevelAccessor level, BlockPos pos,
+                              CommonVertexConsumer vertexConsumer) {
         if (INSTALLED && blockEntity instanceof BETiles tiles) {
             // Get grid resolution for this block
             float gridRes = tiles.getGrid().count;

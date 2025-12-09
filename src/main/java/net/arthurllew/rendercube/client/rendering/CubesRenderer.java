@@ -94,7 +94,7 @@ public class CubesRenderer {
                         new FakeMultiBufferSource(new CommonVertexConsumer(dataWriters.blockEntityWriter, regionPos));
 
                 // Little tiles check
-                LittleTilesManager.updateBlockEntity(blockEntity, level, levelPos, blockVertexConsumer);
+                LittleTilesManager.render(blockEntity, level, levelPos, blockVertexConsumer);
 
                 // Render block-entity using dummy MultiBufferSource
                 Minecraft.getInstance().getBlockEntityRenderDispatcher().render(

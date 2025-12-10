@@ -68,8 +68,10 @@ def create_material(material_name):
 
     # Get Principled BSDF shader node
     principled_node = material.node_tree.nodes.get('Principled BSDF')
-    # Set roughness to 0
+    # Set roughness to 0.0
     principled_node.inputs[2].default_value = 0.0
+    # Set IOR to 1.0
+    principled_node.inputs[3].default_value = 1.0
 
     # Create mix color node
     mix_node = material.node_tree.nodes.new('ShaderNodeMix')

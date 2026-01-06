@@ -118,7 +118,6 @@ repositories {
 }
 
 dependencies {
-
     // Little tiles mod
     implementation "curse.maven:creativecore-257814:7353403"
     implementation "curse.maven:littletiles-257818:7369631"

@@ -26,7 +26,6 @@ run-data
 forge*changelog.txt
 
 # Custom
-.gitattributes
 src/generated
 src/test
 RenderCubeImporter.zip

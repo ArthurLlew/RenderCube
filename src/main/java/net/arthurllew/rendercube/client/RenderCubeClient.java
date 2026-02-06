@@ -1,5 +1,7 @@
 package net.arthurllew.rendercube.client;
 
+import net.arthurllew.rendercube.client.keyboard.KeyBindings;
+import net.arthurllew.rendercube.client.keyboard.KeyInputReactions;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;

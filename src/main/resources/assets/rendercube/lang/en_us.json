@@ -1,0 +1,17 @@
+{
+  "key.category.rendercube.rendercube": "RenderCube",
+  "key.rendercube.render_screen": "Open Render Menu",
+  "key.rendercube.dump_textures": "Dump Textures",
+  "gui.rendercube.render_screen.prr_tab": "Player Relative Render",
+  "gui.rendercube.render_screen.prr.edit_box.pos1": "Player relative position 1",
+  "gui.rendercube.render_screen.prr.edit_box.pos2": "Player relative position 2",
+  "gui.rendercube.render_screen.apr_tab": "Absolute Position Render",
+  "gui.rendercube.render_screen.apr.edit_box.pos1": "World position 1",
+  "gui.rendercube.render_screen.apr.edit_box.pos2": "World Position 2",
+  "gui.rendercube.render_screen.edit_box.tooltip": "<x> <y> <z>",
+  "gui.rendercube.render_screen.button.render": "Render",
+  "gui.rendercube.render_screen.button.render.wrong_input": "Can't parse input",
+  "gui.rendercube.render_screen.button.render.region_too_large": "Region size by X or Z is > 400",
+  "gui.rendercube.render_screen.button.render.success": "Render succeeded",
+  "gui.rendercube.render_screen.button.render.error": "Encountered error while rendering (check logs for more info)"
+}

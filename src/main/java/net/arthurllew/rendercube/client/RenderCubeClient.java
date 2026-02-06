@@ -1,6 +1,7 @@
-package net.arthurllew.rendercube;
+package net.arthurllew.rendercube.client;
 
-import net.arthurllew.rendercube.client.KeyBindings;
+import net.arthurllew.rendercube.RenderCube;
+import net.arthurllew.rendercube.client.keyboard.KeyBindings;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.ModContainer;

@@ -1,4 +1,4 @@
-package net.arthurllew.rendercube.client;
+package net.arthurllew.rendercube.client.keyboard;
 
 import net.arthurllew.rendercube.RenderCube;
 import net.arthurllew.rendercube.client.gui.RenderScreen;

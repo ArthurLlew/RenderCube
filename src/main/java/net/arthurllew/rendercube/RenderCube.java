@@ -1,6 +1,7 @@
 package net.arthurllew.rendercube;
 
-import net.arthurllew.rendercube.client.KeyBindings;
+import net.arthurllew.rendercube.client.keyboard.KeyBindings;
+import net.arthurllew.rendercube.config.Config;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.RegisterKeyMappingsEvent;
 import net.minecraftforge.common.MinecraftForge;
@@ -9,6 +10,7 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.IExtensionPoint;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 
@@ -37,6 +39,9 @@ public class RenderCube {
         ModLoadingContext.get().registerExtensionPoint(IExtensionPoint.DisplayTest.class,
                 () -> new IExtensionPoint.DisplayTest(
                         () -> IExtensionPoint.DisplayTest.IGNORESERVERONLY, (a, b) -> true));
+
+        // Register our mod's ForgeConfigSpec so that Forge can create and load the config file for us
+        context.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
     }
 
     /**

@@ -18,6 +18,9 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.BushBlock;
+import net.minecraft.world.level.block.LeavesBlock;
+import net.minecraft.world.level.block.VineBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.FluidState;
@@ -43,8 +46,16 @@ public class CubesRenderer {
 
         // If block is not empty
         if (!blockState.isAir()) {
-            CommonVertexConsumer blockVertexConsumer =
-                    new CommonVertexConsumer(dataWriters.blockWriter, regionPos);
+            // Vegetation has its own vertex consumer
+            CommonVertexConsumer blockVertexConsumer;
+            if (blockState.getBlock() instanceof LeavesBlock
+                    || blockState.getBlock() instanceof BushBlock
+                    || blockState.getBlock() instanceof VineBlock) {
+                blockVertexConsumer = new CommonVertexConsumer(dataWriters.vegetationWriter, regionPos);
+            }
+            else {
+                blockVertexConsumer = new CommonVertexConsumer(dataWriters.blockWriter, regionPos);
+            }
 
             // Block baked model
             BakedModel blockModel = Minecraft.getInstance().getBlockRenderer().getBlockModel(blockState);

@@ -1,4 +1,4 @@
-package net.arthurllew.rendercube.client;
+package net.arthurllew.rendercube.client.keyboard;
 
 import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.KeyMapping;

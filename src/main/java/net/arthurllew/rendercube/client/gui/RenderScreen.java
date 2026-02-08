@@ -5,6 +5,7 @@ import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.logging.LogUtils;
 import net.arthurllew.rendercube.client.io.DataWriters;
+import net.arthurllew.rendercube.config.Config;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractButton;
@@ -319,7 +320,8 @@ public class RenderScreen extends Screen {
                 int maxZ = Math.max(z1, z2);
 
                 // Restrict region size
-                if ((maxX - minX > 400) || (maxZ - minZ > 400)) {
+                if ((maxX - minX > Config.MAX_RENDER_DISTANCE.getAsInt())
+                        || (maxZ - minZ > Config.MAX_RENDER_DISTANCE.getAsInt())) {
                     player.sendSystemMessage(RENDER_REGION_TOO_LARGE_MSG);
                 }
                 else {

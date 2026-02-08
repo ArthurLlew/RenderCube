@@ -29,7 +29,7 @@ Export
    "screenshots/debug" directory
    (https://minecraft.fandom.com/wiki/Texture_atlas).
 
-Once _rendering_ is done, yuo can navigate to Minecraft
+Once _rendering_ is done, you can navigate to Minecraft
 folder (_.../.minecraft_) where you will notice a new
 directory called _rendercube_. There you will find
 subdirectories named after date and time when you exported

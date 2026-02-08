@@ -17,22 +17,26 @@ public class DataWriters implements AutoCloseable {
     /**
      * Holds instance of rendered blocks writer.
      */
-    public OutputStream blockWriter;
+    final public OutputStream blockWriter;
+    /**
+     * Holds instance of rendered blocks writer.
+     */
+    final public OutputStream vegetationWriter;
 
     /**
      * Holds instance of rendered liquids writer.
      */
-    public OutputStream liquidWriter;
+    final public OutputStream liquidWriter;
 
     /**
      * Holds instance of rendered block entities writer.
      */
-    public OutputStream blockEntityWriter;
+    final public OutputStream blockEntityWriter;
 
     /**
      * Holds instance of rendered entities writer.
      */
-    public OutputStream entityWriter;
+    final public OutputStream entityWriter;
 
     /**
      * Writers init.
@@ -51,13 +55,15 @@ public class DataWriters implements AutoCloseable {
         // Create file writers
         int bufferSize = 8064;	// Buffer size = 48 (size of one vertex) * 4 (4 in a quad) * 42 (arbitrary number)
         String FileExtension = ".rcube";
-        blockWriter= new BufferedOutputStream(
+        this.blockWriter= new BufferedOutputStream(
                 new FileOutputStream(dirName + "\\" + "renderedBlocks" + FileExtension), bufferSize);
-        liquidWriter = new BufferedOutputStream(
+        this.vegetationWriter= new BufferedOutputStream(
+                new FileOutputStream(dirName + "\\" + "renderedVegetation" + FileExtension), bufferSize);
+        this.liquidWriter = new BufferedOutputStream(
                 new FileOutputStream(dirName + "\\" + "renderedLiquids" + FileExtension), bufferSize);
-        blockEntityWriter = new BufferedOutputStream(
+        this.blockEntityWriter = new BufferedOutputStream(
                 new FileOutputStream(dirName + "\\" + "renderedBlockEntities" + FileExtension), bufferSize);
-        entityWriter = new BufferedOutputStream(
+        this.entityWriter = new BufferedOutputStream(
                 new FileOutputStream(dirName + "\\" + "renderedEntities" + FileExtension), bufferSize);
     }
 
@@ -67,9 +73,10 @@ public class DataWriters implements AutoCloseable {
      */
     @Override
     public void close() throws IOException {
-        blockWriter.close();
-        liquidWriter.close();
-        blockEntityWriter.close();
-        entityWriter.close();
+        this.blockWriter.close();
+        this.vegetationWriter.close();
+        this.liquidWriter.close();
+        this.blockEntityWriter.close();
+        this.entityWriter.close();
     }
 }

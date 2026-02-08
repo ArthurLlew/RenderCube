@@ -29,7 +29,7 @@ public class RenderCube {
         // Register the commonSetup method for mod loading
         modEventBus.addListener(this::commonSetup);
 
-        // Register our mod's ModConfigSpec so that FML can create and load the config file for us
+        // Register mod config
         modContainer.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
     }
 

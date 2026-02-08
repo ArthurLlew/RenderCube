@@ -116,8 +116,8 @@ minecraft {
 sourceSets.main.resources { srcDir 'src/generated/resources' }
 
 repositories {
-    maven {
-        url "https://cursemaven.com"
+    flatDir {
+        dir 'libs'
     }
 }
 
@@ -126,13 +126,8 @@ dependencies {
     minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
 
     // Little tiles mod
-    implementation fg.deobf("curse.maven:creativecore-257814:6383884")
-    implementation fg.deobf("curse.maven:littletiles-257818:6610285")
-    // Copycats+
-    implementation fg.deobf("curse.maven:create-328085:7178761")
-    implementation fg.deobf("curse.maven:copycats-968398:6650089")
-    // Framed blocks
-    implementation fg.deobf("curse.maven:framedblocks-441647:6297988")
+    implementation fg.deobf(files('libs/creativecore-257814-6383884.jar'))
+    implementation fg.deobf(files('libs/littletiles-257818-6610285.jar'))
 }
 
 // MixinGradle Settings

@@ -7,6 +7,9 @@ _Minecraft_ builds into _Blender_ even if the game has
 any mods installed. The toolchain consists of a
 _Minecraft_ mod (export) and a _Blender_ addon (import).
 
+For detailed introduction one can refer to [this](
+https://www.ardacraft.me/resources/complete-guide-to-rendering-modded-minecraft-builds-in-blender) amazing guide.
+
 Setup
 ------------------------------
 1) Drop _Minecraft_ mod into relevant mod directory
@@ -26,8 +29,7 @@ Export
 3) Hit _Render_ button (the screen will be locked until
    rendering is complete or error is encountered).
 4) Press F3+S to dump texture atlases loaded by game into
-   "screenshots/debug" directory
-   (https://minecraft.fandom.com/wiki/Texture_atlas).
+   "screenshots/debug" directory (https://minecraft.fandom.com/wiki/Texture_atlas).
 
 Once _rendering_ is done, you can navigate to Minecraft
 folder (_.../.minecraft_) where you will notice a new

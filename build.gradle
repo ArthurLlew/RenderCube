@@ -112,20 +112,15 @@ configurations {
 }
 
 repositories {
-    maven {
-        url "https://cursemaven.com"
+    flatDir {
+        dir 'libs'
     }
 }
 
 dependencies {
     // Little tiles mod
-    implementation "curse.maven:creativecore-257814:7353403"
-    implementation "curse.maven:littletiles-257818:7369631"
-    // Copycats+
-    implementation "curse.maven:create-328085:7178775"
-    implementation "curse.maven:copycats-968398:7251823"
-    // Framed blocks
-    implementation "curse.maven:framedblocks-441647:7135071"
+    implementation files('libs/creativecore-257814-7353403.jar')
+    implementation files('libs/littletiles-257818-7369631.jar')
 }
 
 // This block of code expands all declared replace properties in the specified resource targets.

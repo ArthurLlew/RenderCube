@@ -40,7 +40,7 @@ public class RenderCube {
                 () -> new IExtensionPoint.DisplayTest(
                         () -> IExtensionPoint.DisplayTest.IGNORESERVERONLY, (a, b) -> true));
 
-        // Register our mod's ForgeConfigSpec so that Forge can create and load the config file for us
+        // Register mod config
         context.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
     }
 

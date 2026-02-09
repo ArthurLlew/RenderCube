@@ -13,9 +13,6 @@ base {
 repositories {
 	// Parchment mappings
 	maven { url 'https://maven.parchmentmc.org' }
-
-	// Repo for mod implementations
-	maven { url "https://www.cursemaven.com" }
 }
 
 dependencies {
@@ -31,11 +28,6 @@ dependencies {
 	// Fabric essentials
 	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
 	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
-
-	// Additional mods
-	//modImplementation "curse.maven:modmenu-308702:5162837"
-	//modImplementation "curse.maven:create-fabric-624165:7286603"
-	//modImplementation "curse.maven:copycats-968398:6284684"
 }
 
 processResources {

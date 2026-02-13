@@ -30,7 +30,7 @@ public class RenderCube {
         modEventBus.addListener(this::commonSetup);
 
         // Register mod config
-        modContainer.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
+        modContainer.registerConfig(ModConfig.Type.COMMON, Config.CONFIG_SPEC);
     }
 
     /**

@@ -320,8 +320,8 @@ public class RenderScreen extends Screen {
                 int maxZ = Math.max(z1, z2);
 
                 // Restrict region size
-                if ((maxX - minX > Config.MAX_RENDER_DISTANCE.getAsInt())
-                        || (maxZ - minZ > Config.MAX_RENDER_DISTANCE.getAsInt())) {
+                if ((maxX - minX > Config.CONFIG.maxRenderDistance.getAsInt())
+                        || (maxZ - minZ > Config.CONFIG.maxRenderDistance.getAsInt())) {
                     player.sendSystemMessage(RENDER_REGION_TOO_LARGE_MSG);
                 }
                 else {

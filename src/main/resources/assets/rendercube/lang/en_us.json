@@ -11,7 +11,7 @@
   "gui.rendercube.render_screen.edit_box.tooltip": "<x> <y> <z>",
   "gui.rendercube.render_screen.button.render": "Render",
   "gui.rendercube.render_screen.button.render.wrong_input": "Can't parse input",
-  "gui.rendercube.render_screen.button.render.region_too_large": "Region size by X or Z is > 400",
+  "gui.rendercube.render_screen.button.render.region_too_large": "Region size by X or Z can't be > %1$s. Region size limit can be changed via config",
   "gui.rendercube.render_screen.button.render.success": "Render succeeded",
   "gui.rendercube.render_screen.button.render.error": "Encountered error while rendering (check logs for more info)"
 }

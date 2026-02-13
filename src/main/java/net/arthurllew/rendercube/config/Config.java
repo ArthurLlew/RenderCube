@@ -28,7 +28,7 @@ public class Config {
     private Config(ModConfigSpec.Builder builder) {
         maxRenderDistance = builder
                 .comment("Max allowed render distance")
-                .defineInRange("maxRenderDistance", 400, 400, Integer.MAX_VALUE);;
+                .defineInRange("maxRenderDistance", 400, 400, Integer.MAX_VALUE);
     }
 
     // Config instances building

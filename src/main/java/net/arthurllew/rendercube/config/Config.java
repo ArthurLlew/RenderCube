@@ -33,8 +33,7 @@ public class Config {
 
     // Config instances building
     static {
-        Pair<Config, ModConfigSpec> pair =
-                new ModConfigSpec.Builder().configure(Config::new);
+        Pair<Config, ModConfigSpec> pair = new ModConfigSpec.Builder().configure(Config::new);
 
         //Store the resulting values
         CONFIG = pair.getLeft();

@@ -1,45 +1,43 @@
 package net.arthurllew.rendercube.config;
 
-import net.arthurllew.rendercube.RenderCube;
 import net.minecraftforge.common.ForgeConfigSpec;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.event.config.ModConfigEvent;
+import org.apache.commons.lang3.tuple.Pair;
 
 /**
  * Mod configuration file.
  */
-@Mod.EventBusSubscriber(modid = RenderCube.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class Config
 {
     /**
-     * Config builder.
-     */
-    private static final ForgeConfigSpec.Builder BUILDER = new ForgeConfigSpec.Builder();
-
-    /**
      * Config instance.
      */
-    public static final ForgeConfigSpec SPEC = BUILDER.build();
+    public static final Config CONFIG;
+
+    /**
+     * Config spec instance.
+     */
+    public static final ForgeConfigSpec CONFIG_SPEC;
 
     /**
      * Max render distance value builder.
      */
-    private static final ForgeConfigSpec.IntValue MAX_RENDER_DISTANCE = BUILDER
-            .comment("Max allowed render distance")
-            .defineInRange("maxRenderDistance", 400, 400, Integer.MAX_VALUE);
+    public final ForgeConfigSpec.IntValue maxRenderDistance;
 
     /**
-     * Max render distance value.
+     * Config building.
      */
-    public static int maxRenderDistance;
+    private Config(ForgeConfigSpec.Builder builder) {
+        maxRenderDistance = builder
+                .comment("Max allowed render distance")
+                .defineInRange("maxRenderDistance", 400, 400, Integer.MAX_VALUE);
+    }
 
-    /**
-     * Config loading.
-     */
-    @SubscribeEvent
-    static void onLoad(final ModConfigEvent event)
-    {
-        maxRenderDistance = MAX_RENDER_DISTANCE.get();
+    // Config instances building
+    static {
+        Pair<Config, ForgeConfigSpec> pair = new ForgeConfigSpec.Builder().configure(Config::new);
+
+        //Store the resulting values
+        CONFIG = pair.getLeft();
+        CONFIG_SPEC = pair.getRight();
     }
 }

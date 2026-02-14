@@ -10,16 +10,8 @@ import net.minecraftforge.fml.common.Mod;
 
 import static net.arthurllew.rendercube.client.keyboard.KeyInputReactions.openRenderScreen;
 
-@Mod.EventBusSubscriber(modid = RenderCube.MODID, value = Dist.CLIENT, bus = Mod.EventBusSubscriber.Bus.MOD)
+@Mod.EventBusSubscriber(modid = RenderCube.MODID, value = Dist.CLIENT)
 public class ClientEventsHandler {
-    /**
-     * Registers custom key bindings.
-     */
-    @SubscribeEvent
-    public static void onKeyRegister(RegisterKeyMappingsEvent event){
-        event.register(KeyBindings.RENDER_SCREEN_KEY);
-    }
-
     /**
      * Key pressed event.
      */

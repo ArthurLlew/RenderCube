@@ -37,7 +37,7 @@ public class RenderCube {
                         () -> IExtensionPoint.DisplayTest.IGNORESERVERONLY, (a, b) -> true));
 
         // Register mod config
-        context.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
+        context.registerConfig(ModConfig.Type.COMMON, Config.CONFIG_SPEC);
     }
 
     /**

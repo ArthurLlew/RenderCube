@@ -9,38 +9,25 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Autocloseable collection of file writers.
  */
 public class DataWriters implements AutoCloseable {
     /**
-     * Holds instance of rendered blocks writer.
+     * Writers map containing pairs of writer name and {@link OutputStream}.
      */
-    final public OutputStream blockWriter;
-    /**
-     * Holds instance of rendered blocks writer.
-     */
-    final public OutputStream vegetationWriter;
+    private final Map<String, OutputStream> writers = new HashMap<>();
 
     /**
-     * Holds instance of rendered liquids writer.
+     * Subdirectory named after datetime to store files.
      */
-    final public OutputStream liquidWriter;
+    private final String directory;
 
     /**
-     * Holds instance of rendered block entities writer.
-     */
-    final public OutputStream blockEntityWriter;
-
-    /**
-     * Holds instance of rendered entities writer.
-     */
-    final public OutputStream entityWriter;
-
-    /**
-     * Writers init.
-     * @throws IOException when file exceptions are encountered.
+     * Basic init.
      */
     public DataWriters() throws IOException {
         // Date time string
@@ -49,22 +36,32 @@ public class DataWriters implements AutoCloseable {
         dateTimeStr =  dateTimeStr.substring(0, dateTimeStr.lastIndexOf("."));
 
         // Create appropriate directory
-        String dirName = RenderCube.MODID + "\\" + dateTimeStr;
-        Files.createDirectories(Paths.get(dirName));
+        this.directory = RenderCube.MODID + "\\" + dateTimeStr;
+        Files.createDirectories(Paths.get(this.directory));
+    }
 
-        // Create file writers
-        int bufferSize = 8064;	// Buffer size = 48 (size of one vertex) * 4 (4 in a quad) * 42 (arbitrary number)
-        String FileExtension = ".rcube";
-        this.blockWriter= new BufferedOutputStream(
-                new FileOutputStream(dirName + "\\" + "renderedBlocks" + FileExtension), bufferSize);
-        this.vegetationWriter= new BufferedOutputStream(
-                new FileOutputStream(dirName + "\\" + "renderedVegetation" + FileExtension), bufferSize);
-        this.liquidWriter = new BufferedOutputStream(
-                new FileOutputStream(dirName + "\\" + "renderedLiquids" + FileExtension), bufferSize);
-        this.blockEntityWriter = new BufferedOutputStream(
-                new FileOutputStream(dirName + "\\" + "renderedBlockEntities" + FileExtension), bufferSize);
-        this.entityWriter = new BufferedOutputStream(
-                new FileOutputStream(dirName + "\\" + "renderedEntities" + FileExtension), bufferSize);
+    /**
+     * @param fileName name of file writer (is also a filename).
+     * @return already existing or newly created file writer.
+     * @throws IOException when file exceptions are encountered.
+     */
+    public OutputStream get(String fileName) throws IOException {
+        // Get already existing file writer
+        if (writers.containsKey(fileName)) {
+            return writers.get(fileName);
+        }
+        // Create a new one
+        else {
+            OutputStream writer = new BufferedOutputStream(
+                    new FileOutputStream(this.directory + "\\" + fileName + ".rcube"),
+                    // Buffer size = 48 (size of one vertex) * 4 (4 in a quad) *
+                    // * 42 (arbitrary number)
+                    8064);
+
+            writers.put(fileName, writer);
+
+            return writer;
+        }
     }
 
     /**
@@ -73,10 +70,8 @@ public class DataWriters implements AutoCloseable {
      */
     @Override
     public void close() throws IOException {
-        this.blockWriter.close();
-        this.vegetationWriter.close();
-        this.liquidWriter.close();
-        this.blockEntityWriter.close();
-        this.entityWriter.close();
+        for (OutputStream writer : writers.values()) {
+            writer.close();
+        }
     }
 }

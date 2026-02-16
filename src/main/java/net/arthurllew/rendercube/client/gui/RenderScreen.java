@@ -5,6 +5,7 @@ import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.logging.LogUtils;
 import net.arthurllew.rendercube.client.io.DataWriters;
+import net.arthurllew.rendercube.client.rendering.CubesRenderer;
 import net.arthurllew.rendercube.config.Config;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -28,7 +29,6 @@ import java.util.List;
 import java.util.function.Supplier;
 
 import static net.arthurllew.rendercube.RenderCube.MODID;
-import static net.arthurllew.rendercube.client.rendering.CubesRenderer.renderRegion;
 
 @OnlyIn(Dist.CLIENT)
 public class RenderScreen extends Screen {
@@ -340,7 +340,7 @@ public class RenderScreen extends Screen {
                     }
 
                     // Render region
-                    renderRegion(player.level(), dataWriters, posMin, posMax);
+                    CubesRenderer.renderRegion(player.level(), dataWriters, posMin, posMax);
 
                     // Notify about success
                     player.sendSystemMessage(RENDER_SUCCESS_MSG);

@@ -1,11 +1,13 @@
 package net.arthurllew.rendercube.client.rendering;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import net.arthurllew.rendercube.RenderCube;
 import net.arthurllew.rendercube.client.io.DataWriters;
 import net.arthurllew.rendercube.client.rendering.vertex.BasicVertexConsumer;
 import net.arthurllew.rendercube.client.rendering.vertex.CommonVertexConsumer;
 import net.arthurllew.rendercube.client.rendering.vertex.FakeMultiBufferSource;
 import net.arthurllew.rendercube.client.rendering.vertex.LiquidVertexConsumer;
+import net.arthurllew.rendercube.config.Config;
 import net.arthurllew.rendercube.mod.littletiles.LittleTilesManager;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderType;
@@ -18,9 +20,6 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.BushBlock;
-import net.minecraft.world.level.block.LeavesBlock;
-import net.minecraft.world.level.block.VineBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.FluidState;
@@ -30,6 +29,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 
 public class CubesRenderer {
     /**
@@ -47,16 +47,35 @@ public class CubesRenderer {
 
         // If block is not empty
         if (!blockState.isAir()) {
-            // Vegetation has its own vertex consumer
-            CommonVertexConsumer blockVertexConsumer;
-            if (blockState.getBlock() instanceof LeavesBlock
-                    || blockState.getBlock() instanceof BushBlock
-                    || blockState.getBlock() instanceof VineBlock) {
-                blockVertexConsumer = new CommonVertexConsumer(dataWriters.get("renderedVegetation"), regionPos);
+            // Default culling rule
+            boolean checkSides = true;
+            // Check if this block should have its own vertex consumer
+            Optional<CommonVertexConsumer> customBlockVertexConsumer = Optional.empty();
+            for (Config.Data.CustomWriter writer : Config.DATA.customWriters) {
+                // Try to handle custom writer
+                try {
+                    // Get the Class object for the given class name
+                    Class<?> targetClass = Class.forName(writer.className());
+
+                    // Check if the block is an instance of that Class
+                    if (targetClass.isInstance(blockState.getBlock())) {
+                        // Create custom vertex consumer
+                        customBlockVertexConsumer = Optional.of(
+                                new CommonVertexConsumer(dataWriters.get(writer.filename()), regionPos));
+                        // Update culling rule
+                        checkSides = writer.checkSides();
+
+                        // Stop loop
+                        break;
+                    }
+                    // Log incorrect config entry
+                } catch (ClassNotFoundException e) {
+                    RenderCube.LOGGER.error("Class from config not found: {}", writer.className());
+                }
             }
-            else {
-                blockVertexConsumer = new CommonVertexConsumer(dataWriters.get("renderedBlocks"), regionPos);
-            }
+            // If no custom consumer was provided default to block consumer
+            CommonVertexConsumer blockVertexConsumer = customBlockVertexConsumer
+                    .orElse(new CommonVertexConsumer(dataWriters.get("renderedBlocks"), regionPos));
 
             // Block baked model
             BakedModel blockModel = Minecraft.getInstance().getBlockRenderer().getBlockModel(blockState);
@@ -78,7 +97,7 @@ public class CubesRenderer {
                         level,
                         new PoseStack(),
                         blockVertexConsumer,
-                        true,
+                        checkSides,
                         randomSource,
                         blockModelData,
                         rendertype);

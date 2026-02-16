@@ -1,43 +1,111 @@
 package net.arthurllew.rendercube.config;
 
-import net.minecraftforge.common.ForgeConfigSpec;
-import org.apache.commons.lang3.tuple.Pair;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import net.arthurllew.rendercube.RenderCube;
 
-/**
- * Mod configuration file.
- */
-public class Config
-{
-    /**
-     * Config instance.
-     */
-    public static final Config CONFIG;
+import java.io.*;
+import java.util.List;
 
+public class Config {
     /**
-     * Config spec instance.
+     * Gson object.
      */
-    public static final ForgeConfigSpec CONFIG_SPEC;
+    private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 
     /**
-     * Max render distance value builder.
+     * Active config data.
      */
-    public final ForgeConfigSpec.IntValue maxRenderDistance;
+    public static Data DATA;
 
     /**
-     * Config building.
+     * Inits config.
      */
-    private Config(ForgeConfigSpec.Builder builder) {
-        maxRenderDistance = builder
-                .comment("Max allowed render distance")
-                .defineInRange("maxRenderDistance", 400, 400, Integer.MAX_VALUE);
+    public static void initConfig() {
+        // Config file
+        File file = new File("config", RenderCube.MODID + ".json");
+
+        // If config doesn't exist
+        if (!file.exists()) {
+            // Init with defaults
+            createDefaultConfig();
+
+            // Try to save config
+            try (Writer writer = new FileWriter(file)) {
+                GSON.toJson(DATA, writer);
+            }
+            // On error: add log
+            catch (Exception e) {
+                RenderCube.LOGGER.warn("Unable to save config file due to: ", e);
+            }
+        }
+        // If config already exists
+        else {
+            // Try to read
+            try (Reader reader = new FileReader(file)) {
+                DATA = GSON.fromJson(reader, Data.class).applyConstraints();
+            }
+            // On error: set to defaults and add log
+            catch (Exception e) {
+                RenderCube.LOGGER.warn("Unable to read config file due to: ", e);
+                createDefaultConfig();
+            }
+        }
     }
 
-    // Config instances building
-    static {
-        Pair<Config, ForgeConfigSpec> pair = new ForgeConfigSpec.Builder().configure(Config::new);
+    /**
+     * Inits config with defaults.
+     */
+    private static void createDefaultConfig() {
+        DATA = new Data();
+    }
 
-        //Store the resulting values
-        CONFIG = pair.getLeft();
-        CONFIG_SPEC = pair.getRight();
+    /**
+     * Data holder.
+     */
+    public static class Data {
+        /**
+         *Max render distance.
+         */
+        public int maxRenderDistance;
+
+        /**
+         * List of custom writers. Each writer contains class name, filename for export and whether it
+         * should cull sides.
+         */
+        public List<CustomWriter> customWriters;
+
+        /**
+         * Default data constructor.
+         */
+        private Data() {
+            this.maxRenderDistance = 400;
+
+            this.customWriters = List.of(
+                    new CustomWriter("net.minecraft.world.level.block.LeavesBlock",
+                            "renderedVegetation",
+                            true),
+                    new CustomWriter("net.minecraft.world.level.block.BushBlock",
+                            "renderedVegetation",
+                            true),
+                    new CustomWriter("net.minecraft.world.level.block.VineBlock",
+                            "renderedVegetation",
+                            true));
+        }
+
+        /**
+         * Applies data constraints.
+         */
+        private Data applyConstraints() {
+            this.maxRenderDistance = Math.max(maxRenderDistance, 400);
+
+            return this;
+        }
+
+        /**
+         * Stores custom writer data.
+         */
+        public record CustomWriter(String className, String filename, boolean checkSides) {
+        }
     }
 }

@@ -59,7 +59,7 @@ public class RenderScreen extends Screen {
             Component.translatable("gui." + MODID + ".render_screen.button.render.wrong_input");
     private static final Supplier<Component> RENDER_REGION_TOO_LARGE_MSG = () ->
             Component.translatable("gui." + MODID + ".render_screen.button.render.region_too_large",
-                    Config.CONFIG.maxRenderDistance.get());
+                    Config.DATA.maxRenderDistance);
     private static final Component RENDER_SUCCESS_MSG =
             Component.translatable("gui." + MODID + ".render_screen.button.render.success");
     private static final Component RENDER_ERROR_MSG =
@@ -318,8 +318,8 @@ public class RenderScreen extends Screen {
                 int maxZ = Math.max(z1, z2);
 
                 // Restrict region size
-                if ((maxX - minX > Config.CONFIG.maxRenderDistance.get())
-                        || (maxZ - minZ > Config.CONFIG.maxRenderDistance.get())) {
+                if ((maxX - minX > Config.DATA.maxRenderDistance)
+                        || (maxZ - minZ > Config.DATA.maxRenderDistance)) {
                     player.sendSystemMessage(RENDER_REGION_TOO_LARGE_MSG.get());
                 }
                 else {

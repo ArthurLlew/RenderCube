@@ -5,6 +5,7 @@ import com.google.gson.GsonBuilder;
 import net.arthurllew.rendercube.RenderCube;
 
 import java.io.*;
+import java.util.List;
 
 public class Config {
     /**
@@ -64,15 +65,32 @@ public class Config {
      */
     public static class Data {
         /**
-         *Max render distance value.
+         *Max render distance.
          */
         public int maxRenderDistance;
+
+        /**
+         * List of custom writers. Each writer contains class name, filename for export and whether it
+         * should cull sides.
+         */
+        public List<CustomWriter> customWriters;
 
         /**
          * Default data constructor.
          */
         private Data() {
             this.maxRenderDistance = 400;
+
+            this.customWriters = List.of(
+                    new CustomWriter("net.minecraft.world.level.block.LeavesBlock",
+                            "renderedVegetation",
+                            true),
+                    new CustomWriter("net.minecraft.world.level.block.BushBlock",
+                            "renderedVegetation",
+                            true),
+                    new CustomWriter("net.minecraft.world.level.block.VineBlock",
+                            "renderedVegetation",
+                            true));
         }
 
         /**
@@ -82,6 +100,12 @@ public class Config {
             this.maxRenderDistance = Math.max(maxRenderDistance, 400);
 
             return this;
+        }
+
+        /**
+         * Stores custom writer data.
+         */
+        public record CustomWriter(String className, String filename, boolean checkSides) {
         }
     }
 }

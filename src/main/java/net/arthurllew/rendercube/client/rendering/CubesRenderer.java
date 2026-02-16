@@ -29,6 +29,7 @@ import net.neoforged.neoforge.client.model.data.ModelData;
 import net.neoforged.neoforge.client.model.data.ModelDataManager;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.IOException;
 import java.util.List;
 
 public class CubesRenderer {
@@ -42,7 +43,8 @@ public class CubesRenderer {
     public static void renderCube(@NotNull Level level,
                                   @NotNull DataWriters dataWriters,
                                   @NotNull BlockPos levelPos,
-                                  @NotNull BlockPos regionPos) {
+                                  @NotNull BlockPos regionPos) throws IOException {
+        // Get block at current position
         BlockState blockState = level.getBlockState(levelPos);
 
         // If block is not empty
@@ -52,10 +54,10 @@ public class CubesRenderer {
             if (blockState.getBlock() instanceof LeavesBlock
                     || blockState.getBlock() instanceof BushBlock
                     || blockState.getBlock() instanceof VineBlock) {
-                blockVertexConsumer = new CommonVertexConsumer(dataWriters.vegetationWriter, regionPos);
+                blockVertexConsumer = new CommonVertexConsumer(dataWriters.get("renderedVegetation"), regionPos);
             }
             else {
-                blockVertexConsumer = new CommonVertexConsumer(dataWriters.blockWriter, regionPos);
+                blockVertexConsumer = new CommonVertexConsumer(dataWriters.get("renderedBlocks"), regionPos);
             }
 
             // Block baked model
@@ -93,7 +95,7 @@ public class CubesRenderer {
             if (!fluid.isEmpty()){
                 // Init liquid consumer
                 LiquidVertexConsumer liquidVertexConsumer =
-                        new LiquidVertexConsumer(dataWriters.liquidWriter, regionPos, levelPos);
+                        new LiquidVertexConsumer(dataWriters.get("renderedLiquids"), regionPos, levelPos);
 
                 // Consume liquid vertices
                 Minecraft.getInstance().getBlockRenderer().renderLiquid(
@@ -109,7 +111,7 @@ public class CubesRenderer {
             if(blockEntity != null){
                 FakeMultiBufferSource fakeMultiBufferSource =
                         new FakeMultiBufferSource(
-                                new CommonVertexConsumer(dataWriters.blockEntityWriter,regionPos));
+                                new CommonVertexConsumer(dataWriters.get("renderedBlockEntities"),regionPos));
 
                 // Little tiles check
                 LittleTilesManager.render(blockEntity, level, levelPos, blockVertexConsumer);
@@ -134,7 +136,7 @@ public class CubesRenderer {
     public static void renderRegionEntities(@NotNull Level level,
                                             @NotNull DataWriters dataWriters,
                                             @NotNull BlockPos minPos,
-                                            @NotNull BlockPos maxPos){
+                                            @NotNull BlockPos maxPos) throws IOException {
         // Get all entities in region (except player entity)
         List<Entity> entities = level.getEntities(
                 (Entity)null, new AABB(
@@ -159,7 +161,7 @@ public class CubesRenderer {
             double entityZ = Mth.lerp(minecraftConstant, entity.zOld, entity.getZ());
 
             FakeMultiBufferSource fakeMultiBufferSource = new FakeMultiBufferSource(
-                    new BasicVertexConsumer(dataWriters.entityWriter));
+                    new BasicVertexConsumer(dataWriters.get("renderedEntities")));
 
             // Render entity using dummy MultiBufferSource
             entityRenderDispatcher.render(
@@ -186,7 +188,7 @@ public class CubesRenderer {
     public static void renderRegion(@NotNull Level level,
                                     @NotNull DataWriters dataWriters,
                                     @NotNull BlockPos minPos,
-                                    @NotNull BlockPos maxPos){
+                                    @NotNull BlockPos maxPos) throws IOException {
         // Loop over coordinates inside the region
         for(int x = minPos.getX(); x <= maxPos.getX(); x++){
             for(int y = minPos.getY(); y <= maxPos.getY(); y++){

@@ -3,7 +3,12 @@ package net.arthurllew.rendercube.config;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import net.arthurllew.rendercube.RenderCube;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.block.state.BlockState;
+import org.jetbrains.annotations.NotNull;
 
+import javax.annotation.Nullable;
 import java.io.*;
 import java.util.List;
 
@@ -70,10 +75,9 @@ public class Config {
         public int maxRenderDistance;
 
         /**
-         * List of custom writers. Each writer contains class name, filename for export and whether it
-         * should cull sides.
+         * List of configured block writers.
          */
-        public List<CustomWriter> customWriters;
+        public List<BlockConsumerConfig> blockConsumerConfigs;
 
         /**
          * Default data constructor.
@@ -81,14 +85,17 @@ public class Config {
         private Data() {
             this.maxRenderDistance = 400;
 
-            this.customWriters = List.of(
-                    new CustomWriter("net.minecraft.world.level.block.LeavesBlock",
+            this.blockConsumerConfigs = List.of(
+                    new BlockConsumerConfig(RegistryType.CLASS,
+                            "net.minecraft.world.level.block.LeavesBlock",
                             "renderedVegetation",
                             true),
-                    new CustomWriter("net.minecraft.world.level.block.BushBlock",
+                    new BlockConsumerConfig(RegistryType.CLASS,
+                            "net.minecraft.world.level.block.BushBlock",
                             "renderedVegetation",
                             true),
-                    new CustomWriter("net.minecraft.world.level.block.VineBlock",
+                    new BlockConsumerConfig(RegistryType.CLASS,
+                            "net.minecraft.world.level.block.VineBlock",
                             "renderedVegetation",
                             true));
         }
@@ -103,9 +110,73 @@ public class Config {
         }
 
         /**
-         * Stores custom writer data.
+         * Configured block writer. Contains writer type (class or block),
+         * class string or block registry, filename for export and whether it
+         * should cull sides.
          */
-        public record CustomWriter(String className, String filename, boolean checkSides) {
+        public record BlockConsumerConfig(RegistryType registryType, String registryEntry,
+                                          String filename, boolean cullSides) {
+
+            /**
+             * @return customized block consumer settings.
+             */
+            public @Nullable BlockConsumerSettings getSettings(@NotNull BlockState blockState) {
+                switch (this.registryType) {
+                    case CLASS:
+                        // Try to handle custom writer
+                        try {
+                            // Get the Class object for the given class name
+                            Class<?> targetClass = Class.forName(this.registryEntry);
+
+                            // Check if the block is an instance of that Class
+                            if (targetClass.isInstance(blockState.getBlock())) {
+                                // Return custom culling rule and file name
+                                return new BlockConsumerSettings(this.cullSides, this.filename);
+                            }
+                            // Log incorrect config entry
+                        } catch (ClassNotFoundException e) {
+                            RenderCube.LOGGER.error("Class from config not found: {}", this.registryEntry);
+                        }
+
+                        break;
+                    case BLOCK:
+                        // Try to handle custom writer
+                        try {
+                            // Check block is matching provided registry entry
+                            if (blockState.is(BuiltInRegistries.BLOCK.get(
+                                    ResourceLocation.parse(this.registryEntry)))) {
+                                // Return custom culling rule and file name
+                                return new BlockConsumerSettings(this.cullSides, this.filename);
+                            }
+                            // Log incorrect config entry
+                        } catch (IllegalStateException e) {
+                            RenderCube.LOGGER.error("Block from config not found: {}", this.registryEntry);
+                        }
+
+                        break;
+                }
+
+                return null;
+            }
+
+            /**
+             * Record for customized block consumer settings.
+             */
+            public record BlockConsumerSettings(boolean cullSides, String filename) {}
+        }
+
+        /**
+         * Defines what does the stored string might represent.
+         */
+        public enum RegistryType {
+            /**
+             * Class name string.
+             */
+            CLASS,
+            /**
+             * Block registry string.
+             */
+            BLOCK
         }
     }
 }

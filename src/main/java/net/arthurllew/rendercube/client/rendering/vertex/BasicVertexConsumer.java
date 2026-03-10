@@ -1,6 +1,8 @@
 package net.arthurllew.rendercube.client.rendering.vertex;
 
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.RenderType;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.*;
@@ -32,7 +34,7 @@ public class BasicVertexConsumer implements VertexConsumer {
      * Constructs empty instance.
      * @param fileStream opened file output stream where data will be saved
      */
-    public BasicVertexConsumer(OutputStream fileStream){
+    public BasicVertexConsumer(OutputStream fileStream) {
         outputStream = fileStream;
     }
 
@@ -69,7 +71,7 @@ public class BasicVertexConsumer implements VertexConsumer {
      * @return self
      */
     @Override
-    public @NotNull VertexConsumer addVertex(float x, float y, float z){
+    public @NotNull VertexConsumer addVertex(float x, float y, float z) {
         // ByteBuffer size is 3 double (each is 8 bytes)
         this.vertexBytes = ByteBuffer.allocate(24)
                 .putDouble(x)
@@ -92,7 +94,7 @@ public class BasicVertexConsumer implements VertexConsumer {
      * @return self
      */
     @Override
-    public @NotNull VertexConsumer setColor(int r, int g, int b, int a){
+    public @NotNull VertexConsumer setColor(int r, int g, int b, int a) {
         // ByteBuffer size is 4 ints (each is 4 bytes)
         this.colorBytes = ByteBuffer.allocate(16)
                 .putInt(r)
@@ -114,7 +116,7 @@ public class BasicVertexConsumer implements VertexConsumer {
      * @return self
      */
     @Override
-    public @NotNull VertexConsumer setUv(float u, float v){
+    public @NotNull VertexConsumer setUv(float u, float v) {
         // ByteBuffer size is 2 floats (each is 4 bytes)
         this.uvBytes = ByteBuffer.allocate(8)
                 .putFloat(u)
@@ -132,7 +134,7 @@ public class BasicVertexConsumer implements VertexConsumer {
      * @return self
      */
     @Override
-    public @NotNull VertexConsumer setOverlay(int packedOverlay){
+    public @NotNull VertexConsumer setOverlay(int packedOverlay) {
         return this;
     }
 
@@ -141,7 +143,7 @@ public class BasicVertexConsumer implements VertexConsumer {
      * @return self
      */
     @Override
-    public @NotNull VertexConsumer setUv1(int var1, int var2){
+    public @NotNull VertexConsumer setUv1(int var1, int var2) {
         return this;
     }
 
@@ -150,7 +152,7 @@ public class BasicVertexConsumer implements VertexConsumer {
      * @return self
      */
     @Override
-    public @NotNull VertexConsumer setUv2(int var1, int var2){
+    public @NotNull VertexConsumer setUv2(int var1, int var2) {
         return this;
     }
 
@@ -159,7 +161,31 @@ public class BasicVertexConsumer implements VertexConsumer {
      * @return self
      */
     @Override
-    public @NotNull VertexConsumer setNormal(float x, float y, float z){
+    public @NotNull VertexConsumer setNormal(float x, float y, float z) {
         return this;
+    }
+
+    /**
+     * Wraps this class in {@link MultiBufferSource}.
+     * @return instance of {@link MultiBufferSource}.
+     */
+    public MultiBufferSource wrap() {
+        return new FakeMultiBufferSource(this);
+    }
+
+    /**
+     * Is used to capture geometry, produced by entity renderers.
+     * @param buffer vertex consumer.
+     */
+    public record FakeMultiBufferSource(BasicVertexConsumer buffer) implements MultiBufferSource {
+        /**
+         * Returns stored instance of {@link BasicVertexConsumer} as {@link VertexConsumer}.
+         * @param type object render type
+         * @return instance of {@link VertexConsumer}
+         */
+        @Override
+        public @NotNull VertexConsumer getBuffer(@NotNull RenderType type) {
+            return buffer;
+        }
     }
 }

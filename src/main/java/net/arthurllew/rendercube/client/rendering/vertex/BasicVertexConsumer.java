@@ -1,12 +1,22 @@
 package net.arthurllew.rendercube.client.rendering.vertex;
 
+import com.mojang.blaze3d.vertex.DefaultVertexFormat;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import net.arthurllew.rendercube.config.Config;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.block.model.BakedQuad;
+import net.minecraft.core.Vec3i;
+import net.minecraft.util.FastColor;
 import org.jetbrains.annotations.NotNull;
+import org.joml.Matrix4f;
+import org.joml.Vector3f;
+import org.lwjgl.system.MemoryStack;
 
 import java.io.*;
 import java.nio.ByteBuffer;
+import java.nio.IntBuffer;
 
 /**
  * Implements basic variables (store geometry data) and methods overrides of {@link VertexConsumer}.
@@ -61,6 +71,69 @@ public class BasicVertexConsumer implements VertexConsumer {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    /**
+     * Copy of {@link VertexConsumer#putBulkData}. Includes control over rendering of ambient occlusion.
+     */
+    @Override
+    public void putBulkData(PoseStack.Pose pose, BakedQuad quad, float @NotNull [] brightness,
+                            float red, float green, float blue, float alpha, int @NotNull [] lightmap,
+                            int packedOverlay, boolean readAlpha) {
+        int[] aint = quad.getVertices();
+        Vec3i vec3i = quad.getDirection().getNormal();
+        Matrix4f matrix4f = pose.pose();
+        Vector3f vector3f = pose.transformNormal((float)vec3i.getX(), (float)vec3i.getY(), (float)vec3i.getZ(),
+                new Vector3f());
+        int j = aint.length / 8;
+        int k = (int)(alpha * 255.0F);
+
+        try (MemoryStack memorystack = MemoryStack.stackPush()) {
+            ByteBuffer bytebuffer = memorystack.malloc(DefaultVertexFormat.BLOCK.getVertexSize());
+            IntBuffer intbuffer = bytebuffer.asIntBuffer();
+
+            for(int l = 0; l < j; ++l) {
+                intbuffer.clear();
+                intbuffer.put(aint, l * 8, 8);
+                float f = bytebuffer.getFloat(0);
+                float f1 = bytebuffer.getFloat(4);
+                float f2 = bytebuffer.getFloat(8);
+
+                float f3 = red;
+                float f4 = green;
+                float f5 = blue;
+
+                // Brightness was moved from here below
+                if (readAlpha) {
+                    f3 *= (float)(bytebuffer.get(12) & 255);
+                    f4 *= (float)(bytebuffer.get(13) & 255);
+                    f5 *= (float)(bytebuffer.get(14) & 255);
+                } else {
+                    f3 *= 255.0F;
+                    f4 *= 255.0F;
+                    f5 *= 255.0F;
+                }
+
+                // Ambient occlusion depending on config
+                if (Config.DATA.useMinecraftAmbientOcclusion) {
+                    f3 *= brightness[l];
+                    f4 *= brightness[l];
+                    f5 *= brightness[l];
+                }
+
+                int vertexAlpha = readAlpha ?
+                        (int)(alpha * (float)(bytebuffer.get(15) & 255) / 255.0F * 255.0F) : k;
+                int i1 = FastColor.ARGB32.color(vertexAlpha, (int)f3, (int)f4, (int)f5);
+                int j1 = this.applyBakedLighting(lightmap[l], bytebuffer);
+                float f10 = bytebuffer.getFloat(16);
+                float f9 = bytebuffer.getFloat(20);
+                Vector3f vector3f1 = matrix4f.transformPosition(f, f1, f2, new Vector3f());
+                this.applyBakedNormals(vector3f, bytebuffer, pose.normal());
+                this.addVertex(vector3f1.x(), vector3f1.y(), vector3f1.z(), i1, f10, f9, packedOverlay,
+                        j1, vector3f.x(), vector3f.y(), vector3f.z());
+            }
+        }
+
     }
 
     /**

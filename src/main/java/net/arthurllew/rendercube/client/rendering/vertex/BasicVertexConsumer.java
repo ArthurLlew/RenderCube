@@ -1,12 +1,22 @@
 package net.arthurllew.rendercube.client.rendering.vertex;
 
+import com.mojang.blaze3d.vertex.DefaultVertexFormat;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import net.arthurllew.rendercube.config.Config;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.block.model.BakedQuad;
+import net.minecraft.core.Vec3i;
 import org.jetbrains.annotations.NotNull;
+import org.joml.Matrix4f;
+import org.joml.Vector3f;
+import org.joml.Vector4f;
+import org.lwjgl.system.MemoryStack;
 
 import java.io.*;
 import java.nio.ByteBuffer;
+import java.nio.IntBuffer;
 
 /**
  * Implements basic variables (store geometry data) and methods overrides of {@link VertexConsumer}.
@@ -38,6 +48,62 @@ public class BasicVertexConsumer implements VertexConsumer {
      */
     public BasicVertexConsumer(OutputStream fileStream) {
         outputStream = fileStream;
+    }
+
+    /**
+     * Copy of {@link VertexConsumer#putBulkData}. Includes control over rendering of ambient occlusion.
+     */
+    @Override
+    public void putBulkData(PoseStack.Pose poseEntry, BakedQuad quad, float[] colorMuls,
+                            float red, float green, float blue, int[] combinedLights,
+                            int combinedOverlay, boolean mulColor) {
+        float[] fs = new float[]{colorMuls[0], colorMuls[1], colorMuls[2], colorMuls[3]};
+        int[] is = new int[]{combinedLights[0], combinedLights[1], combinedLights[2], combinedLights[3]};
+        int[] js = quad.getVertices();
+        Vec3i vec3i = quad.getDirection().getNormal();
+        Matrix4f matrix4f = poseEntry.pose();
+        Vector3f vector3f = poseEntry.normal().transform(
+                new Vector3f((float)vec3i.getX(), (float)vec3i.getY(), (float)vec3i.getZ()));
+        int j = js.length / 8;
+
+        try (MemoryStack memoryStack = MemoryStack.stackPush()) {
+            ByteBuffer byteBuffer = memoryStack.malloc(DefaultVertexFormat.BLOCK.getVertexSize());
+            IntBuffer intBuffer = byteBuffer.asIntBuffer();
+
+            for(int k = 0; k < j; ++k) {
+                intBuffer.clear();
+                intBuffer.put(js, k * 8, 8);
+                float f = byteBuffer.getFloat(0);
+                float g = byteBuffer.getFloat(4);
+                float h = byteBuffer.getFloat(8);
+
+                float o = red;
+                float p = green;
+                float q = blue;
+
+                // Brightness was moved from here below
+                if (mulColor) {
+                    o *= (float)(byteBuffer.get(12) & 255) / 255.0F;
+                    p *= (float)(byteBuffer.get(13) & 255) / 255.0F;
+                    q *= (float)(byteBuffer.get(14) & 255) / 255.0F;
+                }
+
+                // Ambient occlusion depending on config
+                if (Config.DATA.useMinecraftAmbientOcclusion) {
+                    o *= fs[k];
+                    p *= fs[k];
+                    q *= fs[k];
+                }
+
+                int r = is[k];
+                float m = byteBuffer.getFloat(16);
+                float n = byteBuffer.getFloat(20);
+                Vector4f vector4f = matrix4f.transform(new Vector4f(f, g, h, 1.0F));
+                this.vertex(vector4f.x(), vector4f.y(), vector4f.z(), o, p, q, 1.0F, m, n,
+                        combinedOverlay, r, vector3f.x(), vector3f.y(), vector3f.z());
+            }
+        }
+
     }
 
     /**

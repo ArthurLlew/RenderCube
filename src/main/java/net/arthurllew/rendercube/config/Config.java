@@ -70,9 +70,14 @@ public class Config {
      */
     public static class Data {
         /**
-         *Max render distance.
+         * Max render distance.
          */
         public int maxRenderDistance;
+
+        /**
+         * Controls rendering of Minecraft ambient occlusion.
+         */
+        public boolean useMinecraftAmbientOcclusion;
 
         /**
          * List of configured block writers.
@@ -84,6 +89,7 @@ public class Config {
          */
         private Data() {
             this.maxRenderDistance = 400;
+            this.useMinecraftAmbientOcclusion = false;
 
             this.blockConsumerConfigs = List.of(
                     new BlockConsumerConfig(RegistryType.CLASS,

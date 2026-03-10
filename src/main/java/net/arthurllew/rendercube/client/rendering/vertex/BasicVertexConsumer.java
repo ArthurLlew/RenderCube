@@ -55,16 +55,14 @@ public class BasicVertexConsumer implements VertexConsumer {
      */
     @Override
     public void putBulkData(PoseStack.Pose pPoseEntry, BakedQuad pQuad, float[] pColorMuls,
-                            float pRed, float pGreen, float pBlue, float alpha, int[] pCombinedLights,
+                            float pRed, float pGreen, float pBlue, float alpha, int @NotNull [] pCombinedLights,
                             int pCombinedOverlay, boolean pMulColor) {
         float[] afloat = new float[]{pColorMuls[0], pColorMuls[1], pColorMuls[2], pColorMuls[3]};
-        int[] aint = new int[]{pCombinedLights[0], pCombinedLights[1], pCombinedLights[2], pCombinedLights[3]};
         int[] aint1 = pQuad.getVertices();
         Vec3i vec3i = pQuad.getDirection().getNormal();
         Matrix4f matrix4f = pPoseEntry.pose();
         Vector3f vector3f = pPoseEntry.normal().transform(
                 new Vector3f((float)vec3i.getX(), (float)vec3i.getY(), (float)vec3i.getZ()));
-        int i = 8;
         int j = aint1.length / 8;
 
         try (MemoryStack memorystack = MemoryStack.stackPush()) {

@@ -1,11 +1,9 @@
 package net.arthurllew.rendercube.client.rendering;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import net.arthurllew.rendercube.RenderCube;
 import net.arthurllew.rendercube.client.io.DataWriters;
 import net.arthurllew.rendercube.client.rendering.vertex.BasicVertexConsumer;
 import net.arthurllew.rendercube.client.rendering.vertex.CommonVertexConsumer;
-import net.arthurllew.rendercube.client.rendering.vertex.FakeMultiBufferSource;
 import net.arthurllew.rendercube.client.rendering.vertex.LiquidVertexConsumer;
 import net.arthurllew.rendercube.config.Config;
 import net.minecraft.client.Minecraft;
@@ -25,7 +23,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Optional;
 
 public class CubesRenderer {
     /**
@@ -43,35 +40,24 @@ public class CubesRenderer {
 
         // If block is not empty
         if (!blockState.isAir()) {
-            // Default culling rule
-            boolean checkSides = true;
-            // Check if this block should have its own vertex consumer
-            Optional<CommonVertexConsumer> customBlockVertexConsumer = Optional.empty();
-            for (Config.Data.CustomWriter writer : Config.DATA.customWriters) {
-                // Try to handle custom writer
-                try {
-                    // Get the Class object for the given class name
-                    Class<?> targetClass = Class.forName(writer.className());
-
-                    // Check if the block is an instance of that Class
-                    if (targetClass.isInstance(blockState.getBlock())) {
-                        // Create custom vertex consumer
-                        customBlockVertexConsumer = Optional.of(
-                                new CommonVertexConsumer(dataWriters.get(writer.filename()), regionPos));
-                        // Update culling rule
-                        checkSides = writer.checkSides();
-
-                        // Stop loop
-                        break;
-                    }
-                    // Log incorrect config entry
-                } catch (ClassNotFoundException e) {
-                    RenderCube.LOGGER.error("Class from config not found: {}", writer.className());
+            // Default block consumer settings
+            Config.Data.BlockConsumerConfig.BlockConsumerSettings blockConsumerSettings =
+                    new Config.Data.BlockConsumerConfig.BlockConsumerSettings(true,
+                            "renderedBlocks");
+            // Check if this block has custom settings
+            for (Config.Data.BlockConsumerConfig blockConsumerConfig : Config.DATA.blockConsumerConfigs) {
+                // Try to get custom settings
+                Config.Data.BlockConsumerConfig.BlockConsumerSettings settings =
+                        blockConsumerConfig.getSettings(blockState);
+                if (settings != null) {
+                    // Assign new values and stop loop
+                    blockConsumerSettings = settings;
+                    break;
                 }
             }
-            // If no custom consumer was provided default to block consumer
-            CommonVertexConsumer blockVertexConsumer = customBlockVertexConsumer
-                    .orElse(new CommonVertexConsumer(dataWriters.get("renderedBlocks"), regionPos));
+            // Init block vertex consumer
+            CommonVertexConsumer blockVertexConsumer =
+                    new CommonVertexConsumer(dataWriters.get(blockConsumerSettings.filename()), regionPos);
 
             // Consume block vertices for every render type available
             BlockRenderDispatcher blockRenderDispatcher = Minecraft.getInstance().getBlockRenderer();
@@ -82,21 +68,17 @@ public class CubesRenderer {
                     level,
                     new PoseStack(),
                     blockVertexConsumer,
-                    checkSides,
+                    blockConsumerSettings.cullSides(),
                     randomSource);
 
             // If there is a fluid
             FluidState fluid = blockState.getFluidState();
             if (!fluid.isEmpty()){
-                // Init liquid consumer
-                LiquidVertexConsumer liquidVertexConsumer =
-                        new LiquidVertexConsumer(dataWriters.get("renderedLiquids"), regionPos, levelPos);
-
-                // Consume liquid vertices
+                // Render liquid
                 Minecraft.getInstance().getBlockRenderer().renderLiquid(
                         levelPos,
                         level,
-                        liquidVertexConsumer,
+                        new LiquidVertexConsumer(dataWriters.get("renderedLiquids"), regionPos, levelPos),
                         blockState,
                         fluid);
             }
@@ -104,16 +86,12 @@ public class CubesRenderer {
             // If there is a block-entity
             BlockEntity blockEntity = level.getBlockEntity(levelPos);
             if(blockEntity != null){
-                FakeMultiBufferSource fakeMultiBufferSource =
-                        new FakeMultiBufferSource(
-                                new CommonVertexConsumer(dataWriters.get("renderedBlockEntities"), regionPos));
-
                 // Render block-entity using dummy MultiBufferSource
                 Minecraft.getInstance().getBlockEntityRenderDispatcher().render(
                         blockEntity,
                         1.0F,
                         new PoseStack(),
-                        fakeMultiBufferSource);
+                        new CommonVertexConsumer(dataWriters.get("renderedBlockEntities"), regionPos).wrap());
             }
         }
     }
@@ -152,9 +130,6 @@ public class CubesRenderer {
             double entityY = Mth.lerp(minecraftConstant, entity.yOld, entity.getY());
             double entityZ = Mth.lerp(minecraftConstant, entity.zOld, entity.getZ());
 
-            FakeMultiBufferSource fakeMultiBufferSource = new FakeMultiBufferSource(
-                    new BasicVertexConsumer(dataWriters.get("renderedEntities")));
-
             // Render entity using dummy MultiBufferSource
             entityRenderDispatcher.render(
                     entity,
@@ -165,7 +140,7 @@ public class CubesRenderer {
                     Mth.lerp(minecraftConstant, entity.yRotO, entity.getYRot()),
                     minecraftConstant,
                     new PoseStack(),
-                    fakeMultiBufferSource,
+                    new BasicVertexConsumer(dataWriters.get("renderedEntities")).wrap(),
                     entityRenderDispatcher.getPackedLightCoords(entity, minecraftConstant));
         }
     }

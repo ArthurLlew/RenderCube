@@ -1,12 +1,22 @@
 package net.arthurllew.rendercube.client.rendering.vertex;
 
+import com.mojang.blaze3d.vertex.DefaultVertexFormat;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import net.arthurllew.rendercube.config.Config;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.block.model.BakedQuad;
+import net.minecraft.core.Vec3i;
 import org.jetbrains.annotations.NotNull;
+import org.joml.Matrix4f;
+import org.joml.Vector3f;
+import org.joml.Vector4f;
+import org.lwjgl.system.MemoryStack;
 
 import java.io.*;
 import java.nio.ByteBuffer;
+import java.nio.IntBuffer;
 
 /**
  * Implements basic variables (store geometry data) and methods overrides of {@link VertexConsumer}.
@@ -38,6 +48,64 @@ public class BasicVertexConsumer implements VertexConsumer {
      */
     public BasicVertexConsumer(OutputStream fileStream) {
         outputStream = fileStream;
+    }
+
+    /**
+     * Copy of {@link VertexConsumer#putBulkData}. Includes control over rendering of ambient occlusion.
+     */
+    @Override
+    public void putBulkData(PoseStack.Pose pPoseEntry, BakedQuad pQuad, float[] pColorMuls,
+                            float pRed, float pGreen, float pBlue, float alpha, int[] pCombinedLights,
+                            int pCombinedOverlay, boolean pMulColor) {
+        float[] afloat = new float[]{pColorMuls[0], pColorMuls[1], pColorMuls[2], pColorMuls[3]};
+        int[] aint = new int[]{pCombinedLights[0], pCombinedLights[1], pCombinedLights[2], pCombinedLights[3]};
+        int[] aint1 = pQuad.getVertices();
+        Vec3i vec3i = pQuad.getDirection().getNormal();
+        Matrix4f matrix4f = pPoseEntry.pose();
+        Vector3f vector3f = pPoseEntry.normal().transform(
+                new Vector3f((float)vec3i.getX(), (float)vec3i.getY(), (float)vec3i.getZ()));
+        int i = 8;
+        int j = aint1.length / 8;
+
+        try (MemoryStack memorystack = MemoryStack.stackPush()) {
+            ByteBuffer bytebuffer = memorystack.malloc(DefaultVertexFormat.BLOCK.getVertexSize());
+            IntBuffer intbuffer = bytebuffer.asIntBuffer();
+
+            for(int k = 0; k < j; ++k) {
+                intbuffer.clear();
+                intbuffer.put(aint1, k * 8, 8);
+                float f = bytebuffer.getFloat(0);
+                float f1 = bytebuffer.getFloat(4);
+                float f2 = bytebuffer.getFloat(8);
+                float f3 = pRed;
+                float f4 = pGreen;
+                float f5 = pBlue;
+
+                // Brightness was moved from here below
+                if (pMulColor) {
+                    f3 *= (float)(bytebuffer.get(12) & 255) / 255.0F;
+                    f4 *= (float)(bytebuffer.get(13) & 255) / 255.0F;
+                    f5 *= (float)(bytebuffer.get(14) & 255) / 255.0F;
+                }
+
+                // Ambient occlusion depending on config
+                if (Config.DATA.useMinecraftAmbientOcclusion) {
+                    f3 *= afloat[k];
+                    f4 *= afloat[k];
+                    f5 *= afloat[k];
+                }
+
+                int l = applyBakedLighting(pCombinedLights[k], bytebuffer);
+                float f9 = bytebuffer.getFloat(16);
+                float f10 = bytebuffer.getFloat(20);
+                Vector4f vector4f = matrix4f.transform(new Vector4f(f, f1, f2, 1.0F));
+                applyBakedNormals(vector3f, bytebuffer, pPoseEntry.normal());
+                float vertexAlpha = pMulColor ? alpha * (float) (bytebuffer.get(15) & 255) / 255.0F : alpha;
+                this.vertex(vector4f.x(), vector4f.y(), vector4f.z(), f3, f4, f5, vertexAlpha, f9, f10,
+                        pCombinedOverlay, l, vector3f.x(), vector3f.y(), vector3f.z());
+            }
+        }
+
     }
 
     /**

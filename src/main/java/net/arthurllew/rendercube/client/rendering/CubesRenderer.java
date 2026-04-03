@@ -48,7 +48,7 @@ public class CubesRenderer {
             for (Config.Data.BlockConsumerConfig blockConsumerConfig : Config.DATA.blockConsumerConfigs) {
                 // Try to get custom settings
                 Config.Data.BlockConsumerConfig.BlockConsumerSettings settings =
-                        blockConsumerConfig.getSettings(blockState);
+                        blockConsumerConfig.getSettings(level, blockState, levelPos);
                 if (settings != null) {
                     // Assign new values and stop loop
                     blockConsumerSettings = settings;

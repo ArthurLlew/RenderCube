@@ -3,8 +3,10 @@ package net.arthurllew.rendercube.config;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import net.arthurllew.rendercube.RenderCube;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.NotNull;
 
@@ -92,15 +94,31 @@ public class Config {
             this.useMinecraftAmbientOcclusion = false;
 
             this.blockConsumerConfigs = List.of(
-                    new BlockConsumerConfig(RegistryType.CLASS,
+                    new BlockConsumerConfig(BlockConsumerSettingsType.EMISSION,
+                            "15",
+                            "renderedEmissive15",
+                            true),
+                    new BlockConsumerConfig(BlockConsumerSettingsType.EMISSION,
+                            "10",
+                            "renderedEmissive10",
+                            true),
+                    new BlockConsumerConfig(BlockConsumerSettingsType.EMISSION,
+                            "5",
+                            "renderedEmissive5",
+                            true),
+                    new BlockConsumerConfig(BlockConsumerSettingsType.EMISSION,
+                            "1",
+                            "renderedEmissive1",
+                            true),
+                    new BlockConsumerConfig(BlockConsumerSettingsType.CLASS,
                             "net.minecraft.world.level.block.LeavesBlock",
                             "renderedVegetation",
                             true),
-                    new BlockConsumerConfig(RegistryType.CLASS,
+                    new BlockConsumerConfig(BlockConsumerSettingsType.CLASS,
                             "net.minecraft.world.level.block.BushBlock",
                             "renderedVegetation",
                             true),
-                    new BlockConsumerConfig(RegistryType.CLASS,
+                    new BlockConsumerConfig(BlockConsumerSettingsType.CLASS,
                             "net.minecraft.world.level.block.VineBlock",
                             "renderedVegetation",
                             true));
@@ -120,19 +138,21 @@ public class Config {
          * class string or block registry, filename for export and whether it
          * should cull sides.
          */
-        public record BlockConsumerConfig(RegistryType registryType, String registryEntry,
+        public record BlockConsumerConfig(BlockConsumerSettingsType type, String entry,
                                           String filename, boolean cullSides) {
 
             /**
              * @return customized block consumer settings.
              */
-            public @Nullable BlockConsumerSettings getSettings(@NotNull BlockState blockState) {
-                switch (this.registryType) {
+            public @Nullable BlockConsumerSettings getSettings(@NotNull Level level,
+                                                               @NotNull BlockState blockState,
+                                                               @NotNull BlockPos levelPos) {
+                switch (this.type) {
                     case CLASS:
                         // Try to handle custom writer
                         try {
                             // Get the Class object for the given class name
-                            Class<?> targetClass = Class.forName(this.registryEntry);
+                            Class<?> targetClass = Class.forName(this.entry);
 
                             // Check if the block is an instance of that Class
                             if (targetClass.isInstance(blockState.getBlock())) {
@@ -141,7 +161,7 @@ public class Config {
                             }
                             // Log incorrect config entry
                         } catch (ClassNotFoundException e) {
-                            RenderCube.LOGGER.error("Class from config not found: {}", this.registryEntry);
+                            RenderCube.LOGGER.error("Class from config not found: {}", this.entry);
                         }
 
                         break;
@@ -150,13 +170,27 @@ public class Config {
                         try {
                             // Check block is matching provided registry entry
                             if (blockState.is(BuiltInRegistries.BLOCK.get(
-                                    ResourceLocation.parse(this.registryEntry)))) {
+                                    ResourceLocation.parse(this.entry)))) {
                                 // Return custom culling rule and file name
                                 return new BlockConsumerSettings(this.cullSides, this.filename);
                             }
                             // Log incorrect config entry
                         } catch (IllegalStateException e) {
-                            RenderCube.LOGGER.error("Block from config not found: {}", this.registryEntry);
+                            RenderCube.LOGGER.error("Block from config not found: {}", this.entry);
+                        }
+
+                        break;
+                    case EMISSION:
+                        // Try to handle custom writer
+                        try {
+                            // Check block has more than required emission
+                            if (blockState.getLightEmission(level, levelPos) >= Integer.parseInt(this.entry)) {
+                                // Return custom culling rule and file name
+                                return new BlockConsumerSettings(this.cullSides, this.filename);
+                            }
+                            // Log incorrect config entry
+                        } catch (IllegalStateException e) {
+                            RenderCube.LOGGER.error("Block with emission from config not found: {}", this.entry);
                         }
 
                         break;
@@ -174,7 +208,7 @@ public class Config {
         /**
          * Defines what does the stored string might represent.
          */
-        public enum RegistryType {
+        public enum BlockConsumerSettingsType {
             /**
              * Class name string.
              */
@@ -182,7 +216,11 @@ public class Config {
             /**
              * Block registry string.
              */
-            BLOCK
+            BLOCK,
+            /**
+             * String containing light level value.
+             */
+            EMISSION
         }
     }
 }

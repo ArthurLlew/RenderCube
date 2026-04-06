@@ -7,6 +7,8 @@ import bpy
 import mathutils
 # Bytes interpretation
 import struct
+# Fast arrays
+import numpy as np
 
 ####################
 # RenderCube Utils #
@@ -14,7 +16,8 @@ import struct
 
 
 def import_data(filepath):
-    """Reads file contents."""
+    """Reads file contents.
+    """
 
     # Open file
     with open(filepath, mode="rb") as f:
@@ -23,44 +26,33 @@ def import_data(filepath):
 
 
 def parse_loaded_data(loaded_data):
-    """Creates vertices and faces from imported data."""
+    """Creates vertices and faces from imported data.
+    """
 
     # Unit data
-    vertices, uv, vertices_colors, faces = [], [], [], []
+    vertices, uv, color, faces = [], [], [], []
 
-    # Quad data length in bytes (4 vertices each containing 48 bytes)
-    quad_bytes = 192
+    # Vertex counter
+    i = 0
+    for x, y, z, u, v, r, g, b, a in struct.iter_unpack('>dddffiiii', loaded_data):
+        # Append vertex data
+        vertices.append((z, x, y))
+        uv.append((u, 1 - v))
+        color.append((r/255, g/255, b/255, a/255))
+        # Update counter
+        i += 1
+        
+        # Each face has exactly 4 verticies
+        if i == 4:
+            faces.append(tuple(range(len(vertices) - 4, len(vertices))))
+            i = 0
 
-    # For quad in loaded data
-    for i in range(0, len(loaded_data) // quad_bytes):
-        # For vertex in quad
-        for j in range(0, 4):
-            # Append vertex position
-            vertex_x = struct.unpack('>d', loaded_data[i * quad_bytes:(i + 1) * quad_bytes][j * 48:(j + 1) * 48][0:8])[0]
-            vertex_y = struct.unpack('>d', loaded_data[i * quad_bytes:(i + 1) * quad_bytes][j * 48:(j + 1) * 48][8:16])[0]
-            vertex_z = struct.unpack('>d', loaded_data[i * quad_bytes:(i + 1) * quad_bytes][j * 48:(j + 1) * 48][16:24])[0]
-            vertices.append((vertex_z, vertex_x, vertex_y))
-
-            # Append vertex U and V coordinates
-            vertex_u = struct.unpack('>f', loaded_data[i * quad_bytes: (i + 1) * quad_bytes][j * 48: (j + 1) * 48][24:28])[0]
-            vertex_v = struct.unpack('>f', loaded_data[i * quad_bytes: (i + 1) * quad_bytes][j * 48: (j + 1) * 48][28:32])[0]
-            uv.append((vertex_u, vertex_v))
-
-            # Append vertex color
-            vertex_r = struct.unpack('>i', loaded_data[i * quad_bytes: (i + 1) * quad_bytes][j * 48: (j + 1) * 48][32:36])[0] / 255
-            vertex_g = struct.unpack('>i', loaded_data[i * quad_bytes: (i + 1) * quad_bytes][j * 48: (j + 1) * 48][36:40])[0] / 255
-            vertex_b = struct.unpack('>i', loaded_data[i * quad_bytes: (i + 1) * quad_bytes][j * 48: (j + 1) * 48][40:44])[0] / 255
-            vertex_a = struct.unpack('>i', loaded_data[i * quad_bytes: (i + 1) * quad_bytes][j * 48: (j + 1) * 48][44:48])[0] / 255
-            vertices_colors.append((vertex_r, vertex_g, vertex_b, vertex_a))
-
-        # Append vertices indices of face
-        faces.append(tuple(range(len(vertices) - 4, len(vertices))))
-
-    return vertices, uv, vertices_colors, faces
+    return vertices, uv, color, faces
 
 
 def create_material(material_name):
-    """Creates material from hex string."""
+    """Creates material from hex string.
+    """
 
     # Init material
     material = bpy.data.materials.new(material_name)
@@ -104,34 +96,31 @@ def create_material(material_name):
 
 
 def create_object(name, loaded_data, material_name, search_for_materials):
-    """Creates object in scene from imported data."""
+    """Creates object in scene from imported data.
+    """
 
-    # Parse loaded data to vertices, UVs, vertices_colors and faces
-    vertices, uv, vertices_colors, faces = parse_loaded_data(loaded_data)
-    
+    # Parse loaded data to vertex coords, vertex UVs, vertex colors and faces
+    xyz, uv, color, faces = parse_loaded_data(loaded_data)
+
     # Add a new mesh
     mesh = bpy.data.meshes.new('mesh')
     # Add new object using that mesh
     obj = bpy.data.objects.new(name, mesh)
 
     # Add geometry to mesh
-    mesh.from_pydata(vertices, [], faces)
+    mesh.from_pydata(xyz, [], faces)
     # Update geometry
     mesh.update(calc_edges=True)
 
-    # Add UVs to mesh
-    uvlayer = mesh.uv_layers.new(name='UVs')
-    mesh.uv_layers.active = uvlayer
-    for face in mesh.polygons:
-        for vert_idx, loop_idx in zip(face.vertices, face.loop_indices):
-            uvlayer.data[loop_idx].uv = (uv[vert_idx][0], 1 - uv[vert_idx][1])
-
-    # Add vertex colors
+    # Init UVs
+    uv_layer = mesh.uv_layers.new(name='UVs')
+    mesh.uv_layers.active = uv_layer
+    # Init vertex color
     vertex_color = mesh.vertex_colors.new(name='Color')
     mesh.vertex_colors.active = vertex_color
-    for face in mesh.polygons:
-        for vert_idx, loop_idx in zip(face.vertices, face.loop_indices):
-            vertex_color.data[loop_idx].color = vertices_colors[vert_idx]
+    # Fill in data
+    uv_layer.data.foreach_set("uv", np.array(uv, dtype=np.float32).reshape(-1))
+    vertex_color.data.foreach_set("color", np.array(color, dtype=np.float32).reshape(-1))
 
     # Setup empty material
     material = None
@@ -145,7 +134,7 @@ def create_object(name, loaded_data, material_name, search_for_materials):
                     material = material_slot.material
                     break
             else:
-                # If no material was found skips nex break statement
+                # If no material was found skips next break statement
                 continue
             break
     # If no material was found

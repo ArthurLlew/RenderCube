@@ -3,10 +3,8 @@ package net.arthurllew.rendercube.config;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import net.arthurllew.rendercube.RenderCube;
-import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -144,9 +142,7 @@ public class Config {
             /**
              * @return customized block consumer settings.
              */
-            public @Nullable BlockConsumerSettings getSettings(@NotNull Level level,
-                                                               @NotNull BlockState blockState,
-                                                               @NotNull BlockPos levelPos) {
+            public @Nullable BlockConsumerSettings getSettings(@NotNull BlockState blockState) {
                 switch (this.type) {
                     case CLASS:
                         // Try to handle custom writer
@@ -184,7 +180,7 @@ public class Config {
                         // Try to handle custom writer
                         try {
                             // Check block has more than required emission
-                            if (blockState.getLightBlock(level, levelPos) >= Integer.parseInt(this.entry)) {
+                            if (blockState.getLightEmission() >= Integer.parseInt(this.entry)) {
                                 // Return custom culling rule and file name
                                 return new BlockConsumerSettings(this.cullSides, this.filename);
                             }

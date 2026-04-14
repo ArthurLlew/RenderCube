@@ -119,7 +119,35 @@ public class Config {
                     new BlockConsumerConfig(BlockConsumerSettingsType.CLASS,
                             "net.minecraft.world.level.block.VineBlock",
                             "renderedVegetation",
-                            true));
+                            true),
+                    new BlockConsumerConfig(BlockConsumerSettingsType.CLASS,
+                            "net.minecraft.world.level.block.CaveVines",
+                            "renderedVegetation",
+                            true),
+                    new BlockConsumerConfig(BlockConsumerSettingsType.CLASS,
+                            "net.minecraft.world.level.block.ChestBlock",
+                            "renderedChests",
+                            true),
+                    new BlockConsumerConfig(BlockConsumerSettingsType.CLASS,
+                            "net.minecraft.world.level.block.SignBlock",
+                            "renderedSigns",
+                            true),
+                    new BlockConsumerConfig(BlockConsumerSettingsType.CLASS,
+                            "net.minecraft.world.level.block.BannerBlock",
+                            "renderedBanners",
+                            true),
+                    new BlockConsumerConfig(BlockConsumerSettingsType.CLASS,
+                            "net.minecraft.world.level.block.BedBlock",
+                            "renderedBeds",
+                            true),
+                    new BlockConsumerConfig(BlockConsumerSettingsType.CLASS,
+                            "net.minecraft.world.level.block.DoorBlock",
+                            "renderedDoors",
+                            false),
+                    new BlockConsumerConfig(BlockConsumerSettingsType.CLASS,
+                            "net.minecraft.world.level.block.TrapDoorBlock",
+                            "renderedDoors",
+                            false));
         }
 
         /**
@@ -140,7 +168,7 @@ public class Config {
                                           String filename, boolean cullSides) {
 
             /**
-             * @return customized block consumer settings.
+             * @return block consumer settings.
              */
             public @Nullable BlockConsumerSettings getSettings(@NotNull BlockState blockState) {
                 switch (this.type) {

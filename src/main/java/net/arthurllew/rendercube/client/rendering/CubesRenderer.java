@@ -46,24 +46,21 @@ public class CubesRenderer {
 
         // If block is not empty
         if (!blockState.isAir()) {
-            // Default block consumer settings
-            Config.Data.BlockConsumerConfig.BlockConsumerSettings blockConsumerSettings =
-                    new Config.Data.BlockConsumerConfig.BlockConsumerSettings(true,
-                            "renderedBlocks");
             // Check if this block has custom settings
+            Config.Data.BlockConsumerConfig.BlockConsumerSettings blockConsumerSettings = null;
             for (Config.Data.BlockConsumerConfig blockConsumerConfig : Config.DATA.blockConsumerConfigs) {
                 // Try to get custom settings
-                Config.Data.BlockConsumerConfig.BlockConsumerSettings settings =
-                        blockConsumerConfig.getSettings(level, blockState, levelPos);
-                if (settings != null) {
-                    // Assign new values and stop loop
-                    blockConsumerSettings = settings;
+                blockConsumerSettings = blockConsumerConfig.getSettings(level, blockState, levelPos);
+                // Stop loop on find
+                if (blockConsumerSettings != null) {
                     break;
                 }
             }
+
             // Init block vertex consumer
+            String consumerName = blockConsumerSettings != null ? blockConsumerSettings.filename() : "renderedBlocks";
             CommonVertexConsumer blockVertexConsumer =
-                    new CommonVertexConsumer(dataWriters.get(blockConsumerSettings.filename()), regionPos);
+                    new CommonVertexConsumer(dataWriters.get(consumerName), regionPos);
 
             // Block baked model
             BakedModel blockModel = Minecraft.getInstance().getBlockRenderer().getBlockModel(blockState);
@@ -89,7 +86,7 @@ public class CubesRenderer {
                         level,
                         new PoseStack(),
                         blockVertexConsumer,
-                        blockConsumerSettings.cullSides(),
+                        blockConsumerSettings == null || blockConsumerSettings.cullSides(),
                         randomSource,
                         blockModelData,
                         rendertype);
@@ -99,10 +96,11 @@ public class CubesRenderer {
             FluidState fluid = blockState.getFluidState();
             if (!fluid.isEmpty()){
                 // Render liquid
+                consumerName = blockConsumerSettings != null ? blockConsumerSettings.filename() : "renderedLiquids";
                 Minecraft.getInstance().getBlockRenderer().renderLiquid(
                         levelPos,
                         level,
-                        new LiquidVertexConsumer(dataWriters.get("renderedLiquids"), regionPos, levelPos),
+                        new LiquidVertexConsumer(dataWriters.get(consumerName), regionPos, levelPos),
                         blockState,
                         fluid);
             }
@@ -114,11 +112,12 @@ public class CubesRenderer {
                 LittleTilesManager.render(blockEntity, level, levelPos, blockVertexConsumer);
 
                 // Render block-entity using fake MultiBufferSource
+                consumerName = blockConsumerSettings != null ? blockConsumerSettings.filename() : "renderedBlockEntities";
                 Minecraft.getInstance().getBlockEntityRenderDispatcher().render(
                         blockEntity,
                         1.0F,
                         new PoseStack(),
-                        new CommonVertexConsumer(dataWriters.get("renderedBlockEntities"), regionPos).wrap());
+                        new CommonVertexConsumer(dataWriters.get(consumerName), regionPos).wrap());
             }
         }
     }

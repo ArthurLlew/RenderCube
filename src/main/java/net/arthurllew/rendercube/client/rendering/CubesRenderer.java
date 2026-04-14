@@ -36,28 +36,26 @@ public class CubesRenderer {
                                   @NotNull DataWriters dataWriters,
                                   @NotNull BlockPos levelPos,
                                   @NotNull BlockPos regionPos) throws IOException {
+        // Get block at current position
         BlockState blockState = level.getBlockState(levelPos);
 
         // If block is not empty
         if (!blockState.isAir()) {
-            // Default block consumer settings
-            Config.Data.BlockConsumerConfig.BlockConsumerSettings blockConsumerSettings =
-                    new Config.Data.BlockConsumerConfig.BlockConsumerSettings(true,
-                            "renderedBlocks");
             // Check if this block has custom settings
+            Config.Data.BlockConsumerConfig.BlockConsumerSettings blockConsumerSettings = null;
             for (Config.Data.BlockConsumerConfig blockConsumerConfig : Config.DATA.blockConsumerConfigs) {
                 // Try to get custom settings
-                Config.Data.BlockConsumerConfig.BlockConsumerSettings settings =
-                        blockConsumerConfig.getSettings(blockState);
-                if (settings != null) {
-                    // Assign new values and stop loop
-                    blockConsumerSettings = settings;
+                blockConsumerSettings = blockConsumerConfig.getSettings(blockState);
+                // Stop loop on find
+                if (blockConsumerSettings != null) {
                     break;
                 }
             }
+
             // Init block vertex consumer
+            String consumerName = blockConsumerSettings != null ? blockConsumerSettings.filename() : "renderedBlocks";
             CommonVertexConsumer blockVertexConsumer =
-                    new CommonVertexConsumer(dataWriters.get(blockConsumerSettings.filename()), regionPos);
+                    new CommonVertexConsumer(dataWriters.get(consumerName), regionPos);
 
             // Consume block vertices for every render type available
             BlockRenderDispatcher blockRenderDispatcher = Minecraft.getInstance().getBlockRenderer();
@@ -68,17 +66,18 @@ public class CubesRenderer {
                     level,
                     new PoseStack(),
                     blockVertexConsumer,
-                    blockConsumerSettings.cullSides(),
+                    blockConsumerSettings == null || blockConsumerSettings.cullSides(),
                     randomSource);
 
             // If there is a fluid
             FluidState fluid = blockState.getFluidState();
+            consumerName = blockConsumerSettings != null ? blockConsumerSettings.filename() : "renderedLiquids";
             if (!fluid.isEmpty()){
                 // Render liquid
                 Minecraft.getInstance().getBlockRenderer().renderLiquid(
                         levelPos,
                         level,
-                        new LiquidVertexConsumer(dataWriters.get("renderedLiquids"), regionPos, levelPos),
+                        new LiquidVertexConsumer(dataWriters.get(consumerName), regionPos, levelPos),
                         blockState,
                         fluid);
             }
@@ -87,11 +86,12 @@ public class CubesRenderer {
             BlockEntity blockEntity = level.getBlockEntity(levelPos);
             if(blockEntity != null){
                 // Render block-entity using dummy MultiBufferSource
+                consumerName = blockConsumerSettings != null ? blockConsumerSettings.filename() : "renderedBlockEntities";
                 Minecraft.getInstance().getBlockEntityRenderDispatcher().render(
                         blockEntity,
                         1.0F,
                         new PoseStack(),
-                        new CommonVertexConsumer(dataWriters.get("renderedBlockEntities"), regionPos).wrap());
+                        new CommonVertexConsumer(dataWriters.get(consumerName), regionPos).wrap());
             }
         }
     }

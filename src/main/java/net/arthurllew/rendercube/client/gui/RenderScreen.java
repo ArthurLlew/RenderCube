@@ -287,81 +287,85 @@ public class RenderScreen extends Screen {
      * @param button pressed button instance
      */
     private void onRenderButtonPressed(AbstractButton button) {
-        // Seal screen
-        isIdle = false;
+        // Only render if not already rendering
+        if (isIdle)
+        {
+            // Seal screen
+            isIdle = false;
 
-        // Safely get minecraft player
-        LocalPlayer player = Minecraft.getInstance().player;
-        if (player == null) {throw new UnsupportedOperationException("Player is null");}
+            // Safely get minecraft player
+            LocalPlayer player = Minecraft.getInstance().player;
+            if (player == null) {throw new UnsupportedOperationException("Player is null");}
 
-        try {
-            // Load input from Editbox1
-            StringReader r = new StringReader(editbox1.getValue());
-            int x1 = r.readInt();
-            r.skipWhitespace();
-            int y1 = r.readInt();
-            r.skipWhitespace();
-            int z1 = r.readInt();
+            try {
+                // Load input from Editbox1
+                StringReader r = new StringReader(editbox1.getValue());
+                int x1 = r.readInt();
+                r.skipWhitespace();
+                int y1 = r.readInt();
+                r.skipWhitespace();
+                int z1 = r.readInt();
 
-            // Load input from Editbox2
-            r = new StringReader(editbox2.getValue());
-            int x2 = r.readInt();
-            r.skipWhitespace();
-            int y2 = r.readInt();
-            r.skipWhitespace();
-            int z2 = r.readInt();
+                // Load input from Editbox2
+                r = new StringReader(editbox2.getValue());
+                int x2 = r.readInt();
+                r.skipWhitespace();
+                int y2 = r.readInt();
+                r.skipWhitespace();
+                int z2 = r.readInt();
 
-            // Open file
-            try (DataWriters dataWriters = new DataWriters()) {
-                // Place min x/y/z into minPos and max x/y/z into maxPos
-                int minX = Math.min(x1, x2);
-                int minY = Math.min(y1, y2);
-                int minZ = Math.min(z1, z2);
-                int maxX = Math.max(x1, x2);
-                int maxY = Math.max(y1, y2);
-                int maxZ = Math.max(z1, z2);
+                // Open file
+                try (DataWriters dataWriters = new DataWriters()) {
+                    // Place min x/y/z into minPos and max x/y/z into maxPos
+                    int minX = Math.min(x1, x2);
+                    int minY = Math.min(y1, y2);
+                    int minZ = Math.min(z1, z2);
+                    int maxX = Math.max(x1, x2);
+                    int maxY = Math.max(y1, y2);
+                    int maxZ = Math.max(z1, z2);
 
-                // Restrict region size
-                if ((maxX - minX > Config.DATA.maxRenderDistance)
-                        || (maxZ - minZ > Config.DATA.maxRenderDistance)) {
-                    player.sendSystemMessage(RENDER_REGION_TOO_LARGE_MSG.get());
-                }
-                else {
-                    // Min/max positions in region
-                    BlockPos posMin, posMax;
-                    if (selectedTab.type == RenderScreenTab.Type.PLAYER_RELATIVE_RENDER) {
-                        // Add player position
-                        posMin = new BlockPos(player.getBlockX() + minX,
-                                player.getBlockY() + minY,
-                                player.getBlockZ() + minZ);
-                        posMax = new BlockPos(player.getBlockX() + maxX,
-                                player.getBlockY() + maxY,
-                                player.getBlockZ() + maxZ);
+                    // Restrict region size
+                    if ((maxX - minX > Config.DATA.maxRenderDistance)
+                            || (maxZ - minZ > Config.DATA.maxRenderDistance)) {
+                        player.sendSystemMessage(RENDER_REGION_TOO_LARGE_MSG.get());
                     }
                     else {
-                        posMin = new BlockPos(minX, minY, minZ);
-                        posMax = new BlockPos(maxX, maxY, maxZ);
+                        // Min/max positions in region
+                        BlockPos posMin, posMax;
+                        if (selectedTab.type == RenderScreenTab.Type.PLAYER_RELATIVE_RENDER) {
+                            // Add player position
+                            posMin = new BlockPos(player.getBlockX() + minX,
+                                    player.getBlockY() + minY,
+                                    player.getBlockZ() + minZ);
+                            posMax = new BlockPos(player.getBlockX() + maxX,
+                                    player.getBlockY() + maxY,
+                                    player.getBlockZ() + maxZ);
+                        }
+                        else {
+                            posMin = new BlockPos(minX, minY, minZ);
+                            posMax = new BlockPos(maxX, maxY, maxZ);
+                        }
+
+                        // Render region
+                        CubesRenderer.renderRegion(player.level(), dataWriters, posMin, posMax);
+
+                        // Notify about success
+                        player.sendSystemMessage(RENDER_SUCCESS_MSG);
                     }
-
-                    // Render region
-                    CubesRenderer.renderRegion(player.level(), dataWriters, posMin, posMax);
-
-                    // Notify about success
-                    player.sendSystemMessage(RENDER_SUCCESS_MSG);
+                }
+                catch(Exception e) {
+                    // Render error
+                    LOGGER.error("RenderCube encountered error while rendering", e);
+                    player.sendSystemMessage(RENDER_ERROR_MSG);
                 }
             }
-            catch(Exception e) {
-                // Render error
-                LOGGER.error("RenderCube encountered error while rendering", e);
-                player.sendSystemMessage(RENDER_ERROR_MSG);
+            catch (CommandSyntaxException e) {
+                // Input error
+                player.sendSystemMessage(RENDER_WRONG_INPUT_MSG);
             }
-        }
-        catch (CommandSyntaxException e) {
-            // Input error
-            player.sendSystemMessage(RENDER_WRONG_INPUT_MSG);
-        }
 
-        // Unseal screen
-        isIdle = true;
+            // Unseal screen
+            isIdle = true;
+        }
     }
 }

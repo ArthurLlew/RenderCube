@@ -21,6 +21,9 @@
 			"net.arthurllew.rendercube.client.RenderCubeClient"
 		]
 	},
+	"mixins": [
+		"rendercube.mixins.json"
+	],
 	"depends": {
 		"fabricloader": ">=0.18.6",
 		"minecraft": "~1.21.1",

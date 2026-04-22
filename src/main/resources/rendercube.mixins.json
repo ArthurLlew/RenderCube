@@ -1,0 +1,14 @@
+{
+  "required": true,
+  "package": "net.arthurllew.rendercube.mixin",
+  "refmap": "rendercube.mixins.refmap.json",
+  "minVersion": "0.8",
+  "compatibilityLevel": "JAVA_17",
+  "mixins": [
+    "BlockWrapper",
+    "LiquidBlockRendererWrapper"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

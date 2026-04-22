@@ -149,26 +149,87 @@ public class CubesRenderer {
      * Renders world region.
      * @param level Minecraft level where procedure will run
      * @param dataWriters used to write captured data
-     * @param minPos min coordinate of the region to render
-     * @param maxPos max coordinate of the region to render
+     * @param posMin min coordinate of the region to render
+     * @param posMax max coordinate of the region to render
      **/
     public static void renderRegion(@NotNull Level level,
                                     @NotNull DataWriters dataWriters,
-                                    @NotNull BlockPos minPos,
-                                    @NotNull BlockPos maxPos) throws IOException {
-        // Loop over coordinates inside the region
-        for(int x = minPos.getX(); x <= maxPos.getX(); x++){
-            for(int y = minPos.getY(); y <= maxPos.getY(); y++){
-                for(int z = minPos.getZ(); z <= maxPos.getZ(); z++){
-                    // Process cube
-                    CubesRenderer.renderCube(level, dataWriters,
-                            new BlockPos(x, y, z),
-                            new BlockPos(x - minPos.getX(), y - minPos.getY(), z - minPos.getZ()));
+                                    @NotNull BlockPos posMin,
+                                    @NotNull BlockPos posMax,
+                                    boolean noRenderRegionBoarderFaceCulling) throws IOException {
+        // Only render if not rendering
+        if (!State.INSTANCE.isRendering) {
+            // Activate renderer
+            State.INSTANCE.isRendering = true;
+            State.INSTANCE.noRenderRegionBoarderFaceCulling = noRenderRegionBoarderFaceCulling;
+            State.INSTANCE.setPositions(posMin, posMax);
+
+            // Loop over coordinates inside the region
+            for(int x = posMin.getX(); x <= posMax.getX(); x++){
+                for(int y = posMin.getY(); y <= posMax.getY(); y++){
+                    for(int z = posMin.getZ(); z <= posMax.getZ(); z++){
+                        // Process cube
+                        CubesRenderer.renderCube(level, dataWriters,
+                                new BlockPos(x, y, z),
+                                new BlockPos(x - posMin.getX(), y - posMin.getY(), z - posMin.getZ()));
+                    }
                 }
             }
+
+            // Process region entities
+            CubesRenderer.renderRegionEntities(level, dataWriters, posMin, posMax);
+
+            // Stop renderer
+            State.INSTANCE.isRendering = false;
+        }
+    }
+
+    /**
+     * Renderer state
+     */
+    public static class State
+    {
+        /**
+         * Static instance.
+         */
+        public static State INSTANCE = new State();
+
+        /**
+         * Private constructor.
+         */
+        private State(){}
+
+        /**
+         * Whether rendering is in process.
+         */
+        public boolean isRendering = false;
+        /**
+         * Region positions.
+         */
+        private BlockPos posMin, posMax = BlockPos.ZERO;
+        /**
+         * Whether to not cull quads facing out of render region and located on its boarder.
+         */
+        public boolean noRenderRegionBoarderFaceCulling = false;
+
+        /**
+         * Sets region positions.
+         */
+        public void setPositions(BlockPos posMin, BlockPos posMax) {
+            this.posMin = posMin;
+            this.posMax = posMax;
         }
 
-        // Process region entities
-        CubesRenderer.renderRegionEntities(level, dataWriters, minPos, maxPos);
+        /**
+         * @return whether provided position is outside render region.
+         */
+        public boolean isOutsideRenderRegion(BlockPos pos) {
+            return pos.getX() < this.posMin.getX()
+                    || pos.getY() < this.posMin.getY()
+                    || pos.getZ() < this.posMin.getZ()
+                    || pos.getX() > this.posMax.getX()
+                    || pos.getY() > this.posMax.getY()
+                    || pos.getZ() > this.posMax.getZ();
+        }
     }
 }

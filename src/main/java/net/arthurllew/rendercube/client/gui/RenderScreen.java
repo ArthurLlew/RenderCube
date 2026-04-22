@@ -12,6 +12,7 @@ import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractButton;
+import net.minecraft.client.gui.components.Checkbox;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.screens.Screen;
@@ -64,6 +65,8 @@ public class RenderScreen extends Screen {
             Component.translatable("gui." + MODID + ".render_screen.button.render.success");
     private static final Component RENDER_ERROR_MSG =
             Component.translatable("gui." + MODID + ".render_screen.button.render.error");
+    private static final Component REGION_BOARDER_CHECKBOX_TEXT =
+            Component.translatable("gui." + MODID + ".render_screen.checkbox.region_boarder");
 
     /**
      * Background texture dimensions.
@@ -91,9 +94,14 @@ public class RenderScreen extends Screen {
     private RenderButton renderButton;
 
     /**
+     * Editboxes for coordinates input.
+     */
+    private EditBox pos1Editbox, pos2Editbox;
+
+    /**
      * Text widgets.
      */
-    private EditBox editbox1, editbox2;
+    private Checkbox regionBoarderCheckbox;
 
     /**
      * Screen state (is it rendering or not).
@@ -112,6 +120,7 @@ public class RenderScreen extends Screen {
 
     /**
      * Tells whether game should be paused.
+     *
      * @return {@code true}.
      */
     @Override
@@ -124,7 +133,7 @@ public class RenderScreen extends Screen {
      */
     @Override
     public boolean shouldCloseOnEsc() {
-        return isIdle;
+        return this.isIdle;
     }
 
     /**
@@ -135,27 +144,27 @@ public class RenderScreen extends Screen {
         super.init();
 
         // Set background texture coordinates in screen center
-        bgPosLeft = (this.width - bgWidth) / 2;
-        bgPosTop = (this.height - bgHeight) / 2;
+        this.bgPosLeft = (this.width - this.bgWidth) / 2;
+        this.bgPosTop = (this.height - this.bgHeight) / 2;
 
         // Populate tabs
-        deselectedTabs.add(addWidget(new RenderScreenTab(bgPosLeft, bgPosTop - 28,
+        this.deselectedTabs.add(addWidget(new RenderScreenTab(this.bgPosLeft, this.bgPosTop - 28,
                 TAB_TEXTURES[0], TAB_TEXTURES[1], TAB_TITLES[0],
                 this::renderPRR, this::onTabPressed, new ItemStack(Items.PLAYER_HEAD),
                 RenderScreenTab.Type.PLAYER_RELATIVE_RENDER)));
-        deselectedTabs.add(addWidget(new RenderScreenTab(bgPosLeft + 27, bgPosTop - 28,
+        this.deselectedTabs.add(addWidget(new RenderScreenTab(this.bgPosLeft + 27, this.bgPosTop - 28,
                 TAB_TEXTURES[2], TAB_TEXTURES[3], TAB_TITLES[1],
                 this::renderAPR, this::onTabPressed, new ItemStack(Items.GRASS_BLOCK),
                 RenderScreenTab.Type.ABSOLUTE_POSITION_RENDER)));
 
         // Check tab selection
-        if (selectedTab == null){
+        if (selectedTab == null) {
             // Select the first one
-            selectedTab = deselectedTabs.get(0);
-        } else{
+            selectedTab = this.deselectedTabs.get(0);
+        } else {
             // Replace with brand new of the same type
-            for (RenderScreenTab tab : deselectedTabs){
-                if (tab.type == selectedTab.type){
+            for (RenderScreenTab tab : this.deselectedTabs) {
+                if (tab.type == selectedTab.type) {
                     selectedTab = tab;
                     break;
                 }
@@ -164,26 +173,29 @@ public class RenderScreen extends Screen {
         // Set current tab state as active
         selectedTab.setSelected();
         // Remove selected tab from unselected list
-        deselectedTabs.remove(selectedTab);
+        this.deselectedTabs.remove(selectedTab);
 
         // Editbox
-        editbox1 = addWidget(new EditBox(this.font,bgPosLeft + 8, bgPosTop + 32,
+        this.pos1Editbox = addWidget(new EditBox(this.font, this.bgPosLeft + 8, this.bgPosTop + 32,
                 179, 16, Component.literal("editbox1")));
-        editbox1.setTooltip(Tooltip.create(EDITBOX_TOOLTIP));
-        editbox1.setMaxLength(29);
-        editbox2 = addWidget(new EditBox(this.font,bgPosLeft + 8, bgPosTop + 67,
+        this.pos1Editbox.setTooltip(Tooltip.create(EDITBOX_TOOLTIP));
+        this.pos1Editbox.setMaxLength(29);
+        this.pos2Editbox = addWidget(new EditBox(this.font, this.bgPosLeft + 8, this.bgPosTop + 67,
                 179, 16, Component.literal("editbox2")));
-        editbox2.setTooltip(Tooltip.create(EDITBOX_TOOLTIP));
-        editbox2.setMaxLength(29);
+        this.pos2Editbox.setTooltip(Tooltip.create(EDITBOX_TOOLTIP));
+        this.pos2Editbox.setMaxLength(29);
 
         // Render button
-        renderButton = addWidget(new RenderButton(bgPosLeft + bgWidth / 2 - 30,
-                bgPosTop + 92,
-                60,
-                20,
+        this.renderButton = addWidget(new RenderButton(
+                this.bgPosLeft + this.bgWidth / 2 - 30, this.bgPosTop + 88,
+                60, 20,
                 RENDER_BUTTON_TEXT,
-                this::onRenderButtonPressed)
-        );
+                this::onRenderButtonPressed));
+
+        // Render region boarder face culling rule checkbox
+        this.regionBoarderCheckbox = addWidget(new Checkbox(this.bgPosLeft + 5, this.bgPosTop + 111,
+                20, 20,
+                Component.literal(""), false));
     }
 
     /**
@@ -194,73 +206,82 @@ public class RenderScreen extends Screen {
         this.renderBackground(guiGraphics);
 
         // Render all unselected tabs under background texture
-        for(RenderScreenTab tab : this.deselectedTabs){
+        for (RenderScreenTab tab : this.deselectedTabs) {
             tab.render(guiGraphics, mouseX, mouseY, partialTicks);
         }
 
         // Background texture
-        guiGraphics.blit(BACKGROUND_TEXTURE, bgPosLeft, bgPosTop,0, 0,
-                bgWidth, bgHeight, bgWidth, bgHeight);
+        guiGraphics.blit(BACKGROUND_TEXTURE, this.bgPosLeft, this.bgPosTop, 0, 0,
+                this.bgWidth, this.bgHeight, this.bgWidth, this.bgHeight);
 
         // Render selected tab
         selectedTab.render(guiGraphics, mouseX, mouseY, partialTicks);
 
         // Render current tab contents
         selectedTab.renderMethod.render(guiGraphics, mouseX, mouseY, partialTicks);
+
+        // Render button
+        this.renderButton.render(guiGraphics, mouseX, mouseY, partialTicks);
+
+        // Region boarder checkbox
+        guiGraphics.drawString(this.font, REGION_BOARDER_CHECKBOX_TEXT,
+                this.bgPosLeft + this.regionBoarderCheckbox.getHeight() + 9,
+                this.bgPosTop + this.regionBoarderCheckbox.getHeight() / 2 + 108,
+                0x404040, false);
+        this.regionBoarderCheckbox.render(guiGraphics, mouseX, mouseY, partialTicks);
     }
 
     /**
      * Renders player relative render tab.
-     * @param guiGraphics the GuiGraphics object used for rendering.
-     * @param mouseX the x-coordinate of the mouse cursor.
-     * @param mouseY the y-coordinate of the mouse cursor.
+     *
+     * @param guiGraphics  the GuiGraphics object used for rendering.
+     * @param mouseX       the x-coordinate of the mouse cursor.
+     * @param mouseY       the y-coordinate of the mouse cursor.
      * @param partialTicks the partial tick time.
      */
     public void renderPRR(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
         // Tab title
-        guiGraphics.drawString(this.font, TAB_TITLES[0], bgPosLeft + 8, bgPosTop + 6,
+        guiGraphics.drawString(this.font, TAB_TITLES[0], this.bgPosLeft + 8, this.bgPosTop + 6,
                 0x404040, false);
 
         // Editbox 1
-        guiGraphics.drawString(this.font, EDITBOX_TITLES[0], bgPosLeft + 12, bgPosTop + 19,
+        guiGraphics.drawString(this.font, EDITBOX_TITLES[0], this.bgPosLeft + 12, this.bgPosTop + 19,
                 0x404040, false);
-        editbox1.render(guiGraphics, mouseX, mouseY, partialTicks);
+        this.pos1Editbox.render(guiGraphics, mouseX, mouseY, partialTicks);
 
         //Editbox 2
-        guiGraphics.drawString(this.font, EDITBOX_TITLES[1], bgPosLeft + 12, bgPosTop + 54,
+        guiGraphics.drawString(this.font, EDITBOX_TITLES[1], this.bgPosLeft + 12, this.bgPosTop + 54,
                 0x404040, false);
-        editbox2.render(guiGraphics, mouseX, mouseY, partialTicks);
-
-        renderButton.render(guiGraphics, mouseX, mouseY, partialTicks);
+        this.pos2Editbox.render(guiGraphics, mouseX, mouseY, partialTicks);
     }
 
     /**
      * Renders absolute position render tab.
-     * @param guiGraphics the GuiGraphics object used for rendering.
-     * @param mouseX the x-coordinate of the mouse cursor.
-     * @param mouseY the y-coordinate of the mouse cursor.
+     *
+     * @param guiGraphics  the GuiGraphics object used for rendering.
+     * @param mouseX       the x-coordinate of the mouse cursor.
+     * @param mouseY       the y-coordinate of the mouse cursor.
      * @param partialTicks the partial tick time.
      */
     public void renderAPR(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
         // Tab title
-        guiGraphics.drawString(this.font, TAB_TITLES[1], bgPosLeft + 8, bgPosTop + 6,
+        guiGraphics.drawString(this.font, TAB_TITLES[1], this.bgPosLeft + 8, this.bgPosTop + 6,
                 0x404040, false);
 
         // Editbox 1
-        guiGraphics.drawString(this.font, EDITBOX_TITLES[2], bgPosLeft + 12, bgPosTop + 19,
+        guiGraphics.drawString(this.font, EDITBOX_TITLES[2], this.bgPosLeft + 12, this.bgPosTop + 19,
                 0x404040, false);
-        editbox1.render(guiGraphics, mouseX, mouseY, partialTicks);
+        this.pos1Editbox.render(guiGraphics, mouseX, mouseY, partialTicks);
 
         // Editbox 2
-        guiGraphics.drawString(this.font, EDITBOX_TITLES[3], bgPosLeft + 12, bgPosTop + 54,
+        guiGraphics.drawString(this.font, EDITBOX_TITLES[3], this.bgPosLeft + 12, this.bgPosTop + 54,
                 0x404040, false);
-        editbox2.render(guiGraphics, mouseX, mouseY, partialTicks);
-
-        renderButton.render(guiGraphics, mouseX, mouseY, partialTicks);
+        this.pos2Editbox.render(guiGraphics, mouseX, mouseY, partialTicks);
     }
 
     /**
      * Handles tab being pressed.
+     *
      * @param tab pressed tab instance
      */
     private void onTabPressed(RenderScreenTab tab) {
@@ -268,9 +289,9 @@ public class RenderScreen extends Screen {
             // Deselect current tab
             selectedTab.setUnselected();
             // Remove selected tab from unselected list
-            deselectedTabs.remove(tab);
+            this.deselectedTabs.remove(tab);
             // Add deselected tab to unselected list
-            deselectedTabs.add(selectedTab);
+            this.deselectedTabs.add(selectedTab);
             // Assign new selected tab
             selectedTab = tab;
             // Set its state as active
@@ -280,83 +301,87 @@ public class RenderScreen extends Screen {
 
     /**
      * Handles render button being pressed.
+     *
      * @param button pressed button instance
      */
     private void onRenderButtonPressed(AbstractButton button) {
-        // Seal screen
-        isIdle = false;
+        // Only render if not already rendering
+        if (this.isIdle) {
+            // Seal screen
+            this.isIdle = false;
 
-        // Safely get minecraft player
-        LocalPlayer player = Minecraft.getInstance().player;
-        if (player == null) {throw new UnsupportedOperationException("Player is null");}
-
-        try {
-            // Load input from Editbox1
-            StringReader r = new StringReader(editbox1.getValue());
-            int x1 = r.readInt();
-            r.skipWhitespace();
-            int y1 = r.readInt();
-            r.skipWhitespace();
-            int z1 = r.readInt();
-
-            // Load input from Editbox2
-            r = new StringReader(editbox2.getValue());
-            int x2 = r.readInt();
-            r.skipWhitespace();
-            int y2 = r.readInt();
-            r.skipWhitespace();
-            int z2 = r.readInt();
-
-            // Open file
-            try (DataWriters dataWriters = new DataWriters()) {
-                // Place min x/y/z into minPos and max x/y/z into maxPos
-                int minX = Math.min(x1, x2);
-                int minY = Math.min(y1, y2);
-                int minZ = Math.min(z1, z2);
-                int maxX = Math.max(x1, x2);
-                int maxY = Math.max(y1, y2);
-                int maxZ = Math.max(z1, z2);
-
-                // Restrict region size
-                if ((maxX - minX > Config.DATA.maxRenderDistance) || (maxZ - minZ > Config.DATA.maxRenderDistance)) {
-                    player.sendSystemMessage(RENDER_REGION_TOO_LARGE_MSG.get());
-                }
-                else {
-                    // Min/max positions in region
-                    BlockPos posMin, posMax;
-                    if (selectedTab.type == RenderScreenTab.Type.PLAYER_RELATIVE_RENDER) {
-                        // Add player position
-                        posMin = new BlockPos(player.getBlockX() + minX,
-                                player.getBlockY() + minY,
-                                player.getBlockZ() + minZ);
-                        posMax = new BlockPos(player.getBlockX() + maxX,
-                                player.getBlockY() + maxY,
-                                player.getBlockZ() + maxZ);
-                    }
-                    else {
-                        posMin = new BlockPos(minX, minY, minZ);
-                        posMax = new BlockPos(maxX, maxY, maxZ);
-                    }
-
-                    // Render region
-                    CubesRenderer.renderRegion(player.level(), dataWriters, posMin, posMax);
-
-                    // Notify about success
-                    player.sendSystemMessage(RENDER_SUCCESS_MSG);
-                }
+            // Safely get minecraft player
+            LocalPlayer player = Minecraft.getInstance().player;
+            if (player == null) {
+                throw new UnsupportedOperationException("Player is null");
             }
-            catch(Exception e) {
-                // Render error
-                LOGGER.error("RenderCube encountered error while rendering", e);
-                player.sendSystemMessage(RENDER_ERROR_MSG);
-            }
-        }
-        catch (CommandSyntaxException e) {
-            // Input error
-            player.sendSystemMessage(RENDER_WRONG_INPUT_MSG);
-        }
 
-        // Unseal screen
-        isIdle = true;
+            try {
+                // Load input from Editbox1
+                StringReader r = new StringReader(this.pos1Editbox.getValue());
+                int x1 = r.readInt();
+                r.skipWhitespace();
+                int y1 = r.readInt();
+                r.skipWhitespace();
+                int z1 = r.readInt();
+
+                // Load input from Editbox2
+                r = new StringReader(this.pos2Editbox.getValue());
+                int x2 = r.readInt();
+                r.skipWhitespace();
+                int y2 = r.readInt();
+                r.skipWhitespace();
+                int z2 = r.readInt();
+
+                // Open file
+                try (DataWriters dataWriters = new DataWriters()) {
+                    // Place min x/y/z into minPos and max x/y/z into maxPos
+                    int minX = Math.min(x1, x2);
+                    int minY = Math.min(y1, y2);
+                    int minZ = Math.min(z1, z2);
+                    int maxX = Math.max(x1, x2);
+                    int maxY = Math.max(y1, y2);
+                    int maxZ = Math.max(z1, z2);
+
+                    // Restrict region size
+                    if ((maxX - minX > Config.DATA.maxRenderDistance)
+                            || (maxZ - minZ > Config.DATA.maxRenderDistance)) {
+                        player.sendSystemMessage(RENDER_REGION_TOO_LARGE_MSG.get());
+                    } else {
+                        // Min/max positions in region
+                        BlockPos posMin, posMax;
+                        if (selectedTab.type == RenderScreenTab.Type.PLAYER_RELATIVE_RENDER) {
+                            // Add player position
+                            posMin = new BlockPos(player.getBlockX() + minX,
+                                    player.getBlockY() + minY,
+                                    player.getBlockZ() + minZ);
+                            posMax = new BlockPos(player.getBlockX() + maxX,
+                                    player.getBlockY() + maxY,
+                                    player.getBlockZ() + maxZ);
+                        } else {
+                            posMin = new BlockPos(minX, minY, minZ);
+                            posMax = new BlockPos(maxX, maxY, maxZ);
+                        }
+
+                        // Render region
+                        CubesRenderer.renderRegion(player.level(), dataWriters, posMin, posMax,
+                                regionBoarderCheckbox.selected());
+
+                        // Notify about success
+                        player.sendSystemMessage(RENDER_SUCCESS_MSG);
+                    }
+                } catch (Exception e) {
+                    // Render error
+                    LOGGER.error("RenderCube encountered error while rendering", e);
+                    player.sendSystemMessage(RENDER_ERROR_MSG);
+                }
+            } catch (CommandSyntaxException e) {
+                // Input error
+                player.sendSystemMessage(RENDER_WRONG_INPUT_MSG);
+            }
+
+            // Unseal screen
+            this.isIdle = true;
+        }
     }
 }

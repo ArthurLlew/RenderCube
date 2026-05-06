@@ -17,12 +17,9 @@ else:
 ###############
 bl_info = {
     "name": "RenderCubeImporter",
-    "author": "Dreadoom",
-    "version": (0, 1),
-    "blender": (4, 0, 2),
+    "author": "Arthur Llew",
+    "version": (1, 0),
     "description": "Imports RenderCube data",
-    "warning": "",
-    "doc_url": "",
     "category": "Import-Export",
 }
 

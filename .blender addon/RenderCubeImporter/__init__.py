@@ -2,6 +2,7 @@
 # Imports #
 ###########
 
+
 # Blender
 import bpy
 # Package import
@@ -12,34 +13,40 @@ if "load_modules" in locals():
 else:
     from . import importer
 
+
 ###############
 # Add-on info #
 ###############
+
+
 bl_info = {
     "name": "RenderCubeImporter",
     "author": "Arthur Llew",
     "version": (1, 0),
-    "description": "Imports RenderCube data",
-    "category": "Import-Export",
+    "description": "RenderCube captured geometry importer.",
 }
+
 
 #######################
 # Add-on Registration #
 #######################
 
-# Only needed if you want to add into a dynamic menu
+
+# Adds new option to import menu
 def menu_func_import(self, context):
     self.layout.operator(importer.RenderCubeImporter.bl_idname, text='RenderCube (.rcube)')
 
-# Register
+
+# Addon registration
 def register():
-    # Register
+    # Register importer
     bpy.utils.register_class(importer.RenderCubeImporter)
     
     # Add to the "file selector" menu (required to use F3 search for quick access)
     bpy.types.TOPBAR_MT_file_import.append(menu_func_import)
 
 
+# Addon unregistering
 def unregister():
     # Remove from "file selector" menu
     bpy.types.TOPBAR_MT_file_import.remove(menu_func_import)
@@ -47,7 +54,7 @@ def unregister():
     # Unregister
     bpy.utils.unregister_class(importer.RenderCubeImporter)
 
-# This allows you to run the script directly from Blender's Text editor
-# to test the add-on without having to install it.
+
+# For testing directly from Blender's Text editor
 if __name__ == "__main__":
     register()

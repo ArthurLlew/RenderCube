@@ -2,6 +2,7 @@
 # Imports #
 ###########
 
+
 # Operating system
 import os
 # Blender
@@ -11,12 +12,17 @@ from bpy_extras.io_utils import ImportHelper
 # Custom lib
 from . import utils
 
+
 #########################
 # Add-on Operator Class #
 #########################
+
+
 class RenderCubeImporter(Operator, ImportHelper):
-    """RenderCube data import"""
-    # Important since its how bpy.ops.import_test.some_data is constructed
+    """RenderCube data import.
+    """
+
+    # Important for registering
     bl_idname = 'rendercube_import.rendercube_data'
     bl_label = 'Import RenderCube Data'
     
@@ -39,7 +45,7 @@ class RenderCubeImporter(Operator, ImportHelper):
         type=OperatorFileListElement,
         )
     
-    # Import option (Does the importer search for already existing materials?)
+    # Import option (does the importer search for already existing materials?)
     search_for_materials: BoolProperty(
         name='Search for existing materials',
         description='Should importer look for already existing materials or will it create new ones',
@@ -47,7 +53,8 @@ class RenderCubeImporter(Operator, ImportHelper):
     )
 
     def execute(self, context):
-        """Executes operator."""
+        """Executes operator.
+        """
         
         # For each imported file
         for file in self.files:

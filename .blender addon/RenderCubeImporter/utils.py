@@ -2,6 +2,7 @@
 # Imports #
 ###########
 
+
 # Blender
 import bpy
 import mathutils
@@ -9,6 +10,7 @@ import mathutils
 import struct
 # Fast arrays
 import numpy as np
+
 
 ####################
 # RenderCube Utils #
@@ -42,7 +44,7 @@ def parse_loaded_data(loaded_data):
         # Update counter
         i += 1
         
-        # Each face has exactly 4 verticies
+        # Each face has exactly 4 vertices
         if i == 4:
             faces.append(tuple(range(len(vertices) - 4, len(vertices))))
             i = 0

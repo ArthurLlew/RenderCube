@@ -7,6 +7,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.HashMap;
@@ -24,7 +25,7 @@ public class DataWriters implements AutoCloseable {
     /**
      * Subdirectory named after datetime to store files.
      */
-    private final String directory;
+    private final Path directory;
 
     /**
      * Basic init.
@@ -36,8 +37,8 @@ public class DataWriters implements AutoCloseable {
         dateTimeStr =  dateTimeStr.substring(0, dateTimeStr.lastIndexOf("."));
 
         // Create appropriate directory
-        this.directory = RenderCube.MODID + "\\" + dateTimeStr;
-        Files.createDirectories(Paths.get(this.directory));
+        this.directory = Paths.get(RenderCube.MODID, dateTimeStr);
+        Files.createDirectories(this.directory);
     }
 
     /**
@@ -53,7 +54,7 @@ public class DataWriters implements AutoCloseable {
         // Create a new one
         else {
             OutputStream writer = new BufferedOutputStream(
-                    new FileOutputStream(this.directory + "\\" + fileName + ".rcube"),
+                    new FileOutputStream(Paths.get(this.directory.toString(), fileName + ".rcube").toString()),
                     // Buffer size = 48 (size of one vertex) * 4 (4 in a quad) *
                     // * 42 (arbitrary number)
                     8064);

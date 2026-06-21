@@ -7,7 +7,7 @@ import org.jetbrains.annotations.NotNull;
 import java.io.OutputStream;
 
 /**
- * Used to consume geometry data, produced by liquid renderers.
+ * Used to capture vertex data, produced by liquid renderers.
  */
 public class LiquidVertexConsumer extends CommonVertexConsumer {
     /**
@@ -16,10 +16,10 @@ public class LiquidVertexConsumer extends CommonVertexConsumer {
     private final BlockPos levelPos;
 
     /**
-     * Constructs instance from position in region.
+     * Constructor.
      * @param fileStream opened file output stream where data will be saved
-     * @param regionPos liquid position in region
-     * @param levelPos liquid position in level
+     * @param regionPos position in render region
+     * @param levelPos position in level
      */
     public LiquidVertexConsumer(OutputStream fileStream, BlockPos regionPos, BlockPos levelPos) {
         super(fileStream, regionPos);
@@ -28,7 +28,7 @@ public class LiquidVertexConsumer extends CommonVertexConsumer {
     }
 
     /**
-     * Saves vertex coordinates, adjusted by magical value used, when liquid is rendered.
+     * Captures vertex coordinates adjusted by position in region.
      * @param x X coordinate
      * @param y Y coordinate
      * @param z Z coordinate

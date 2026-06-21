@@ -7,7 +7,7 @@ import org.jetbrains.annotations.NotNull;
 import java.io.OutputStream;
 
 /**
- * Used to consume geometry data, produced by renderers.
+ * Used to capture vertex data, produced by renderers.
  */
 public class CommonVertexConsumer extends BasicVertexConsumer {
     /**
@@ -16,9 +16,9 @@ public class CommonVertexConsumer extends BasicVertexConsumer {
     private final BlockPos regionPos;
 
     /**
-     * Constructs instance from position in region.
+     * Constructor.
      * @param fileStream opened file output stream where data will be saved
-     * @param regionPos liquid position in region
+     * @param regionPos position in render region
      */
     public CommonVertexConsumer(OutputStream fileStream, BlockPos regionPos) {
         super(fileStream);
@@ -27,11 +27,7 @@ public class CommonVertexConsumer extends BasicVertexConsumer {
     }
 
     /**
-     * Saves vertex coordinates adjusted by position in region.
-     * @param x X coordinate
-     * @param y Y coordinate
-     * @param z Z coordinate
-     * @return self
+     * {@inheritDoc}
      */
     @Override
     public @NotNull VertexConsumer vertex(double x, double y, double z) {

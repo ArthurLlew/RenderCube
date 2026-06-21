@@ -3,8 +3,7 @@ package net.arthurllew.rendercube.client.gui;
 import com.google.common.collect.Lists;
 import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import com.mojang.logging.LogUtils;
-import net.arthurllew.rendercube.client.io.DataWriters;
+import net.arthurllew.rendercube.RenderCube;
 import net.arthurllew.rendercube.client.rendering.CubesRenderer;
 import net.arthurllew.rendercube.config.Config;
 import net.minecraft.client.Minecraft;
@@ -24,7 +23,6 @@ import net.minecraft.world.item.Items;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.NotNull;
-import org.slf4j.Logger;
 
 import java.util.List;
 import java.util.function.Supplier;
@@ -33,8 +31,6 @@ import static net.arthurllew.rendercube.RenderCube.MODID;
 
 @OnlyIn(Dist.CLIENT)
 public class RenderScreen extends Screen {
-    private static final Logger LOGGER = LogUtils.getLogger();
-
     // Resources
     private static final ResourceLocation BACKGROUND_TEXTURE =
             ResourceLocation.fromNamespaceAndPath(MODID, "textures/gui/render_screen.png");
@@ -60,6 +56,10 @@ public class RenderScreen extends Screen {
             Component.translatable("gui." + MODID + ".render_screen.edit_box.tooltip");
     private static final Component RENDER_BUTTON_TEXT =
             Component.translatable("gui." + MODID + ".render_screen.button.render");
+    private static final Component REGION_BOARDER_CHECKBOX_TEXT =
+            Component.translatable("gui." + MODID + ".render_screen.checkbox.region_boarder");
+    private static final Component PER_CHUNK_RENDERING_CHECKBOX_TEXT =
+            Component.translatable("gui." + MODID + ".render_screen.checkbox.per_chunk_rendering");
     private static final Component RENDER_WRONG_INPUT_MSG =
             Component.translatable("gui." + MODID + ".render_screen.button.render.wrong_input");
     private static final Supplier<Component> RENDER_REGION_TOO_LARGE_MSG = () ->
@@ -69,8 +69,6 @@ public class RenderScreen extends Screen {
             Component.translatable("gui." + MODID + ".render_screen.button.render.success");
     private static final Component RENDER_ERROR_MSG =
             Component.translatable("gui." + MODID + ".render_screen.button.render.error");
-    private static final Component REGION_BOARDER_CHECKBOX_TEXT =
-            Component.translatable("gui." + MODID + ".render_screen.checkbox.region_boarder");
 
     /**
      * Background texture dimensions.
@@ -95,17 +93,22 @@ public class RenderScreen extends Screen {
     /**
      * Render button.
      */
-    private RenderButton renderButton;
+    private RenderButton buttonRender;
 
     /**
      * Editboxes for coordinates input.
      */
-    private EditBox pos1Editbox, pos2Editbox;
+    private EditBox editboxRenderPos1, editboxRenderPos2;
 
     /**
-     * Text widgets.
+     * Checkbox for controlling region boarder face culling.
      */
-    private Checkbox regionBoarderCheckbox;
+    private Checkbox checkboxRenderRegionBoarderFaceCulling;
+
+    /**
+     * Checkbox for controlling per-chunk vertex data saving.
+     */
+    private Checkbox checkboxUsePerChunkRendering;
 
     /**
      * Screen state (is it rendering or not).
@@ -118,12 +121,13 @@ public class RenderScreen extends Screen {
     public RenderScreen() {
         super(CommonComponents.EMPTY);
 
+        // Background texture size in pixels
         this.bgWidth = 195;
-        this.bgHeight = 136;
+        this.bgHeight = 160;
     }
 
     /**
-     * Tells whether game should be paused.
+     * Tells whether game should be paused when opening this screen.
      * @return {@code true}.
      */
     @Override
@@ -179,25 +183,30 @@ public class RenderScreen extends Screen {
         this.deselectedTabs.remove(selectedTab);
 
         // Editbox
-        this.pos1Editbox = addWidget(new EditBox(this.font,this.bgPosLeft + 8, this.bgPosTop + 32,
+        this.editboxRenderPos1 = addWidget(new EditBox(this.font,this.bgPosLeft + 8, this.bgPosTop + 32,
                 179, 16, Component.literal("editbox1")));
-        this.pos1Editbox.setTooltip(Tooltip.create(EDITBOX_TOOLTIP));
-        this.pos1Editbox.setMaxLength(29);
-        this.pos2Editbox = addWidget(new EditBox(this.font,this.bgPosLeft + 8, this.bgPosTop + 67,
+        this.editboxRenderPos1.setTooltip(Tooltip.create(EDITBOX_TOOLTIP));
+        this.editboxRenderPos1.setMaxLength(29);
+        this.editboxRenderPos2 = addWidget(new EditBox(this.font,this.bgPosLeft + 8, this.bgPosTop + 67,
                 179, 16, Component.literal("editbox2")));
-        this.pos2Editbox.setTooltip(Tooltip.create(EDITBOX_TOOLTIP));
-        this.pos2Editbox.setMaxLength(29);
+        this.editboxRenderPos2.setTooltip(Tooltip.create(EDITBOX_TOOLTIP));
+        this.editboxRenderPos2.setMaxLength(29);
 
         // Render button
-        this.renderButton = addWidget(new RenderButton(
+        this.buttonRender = addWidget(new RenderButton(
                         this.bgPosLeft + this.bgWidth / 2 - 30, this.bgPosTop + 88,
                         60, 20,
                         RENDER_BUTTON_TEXT,
                         this::onRenderButtonPressed));
 
-        // Render region boarder face culling rule checkbox
-        this.regionBoarderCheckbox = addWidget(Checkbox.builder(Component.literal(""), this.font)
+        // Checkbox for controlling region boarder face culling
+        this.checkboxRenderRegionBoarderFaceCulling = addWidget(Checkbox.builder(Component.literal(""), this.font)
                 .pos(this.bgPosLeft + 8, this.bgPosTop + 111)
+                .maxWidth(180).selected(false).build());
+
+        // Checkbox for controlling per-chunk vertex data saving
+        this.checkboxUsePerChunkRendering = addWidget(Checkbox.builder(Component.literal(""), this.font)
+                .pos(this.bgPosLeft + 8, this.bgPosTop + 134)
                 .maxWidth(180).selected(false).build());
     }
 
@@ -224,14 +233,21 @@ public class RenderScreen extends Screen {
         selectedTab.renderMethod.render(guiGraphics, mouseX, mouseY, partialTicks);
 
         // Render button
-        this.renderButton.render(guiGraphics, mouseX, mouseY, partialTicks);
+        this.buttonRender.render(guiGraphics, mouseX, mouseY, partialTicks);
 
         // Region boarder checkbox
         guiGraphics.drawString(this.font, REGION_BOARDER_CHECKBOX_TEXT,
                 this.bgPosLeft + Checkbox.getBoxSize(this.font) + 12,
                 this.bgPosTop + Checkbox.getBoxSize(this.font) / 2 + 108,
                 0x404040, false);
-        this.regionBoarderCheckbox.render(guiGraphics, mouseX, mouseY, partialTicks);
+        this.checkboxRenderRegionBoarderFaceCulling.render(guiGraphics, mouseX, mouseY, partialTicks);
+
+        // Data writers checkbox
+        guiGraphics.drawString(this.font, PER_CHUNK_RENDERING_CHECKBOX_TEXT,
+                this.bgPosLeft + Checkbox.getBoxSize(this.font) + 12,
+                this.bgPosTop + Checkbox.getBoxSize(this.font) / 2 + 131,
+                0x404040, false);
+        this.checkboxUsePerChunkRendering.render(guiGraphics, mouseX, mouseY, partialTicks);
     }
 
     /**
@@ -249,12 +265,12 @@ public class RenderScreen extends Screen {
         // Editbox 1
         guiGraphics.drawString(this.font, EDITBOX_TITLES[0], this.bgPosLeft + 12, this.bgPosTop + 19,
                 0x404040, false);
-        this.pos1Editbox.render(guiGraphics, mouseX, mouseY, partialTicks);
+        this.editboxRenderPos1.render(guiGraphics, mouseX, mouseY, partialTicks);
 
         //Editbox 2
         guiGraphics.drawString(this.font, EDITBOX_TITLES[1], this.bgPosLeft + 12, this.bgPosTop + 54,
                 0x404040, false);
-        this.pos2Editbox.render(guiGraphics, mouseX, mouseY, partialTicks);
+        this.editboxRenderPos2.render(guiGraphics, mouseX, mouseY, partialTicks);
     }
 
     /**
@@ -272,12 +288,12 @@ public class RenderScreen extends Screen {
         // Editbox 1
         guiGraphics.drawString(this.font, EDITBOX_TITLES[2], this.bgPosLeft + 12, this.bgPosTop + 19,
                 0x404040, false);
-        this.pos1Editbox.render(guiGraphics, mouseX, mouseY, partialTicks);
+        this.editboxRenderPos1.render(guiGraphics, mouseX, mouseY, partialTicks);
 
         // Editbox 2
         guiGraphics.drawString(this.font, EDITBOX_TITLES[3], this.bgPosLeft + 12, this.bgPosTop + 54,
                 0x404040, false);
-        this.pos2Editbox.render(guiGraphics, mouseX, mouseY, partialTicks);
+        this.editboxRenderPos2.render(guiGraphics, mouseX, mouseY, partialTicks);
     }
 
     /**
@@ -315,7 +331,7 @@ public class RenderScreen extends Screen {
 
             try {
                 // Load input from Editbox1
-                StringReader r = new StringReader(this.pos1Editbox.getValue());
+                StringReader r = new StringReader(this.editboxRenderPos1.getValue());
                 int x1 = r.readInt();
                 r.skipWhitespace();
                 int y1 = r.readInt();
@@ -323,57 +339,58 @@ public class RenderScreen extends Screen {
                 int z1 = r.readInt();
 
                 // Load input from Editbox2
-                r = new StringReader(this.pos2Editbox.getValue());
+                r = new StringReader(this.editboxRenderPos2.getValue());
                 int x2 = r.readInt();
                 r.skipWhitespace();
                 int y2 = r.readInt();
                 r.skipWhitespace();
                 int z2 = r.readInt();
 
-                // Open file
-                try (DataWriters dataWriters = new DataWriters()) {
-                    // Place min x/y/z into minPos and max x/y/z into maxPos
-                    int minX = Math.min(x1, x2);
-                    int minY = Math.min(y1, y2);
-                    int minZ = Math.min(z1, z2);
-                    int maxX = Math.max(x1, x2);
-                    int maxY = Math.max(y1, y2);
-                    int maxZ = Math.max(z1, z2);
+                // Place min x/y/z into minPos and max x/y/z into maxPos
+                int minX = Math.min(x1, x2);
+                int minY = Math.min(y1, y2);
+                int minZ = Math.min(z1, z2);
+                int maxX = Math.max(x1, x2);
+                int maxY = Math.max(y1, y2);
+                int maxZ = Math.max(z1, z2);
 
-                    // Restrict region size
-                    if ((maxX - minX > Config.DATA.maxRenderDistance)
-                            || (maxZ - minZ > Config.DATA.maxRenderDistance)) {
-                        player.sendSystemMessage(RENDER_REGION_TOO_LARGE_MSG.get());
+                // Restrict region size
+                if ((maxX - minX > Config.DATA.maxRenderDistance)
+                        || (maxZ - minZ > Config.DATA.maxRenderDistance)) {
+                    player.sendSystemMessage(RENDER_REGION_TOO_LARGE_MSG.get());
+                }
+                else {
+                    // Min/max positions in region
+                    BlockPos posMin, posMax;
+                    if (selectedTab.type == RenderScreenTab.Type.PLAYER_RELATIVE_RENDER) {
+                        // Add player position
+                        posMin = new BlockPos(player.getBlockX() + minX,
+                                player.getBlockY() + minY,
+                                player.getBlockZ() + minZ);
+                        posMax = new BlockPos(player.getBlockX() + maxX,
+                                player.getBlockY() + maxY,
+                                player.getBlockZ() + maxZ);
                     }
                     else {
-                        // Min/max positions in region
-                        BlockPos posMin, posMax;
-                        if (selectedTab.type == RenderScreenTab.Type.PLAYER_RELATIVE_RENDER) {
-                            // Add player position
-                            posMin = new BlockPos(player.getBlockX() + minX,
-                                    player.getBlockY() + minY,
-                                    player.getBlockZ() + minZ);
-                            posMax = new BlockPos(player.getBlockX() + maxX,
-                                    player.getBlockY() + maxY,
-                                    player.getBlockZ() + maxZ);
-                        }
-                        else {
-                            posMin = new BlockPos(minX, minY, minZ);
-                            posMax = new BlockPos(maxX, maxY, maxZ);
-                        }
+                        posMin = new BlockPos(minX, minY, minZ);
+                        posMax = new BlockPos(maxX, maxY, maxZ);
+                    }
 
-                        // Render region
-                        CubesRenderer.renderRegion(player.level(), dataWriters, posMin, posMax,
-                                regionBoarderCheckbox.selected());
+                    // Wrap rendering to prevent game crash
+                    try {
+                        // Render requested region
+                        CubesRenderer.captureRegion(checkboxUsePerChunkRendering.selected(),
+                                player.level(), posMin, posMax,
+                                checkboxRenderRegionBoarderFaceCulling.selected());
 
                         // Notify about success
                         player.sendSystemMessage(RENDER_SUCCESS_MSG);
                     }
-                }
-                catch(Exception e) {
-                    // Render error
-                    LOGGER.error("RenderCube encountered error while rendering", e);
-                    player.sendSystemMessage(RENDER_ERROR_MSG);
+                    catch(Exception e) {
+                        // Render error
+                        RenderCube.LOGGER.error("RenderCube encountered error while rendering", e);
+                        player.sendSystemMessage(RENDER_ERROR_MSG);
+                    }
                 }
             }
             catch (CommandSyntaxException e) {

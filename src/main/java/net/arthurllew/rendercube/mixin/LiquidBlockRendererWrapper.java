@@ -26,9 +26,9 @@ public class LiquidBlockRendererWrapper {
                                                 BlockState state,
                                                 Operation<Boolean> original) {
         // Must be rendering and allowed by settings
-        if (CubesRenderer.State.INSTANCE.isRendering && CubesRenderer.State.INSTANCE.noRenderRegionBoarderFaceCulling) {
+        if (CubesRenderer.STATE.isRendering() && CubesRenderer.STATE.noRenderRegionBoarderFaceCulling()) {
             // If position toward direction is outside of render region
-            if (CubesRenderer.State.INSTANCE.isOutsideRenderRegion(pos.relative(face))) {
+            if (CubesRenderer.STATE.isOutsideRenderRegion(pos.relative(face))) {
                 return true;
             }
         }

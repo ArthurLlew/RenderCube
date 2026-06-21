@@ -10,9 +10,10 @@
   "gui.rendercube.render_screen.apr.edit_box.pos2": "World Position 2",
   "gui.rendercube.render_screen.edit_box.tooltip": "<x> <y> <z>",
   "gui.rendercube.render_screen.button.render": "Render",
+  "gui.rendercube.render_screen.checkbox.region_boarder": "Do not cull faces on boarder",
+  "gui.rendercube.render_screen.checkbox.per_chunk_rendering": "Split render per chunk",
   "gui.rendercube.render_screen.button.render.wrong_input": "Can't parse input",
   "gui.rendercube.render_screen.button.render.region_too_large": "Region size by X or Z can't be > %1$s. Region size limit can be changed via config",
   "gui.rendercube.render_screen.button.render.success": "Render succeeded",
-  "gui.rendercube.render_screen.button.render.error": "Encountered error while rendering (check logs for more info)",
-  "gui.rendercube.render_screen.checkbox.region_boarder": "Do not cull faces on boarder"
+  "gui.rendercube.render_screen.button.render.error": "Encountered error while rendering (check logs for more info)"
 }

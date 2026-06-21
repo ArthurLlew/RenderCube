@@ -97,7 +97,7 @@ def create_material(material_name):
     return material
 
 
-def create_object(name, loaded_data, material_name, search_for_materials):
+def create_object(object_name, loaded_data, material_name, search_for_materials):
     """Creates object in scene from imported data.
     """
 
@@ -107,7 +107,7 @@ def create_object(name, loaded_data, material_name, search_for_materials):
     # Add a new mesh
     mesh = bpy.data.meshes.new('mesh')
     # Add new object using that mesh
-    obj = bpy.data.objects.new(name, mesh)
+    obj = bpy.data.objects.new(object_name, mesh)
 
     # Add geometry to mesh
     mesh.from_pydata(xyz, [], faces)
@@ -150,5 +150,5 @@ def create_object(name, loaded_data, material_name, search_for_materials):
         face.material_index = mesh.materials.find(material_name)
         break
 
-    # Put the object into the scene
-    bpy.context.scene.collection.children['Collection'].objects.link(obj)
+    # Put the object into the scene inside currently selected collection
+    bpy.context.view_layer.active_layer_collection.collection.objects.link(obj)

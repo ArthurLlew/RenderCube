@@ -9,9 +9,9 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Function;
 
 /**
  * Autocloseable collection of file writers.
@@ -28,25 +28,34 @@ public class DataWriters implements AutoCloseable {
     private final Path directory;
 
     /**
-     * Basic init.
+     * Modification function, applied to file name before opening stream.
      */
-    public DataWriters() throws IOException {
-        // Date time string
-        String dateTimeStr = LocalDateTime.now().toString()
-                .replace("T", "_").replace(":", "-");
-        dateTimeStr =  dateTimeStr.substring(0, dateTimeStr.lastIndexOf("."));
+    private final Function<String, String> fileNameModifier;
 
-        // Create appropriate directory
-        this.directory = Paths.get(RenderCube.MODID, dateTimeStr);
+    /**
+     * Constructor.
+     *
+     * @param subdirectory directory inside mod directory where writers will put data
+     * @param fileNameModifier function, applied to file name before opening stream
+     */
+    public DataWriters(String subdirectory,
+                       Function<String, String> fileNameModifier) throws IOException {
+        // Init directory and make sure it exists
+        this.directory = Paths.get(RenderCube.MODID, subdirectory);
         Files.createDirectories(this.directory);
+
+        this.fileNameModifier = fileNameModifier;
     }
 
     /**
-     * @param fileName name of file writer (is also a filename).
+     * @param fileName name of file writer (is also a name of file).
      * @return already existing or newly created file writer.
      * @throws IOException when file exceptions are encountered.
      */
     public OutputStream get(String fileName) throws IOException {
+        // Modify file name
+        fileName = fileNameModifier.apply(fileName);
+
         // Get already existing file writer
         if (writers.containsKey(fileName)) {
             return writers.get(fileName);

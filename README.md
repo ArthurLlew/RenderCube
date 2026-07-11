@@ -1,6 +1,6 @@
 RenderCube
 =========================================================
-![Image alt](https://github.com/ArthurLlew/RenderCube/raw/neoforge-1.21.1/preview.png)
+![Image alt](https://github.com/ArthurLlew/RenderCube/raw/neoforge-1.21.1/preview.jpg)
 
 This toolchain is designed to export
 _**Minecraft**_ builds into _**Blender**_ even if the game has

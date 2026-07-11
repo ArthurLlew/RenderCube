@@ -1,5 +1,5 @@
 RenderCube
-==============================
+=========================================================
 ![Image alt](https://github.com/ArthurLlew/RenderCube/raw/neoforge-1.21.1/preview.png)
 
 This toolchain is designed to export
@@ -11,40 +11,40 @@ For detailed introduction one can refer to [this](
 https://www.ardacraft.me/resources/complete-guide-to-rendering-modded-minecraft-builds-in-blender) amazing guide.
 
 Setup
-------------------------------
+---------------------------------------------------------
 1) Drop _**Minecraft mod**_ into relevant mod directory
 2) Install _**Blender addon**_
    (see [Add-ons - Blender Manual](https://docs.blender.org/manual/en/latest/editors/preferences/addons.html))
 
-Config
-------------------------------
+Mod Config
+---------------------------------------------------------
 There are several aspects that can be tweaked via
 _**config/rendercube.json**_:
 1) **Render distance** _(default = 400)_: how big
-   can the render region be made across X and Z.
+   can the render region be made across X/Z.
 2) **Use Minecraft Ambient Occlusion** _(default = false)_:
    whether rendering should capture Minecraft builtin ambient
    occlusion.
-3) **Block Consumer Configs**: this list may contain either
-   _**<CLASS, class string, filename, culling rule>**_ or
-   _**<BLOCK, block registry string, filename, culling rule>**_;
-   these entries will redirect geometry from specified classes or
-   blocks into a file with a filename provided in the entry;
-   _**culling rule**_ controls culling (hiding) of faces
-   overlapped by the neighboring block; _**class string**_ example
-   can be found in default config; _**block registry string**_ is
-   something like "minecraf:oak_log" ("\<namespace>:\<id>").
+3) **Block Consumer Configs**: this list of
+   _**\<type, condition, filename, culling>**_,
+   used to control face culling and redirect captured
+   geometry from pre-defined files into a separate file with
+   a name provided in the entry, may contain either:
+   * _**\<EMISSION, emission level, filename, culling>**_:
+     _emission level_ -- integer from 0 to 15 (block emission
+     level).
+   * _**\<CLASS, class string, filename, culling>**_:
+     _class string_ -- full _**Java**_ class name (examples
+     can be found in default config).
+   * _**\<BLOCK, block registry string, filename, culling>**_:
+     _block registry string_ -- <nobr>"\<namespace>:\<id>"</nobr>
+     (e.g. <nobr>"minecraft:oak_log"</nobr>).
 
 Export
-------------------------------
+---------------------------------------------------------
 1) Open render menu _( default key = **R** )_.
-2) Select render mode by opening relative tab. In both
-   modes you have to provide a set of two positions
-   in the current dimension (eg. Overworld, Nether, etc.).
-   In the first mode input coordinates are added
-   to the player coordinates in order to obtain
-   respective world positions. In the second mode input
-   coordinates are considered to represent world positions.
+2) Input min and max block coordinates describing render region
+   box.
 3) Hit _**Render**_ button (the screen will be locked until
    rendering is complete or error is encountered).
 4) Exported geometry will be located in
@@ -55,23 +55,53 @@ Export
    _**screenshots/debug**_ directory
    (https://minecraft.fandom.com/wiki/Texture_atlas).
 
+### Export Modes
+1) **Player Relative Render.** Obtains block coordinates of
+   the render region as sum of input coordinates and player
+   coordinates.
+2) **Absolute Position Render.** Input coordinates are
+   treated as block coordinates of the render region.
+
+### Export Options
+1) **Do not cull faces on boarder.** By default, the exporter
+   culls (hides) block faces based on vanilla rules or config
+   entries. If this option is checked, the exporter will
+   ignore culling on render region boarder, allowing for
+   diorama-like capture.
+2) **Split render per chunk.** By default, the exporter
+   captures entire render region as one single object.
+   If this option is checked, the exporter slices render
+   region based on chunk boarders.
+
 Import
-------------------------------
+---------------------------------------------------------
 1) Open _**Blender**_.
 2) Make sure provided addon is activated.
 3) Use new import option named _**RenderCube (.rcube)**_ to
-   load _**.rcube**_ file(s).
+   load _**.rcube**_ file(s). 
+4) Once meshes are loaded (may take some time) there will be
+   as many new objects as there were files selected.
+5) All objects will have pre-configured materials.
 
-Once meshes are loaded (may take some time)
-you will see as many new objects as there were files to
-import. All of them will already have proper materials.
+### Import Options
+1) **Search for existing materials.** If not checked, the
+   importer always creates a new material for a new object.
+   If checked, the importer searches for already existing
+   materials in the scene (is performed name wise, omitting
+   '.\<numbers\>' at the end) and using them instead of
+   creating duplicates. Useful for exporting different
+   pieces of the same _**Minecraft**_ world.
+2) **Unified material.** By default, the importer assigns
+   unique materials to each object and treats name of the
+   object as the material name. If the option contains
+   any text, the importer will assign only one material
+   with that name to all imported objects.
 
 Limitations and tips
-------------------------------
-1) Some optimization (not including Sodium, Rubidium and
-   their addons) mods that tweak rendering may cause
-   errors when rendering.
-2) No _Java_ exceptions encountered while rendering should
+---------------------------------------------------------
+1) Some optimization mods (not including Sodium, Rubidium
+   and their addons) that tweak rendering may cause errors.
+2) No _**Java**_ exceptions encountered while rendering should
    crash the game. All exceptions that interrupt rendering
    are logged.
 3) If any mod uses some custom rendering pipeline the
@@ -82,18 +112,13 @@ Limitations and tips
    or even single textures (which are not automatically
    exported and should be manually located in game or mod
    resources).
-5) In importer there is an option (checked by default)
-   to reuse materials already existing in the scene (is
-   performed name wise, omitting '.\<numbers\>' at the
-   end). You can turn this off, if you wish to export
-   geometry with different texture atlases in use.
-6) When using _Minecraft_ textures don't forget to
+5) When using _**Minecraft**_ textures don't forget to
    change _Texture interpolation_ from _Linear_ to _Closest_.
-7) _Minecraft_ uses _'overlapping'_ faces (faces located
+6) _**Minecraft**_ uses _'overlapping'_ faces (faces located
    very close to one another). For example, that is
    true for grass blocks. They have extra outer faces
-   on sides (they hold biome colored layer). Such
-   faces will render black. You can fix it via
+   on sides (they contain biome colored layer). Such
+   faces will render black in _Cycles_. You can fix it via
    selecting all faces that cause issue with the
    help of the _UV Editing_ Blender menu, setting
    _Transform Orientations_ to _Normal_ (so that

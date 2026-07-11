@@ -13,116 +13,130 @@ import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 @Environment(EnvType.CLIENT)
-public class RenderScreenTab extends AbstractWidget {
+public abstract class RenderScreenTab extends AbstractWidget {
     /**
-     * Function, executed when widget is clicked.
+     * Tab textures.
      */
-    protected final OnClick onClick;
+    protected final ResourceLocation selectedTexture, deselectedTexture;
     /**
-     * Used textures.
+     * Current tab texture.
      */
-    protected final ResourceLocation selectedTexture, unselectedTexture;
+    protected ResourceLocation currentTexture;
     /**
      * Item being displayed over tab.
      */
     protected final ItemStack itemIcon;
+
     /**
-     * Currently rendered texture.
+     * Action, performed when tab is clicked.
      */
-    protected ResourceLocation currentTexture;
-    /**
-     * Tab type.
-     */
-    public final RenderScreenTab.Type type;
-    /**
-     * Renders tab contents.
-     */
-    public final RenderMethod renderMethod;
+    protected final OnClick onClick;
 
     /**
      * Constructor.
+     * @param posX X position on screen
+     * @param posY Y position on screen
+     * @param title tab title
+     * @param selectedTexture tab texture when active
+     * @param deselectedTexture tab texture when non-active
+     * @param itemIcon tab item icon
+     * @param onClick action, performed when tab is clicked
      */
-    RenderScreenTab(int posLeft, int posTop, ResourceLocation selectedTexture, ResourceLocation unselectedTexture,
-                    Component title, RenderMethod renderMethod, OnClick onClick, ItemStack itemIcon,
-                    RenderScreenTab.Type type) {
-        super(posLeft, posTop, 26, 32, title);
+    RenderScreenTab(int posX, int posY, Component title,
+                    ResourceLocation selectedTexture, ResourceLocation deselectedTexture, ItemStack itemIcon,
+                    OnClick onClick) {
+        super(posX, posY, 26, 32, title);
+        // Tab textures
         this.selectedTexture = selectedTexture;
-        this.unselectedTexture = unselectedTexture;
+        this.deselectedTexture = deselectedTexture;
+        this.deselect(); // not active when created
+
+        // Tab item
         this.itemIcon = itemIcon;
-        this.renderMethod = renderMethod;
+
+        // Action, performed when tab is clicked
         this.onClick = onClick;
-        this.type = type;
 
+        // Setup tooltip
         setTooltip(Tooltip.create(title));
-
-        this.setUnselected();
     }
 
     /**
-     * Renders tab button.
-     * @param guiGraphics the GuiGraphics object used for rendering.
-     * @param mouseX the x-coordinate of the mouse cursor.
-     * @param mouseY the y-coordinate of the mouse cursor.
-     * @param partialTicks the partial tick time.
+     * Renders tab.
+     * @param guiGraphics GUI renderer
+     * @param mouseX X coordinate of the mouse cursor
+     * @param mouseY Y coordinate of the mouse cursor
+     * @param partialTicks partial tick time
      */
-    @Override
     public void renderWidget(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
-        // Tab button texture
-        guiGraphics.blit(currentTexture, this.getX(), this.getY(),0, 0,
-                width, height, width, height);
+        // Render tab texture
+        guiGraphics.blit(this.currentTexture, this.getX(), this.getY(),0, 0,
+                this.width, this.height, this.width, this.height);
 
-        // Render on top of texture item
+        // Render tab item
         int posX = this.getX() + 5;
         int popY = this.getY() + 8;
-        guiGraphics.renderItem(itemIcon, posX, popY);
-        guiGraphics.renderItemDecorations(Minecraft.getInstance().font, itemIcon, posX, popY);
+        guiGraphics.renderItem(this.itemIcon, posX, popY);
+        guiGraphics.renderItemDecorations(Minecraft.getInstance().font, this.itemIcon, posX, popY);
+
+        // If tab is selected
+        if (this.isSelected()) {
+            // Render tab content
+            this.renderTabContents(guiGraphics, mouseX, mouseY, partialTicks);
+        }
     }
 
     /**
-     * Tooltip text.
+     * Renders contents.
+     * @param guiGraphics GUI renderer
+     * @param mouseX X coordinate of the mouse cursor
+     * @param mouseY Y coordinate of the mouse cursor
+     * @param partialTicks partial tick time
      */
-    @Override
+    public abstract void renderTabContents(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY,
+                                           float partialTicks);
+
+    /**
+     * Defines how to render button tooltip.
+     */
     public void updateWidgetNarration(@NotNull NarrationElementOutput narrationElementOutput) {
         this.defaultButtonNarrationText(narrationElementOutput);
     }
 
     /**
+     * @return whether tab is selected
+     */
+    public boolean isSelected(){
+        return this.currentTexture == this.selectedTexture;
+    }
+
+    /**
      * Changes texture to selected version.
      */
-    public void setSelected(){
-        currentTexture = selectedTexture;
+    public void select(){
+        this.currentTexture = this.selectedTexture;
     }
 
     /**
-     * Changes texture to unselected version.
+     * Changes texture to deselected version.
      */
-    public void setUnselected(){
-        currentTexture = unselectedTexture;
+    public void deselect(){
+        this.currentTexture = this.deselectedTexture;
     }
 
     /**
-     * Defines reaction after being clicked by mouse.
-     * @param pMouseX the x-coordinate of the mouse cursor.
-     * @param pMouseY the y-coordinate of the mouse cursor.
+     * Defines reaction for being clicked by mouse.
+     * @param mouseX X coordinate of the mouse cursor
+     * @param mouseY Y coordinate of the mouse cursor
      */
     @Override
-    public void onClick(double pMouseX, double pMouseY) {
+    public void onClick(double mouseX, double mouseY) {
         this.onClick.onClick(this);
     }
 
     /**
-     * Tab types.
+     * Interface for the action, performed when tab is clicked.
      */
-    public enum Type {
-        PLAYER_RELATIVE_RENDER,
-        ABSOLUTE_POSITION_RENDER
-    }
-
-    @Environment(EnvType.CLIENT)
-    public interface RenderMethod {
-        void render(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks);
-    }
-
     @Environment(EnvType.CLIENT)
     public interface OnClick {
         void onClick(RenderScreenTab tab);

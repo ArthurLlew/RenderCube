@@ -36,18 +36,18 @@ public abstract class RenderScreenTab extends AbstractWidget {
 
     /**
      * Constructor.
-     * @param posX X position on screen
-     * @param posY Y position on screen
-     * @param title tab title
-     * @param selectedTexture tab texture when active
+     * @param posX              X position on screen
+     * @param posY              Y position on screen
+     * @param tooltipText       tab tooltip text
+     * @param selectedTexture   tab texture when active
      * @param deselectedTexture tab texture when non-active
-     * @param itemIcon tab item icon
-     * @param onClick action, performed when tab is clicked
+     * @param itemIcon          tab item icon
+     * @param onClick           action, performed when tab is clicked
      */
-    RenderScreenTab(int posX, int posY, Component title,
+    RenderScreenTab(int posX, int posY, Component tooltipText,
                     ResourceLocation selectedTexture, ResourceLocation deselectedTexture, ItemStack itemIcon,
                     OnClick onClick) {
-        super(posX, posY, 26, 32, title);
+        super(posX, posY, 26, 32, tooltipText);
         // Tab textures
         this.selectedTexture = selectedTexture;
         this.deselectedTexture = deselectedTexture;
@@ -60,14 +60,14 @@ public abstract class RenderScreenTab extends AbstractWidget {
         this.onClick = onClick;
 
         // Setup tooltip
-        setTooltip(Tooltip.create(title));
+        setTooltip(Tooltip.create(tooltipText));
     }
 
     /**
      * Renders tab.
-     * @param guiGraphics GUI renderer
-     * @param mouseX X coordinate of the mouse cursor
-     * @param mouseY Y coordinate of the mouse cursor
+     * @param guiGraphics  GUI renderer
+     * @param mouseX       X coordinate of the mouse cursor
+     * @param mouseY       Y coordinate of the mouse cursor
      * @param partialTicks partial tick time
      */
     public void renderWidget(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
@@ -90,9 +90,9 @@ public abstract class RenderScreenTab extends AbstractWidget {
 
     /**
      * Renders contents.
-     * @param guiGraphics GUI renderer
-     * @param mouseX X coordinate of the mouse cursor
-     * @param mouseY Y coordinate of the mouse cursor
+     * @param guiGraphics  GUI renderer
+     * @param mouseX       X coordinate of the mouse cursor
+     * @param mouseY       Y coordinate of the mouse cursor
      * @param partialTicks partial tick time
      */
     public abstract void renderTabContents(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY,

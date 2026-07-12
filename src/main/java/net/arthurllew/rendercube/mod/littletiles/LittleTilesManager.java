@@ -48,6 +48,7 @@ public class LittleTilesManager {
      * @param pos block position
      * @param vertexConsumer vertex consumer
      */
+    @SuppressWarnings("UnstableApiUsage")
     public static void render(BlockEntity blockEntity, LevelAccessor level, BlockPos pos,
                               CommonVertexConsumer vertexConsumer) {
         if (INSTALLED && blockEntity instanceof BETiles tiles) {
@@ -90,7 +91,7 @@ public class LittleTilesManager {
                             new AlignedBox(box.minX / gridRes, box.minY / gridRes, box.minZ / gridRes,
                                     box.maxX / gridRes, box.maxY / gridRes, box.maxZ / gridRes));
 
-                    // For every render type there is in model and for every direction
+                    // For every render type there is a model and for every direction
                     for (RenderType rendertype : blockModel.getRenderTypes(state, randomSource, blockModelData)) {
                         for (Facing facing : Facing.VALUES) {
                             // Get model quads (faces)

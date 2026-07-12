@@ -2,7 +2,7 @@ package net.arthurllew.rendercube.mixin;
 
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
-import net.arthurllew.rendercube.client.rendering.CubesRenderer;
+import net.arthurllew.rendercube.client.rendering.RegionRenderer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.BlockGetter;
@@ -26,9 +26,9 @@ public abstract class BlockWrapper {
                                                 BlockPos pos,
                                                 Operation<Boolean> original) {
         // Must be rendering and allowed by settings
-        if (CubesRenderer.STATE.isRendering() && CubesRenderer.STATE.noRenderRegionBoarderFaceCulling()) {
+        if (RegionRenderer.STATE.isRendering() && RegionRenderer.STATE.renderRegionBoarderFaceCulling()) {
             // If position toward direction is outside of render region
-            if (CubesRenderer.STATE.isOutsideRenderRegion(pos.relative(face))) {
+            if (RegionRenderer.STATE.isOutsideRenderRegion(pos.relative(face))) {
                 return true;
             }
         }

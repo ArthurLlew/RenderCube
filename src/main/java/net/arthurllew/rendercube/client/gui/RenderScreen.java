@@ -5,13 +5,13 @@ import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.arthurllew.rendercube.RenderCube;
 import net.arthurllew.rendercube.client.rendering.RegionRenderer;
+import net.arthurllew.rendercube.client.rendering.chunk.ChunkRendererLODs;
 import net.arthurllew.rendercube.client.rendering.chunk.ChunkRendererVanilla;
 import net.arthurllew.rendercube.config.Config;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.components.AbstractButton;
 import net.minecraft.client.gui.components.Checkbox;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.Tooltip;
@@ -121,23 +121,25 @@ public class RenderScreen extends Screen {
     protected Tab selectedTab;
 
     /**
-     * Render button.
-     */
-    protected RenderButton buttonRender;
-
-    /**
      * Editboxes for coordinates input.
      */
     protected EditBox editboxRenderPos1, editboxRenderPos2;
-
+    /**
+     * Checkbox for controlling per-chunk geometry data saving.
+     */
+    protected Checkbox checkboxPerChunkRendering;
     /**
      * Checkbox for controlling region boarder face culling.
      */
     protected Checkbox checkboxBoarderCulling;
     /**
-     * Checkbox for controlling per-chunk geometry data saving.
+     * Render button.
      */
-    protected Checkbox checkboxPerChunkRendering;
+    protected RenderScreenButton buttonRender;
+    /**
+     * Slider for controlling LODs level.
+     */
+    protected RenderScreenSlider sliderLOD;
 
     /**
      * Screen state (is rendering or not).
@@ -179,6 +181,18 @@ public class RenderScreen extends Screen {
     protected void init() {
         super.init();
 
+        // Save previously selected tab inted
+        int selectedTabIndex;
+        if (selectedTab != null) {
+            selectedTabIndex = this.tabs.indexOf(this.selectedTab);
+        }
+        else {
+            selectedTabIndex = 0;
+        }
+
+        // Clear previous widgets
+        this.clearWidgets();
+
         // Set background texture coordinates in screen center
         this.bgPosLeft = (this.width - this.bgWidth) / 2;
         this.bgPosTop = (this.height - this.bgHeight) / 2;
@@ -205,28 +219,34 @@ public class RenderScreen extends Screen {
             this.editboxRenderPos2.setValue(prevEditbox.getValue());
         }
 
-        // Checkbox for controlling region boarder face culling
-        this.checkboxBoarderCulling = addWidget(Checkbox
-                .builder(Component.literal(""), this.font)
-                .pos(this.bgPosLeft + 9, this.bgPosTop + 88)
-                .maxWidth(180)
-                .selected(this.checkboxBoarderCulling != null && this.checkboxBoarderCulling.selected())
-                .build());
-
         // Checkbox for controlling per-chunk vertex data saving
         this.checkboxPerChunkRendering = addWidget(Checkbox
                 .builder(Component.literal(""), this.font)
-                .pos(this.bgPosLeft + 9, this.bgPosTop + 112)
+                .pos(this.bgPosLeft + 9, this.bgPosTop + 88)
                 .maxWidth(180)
                 .selected(this.checkboxPerChunkRendering != null && this.checkboxPerChunkRendering.selected())
                 .build());
 
+        // Checkbox for controlling region boarder face culling
+        this.checkboxBoarderCulling = addWidget(Checkbox
+                .builder(Component.literal(""), this.font)
+                .pos(this.bgPosLeft + 9, this.bgPosTop + 112)
+                .maxWidth(180)
+                .selected(this.checkboxBoarderCulling != null && this.checkboxBoarderCulling.selected())
+                .build());
+
         // Render button
-        this.buttonRender = addWidget(new RenderButton(
+        this.buttonRender = addWidget(new RenderScreenButton(
                 this.bgPosLeft + this.bgWidth / 2 - 30, this.bgPosTop + 133,
                 60, 20,
                 RENDER_BUTTON_TEXT,
-                this::onRenderButtonPressed));
+                this::onRenderButtonClicked));
+
+        // LODs level slider
+        this.sliderLOD = addWidget(new RenderScreenSlider(
+                this.bgPosLeft + 8, this.bgPosTop + 133,
+                40, 20,
+                4.0, this.sliderLOD != null ? this.sliderLOD.getValue() : 0));
 
         // Refresh tabs list
         this.tabs.clear();
@@ -235,23 +255,35 @@ public class RenderScreen extends Screen {
                 Component.translatable("gui." + MODID + ".render_screen.prr.edit_box.pos1"),
                 Component.translatable("gui." + MODID + ".render_screen.prr.edit_box.pos2"),
                 TAB_TOP_RIGHT_TEXTURES[0], TAB_TOP_RIGHT_TEXTURES[1], new ItemStack(Items.PLAYER_HEAD),
-                this::onTabPressed)));
-        this.tabs.add(addWidget(new TabAPR(this.bgPosLeft + 27, this.bgPosTop - 28,
-                Component.translatable("gui." + MODID + ".render_screen.apr.title"),
-                Component.translatable("gui." + MODID + ".render_screen.apr.edit_box.pos1"),
-                Component.translatable("gui." + MODID + ".render_screen.apr.edit_box.pos2"),
+                this::onTabClicked)));
+        this.tabs.add(addWidget(new TabWRR(this.bgPosLeft + 27, this.bgPosTop - 28,
+                Component.translatable("gui." + MODID + ".render_screen.wrr.title"),
+                Component.translatable("gui." + MODID + ".render_screen.wrr.edit_box.pos1"),
+                Component.translatable("gui." + MODID + ".render_screen.wrr.edit_box.pos2"),
                 TAB_TOP_MIDDLE_TEXTURES[0], TAB_TOP_MIDDLE_TEXTURES[1], new ItemStack(Items.GRASS_BLOCK),
-                this::onTabPressed)));
+                this::onTabClicked)));
+        this.tabs.add(addWidget(new TabLODsPRR(this.bgPosLeft + 54, this.bgPosTop - 28,
+                Component.translatable("gui." + MODID + ".render_screen.LODs.prr.title"),
+                Component.translatable("gui." + MODID + ".render_screen.LODs.prr.edit_box.pos1"),
+                Component.translatable("gui." + MODID + ".render_screen.LODs.prr.edit_box.pos2"),
+                TAB_TOP_MIDDLE_TEXTURES[0], TAB_TOP_MIDDLE_TEXTURES[1], new ItemStack(Items.WITHER_SKELETON_SKULL),
+                this::onTabClicked)));
+        this.tabs.add(addWidget(new TabLODsWRR(this.bgPosLeft + 81, this.bgPosTop - 28,
+                Component.translatable("gui." + MODID + ".render_screen.LODs.wrr.title"),
+                Component.translatable("gui." + MODID + ".render_screen.LODs.wrr.edit_box.pos1"),
+                Component.translatable("gui." + MODID + ".render_screen.LODs.wrr.edit_box.pos2"),
+                TAB_TOP_MIDDLE_TEXTURES[0], TAB_TOP_MIDDLE_TEXTURES[1], new ItemStack(Items.MOSS_BLOCK),
+                this::onTabClicked)));
         // Select the first tab
-        this.selectedTab = this.tabs.getFirst();
+        this.selectedTab = this.tabs.get(selectedTabIndex);
         this.selectedTab.select();
     }
 
     /**
      * Renders GUI element.
-     * @param guiGraphics GUI renderer
-     * @param mouseX X coordinate of the mouse cursor
-     * @param mouseY Y coordinate of the mouse cursor
+     * @param guiGraphics  GUI renderer
+     * @param mouseX       X coordinate of the mouse cursor
+     * @param mouseY       Y coordinate of the mouse cursor
      * @param partialTicks partial tick time
      */
     @Override
@@ -260,7 +292,7 @@ public class RenderScreen extends Screen {
         this.renderBackground(guiGraphics, mouseX, mouseY, partialTicks);
 
         // Render all unselected tabs under background texture
-        for(RenderScreenTab tab : this.tabs){
+        for(Tab tab : this.tabs){
             if (!tab.isSelected()) {
                 tab.render(guiGraphics, mouseX, mouseY, partialTicks);
             }
@@ -275,10 +307,10 @@ public class RenderScreen extends Screen {
     }
 
     /**
-     * Handles tab being pressed.
-     * @param tab pressed tab instance
+     * Handles tab being clicked.
+     * @param tab clicked tab
      */
-    protected void onTabPressed(RenderScreenTab tab) {
+    protected void onTabClicked(RenderScreenTab tab) {
         if (tab != this.selectedTab) {
             // Deselect current tab
             this.selectedTab.deselect();
@@ -290,10 +322,9 @@ public class RenderScreen extends Screen {
     }
 
     /**
-     * Handles render button being pressed.
-     * @param button pressed button instance
+     * Handles render button being clicked.
      */
-    protected void onRenderButtonPressed(AbstractButton button) {
+    protected void onRenderButtonClicked() {
         // Only render if not already rendering
         if (this.isIdle) {
             // Seal screen
@@ -362,7 +393,7 @@ public class RenderScreen extends Screen {
     }
 
     /**
-     * Basic rendering tab.
+     * Rendering tab.
      */
     protected abstract class Tab extends RenderScreenTab {
         // Tab specific texts.
@@ -372,11 +403,11 @@ public class RenderScreen extends Screen {
         final int titleTextPosX = bgPosLeft + 8;
         final int titleTextPosY = bgPosTop + 6;
         final int editboxTextPosX = bgPosLeft + 12;
-        final int editbox1TextPosY = bgPosTop + 19;
-        final int editbox2TextPosY = bgPosTop + 54;
+        final int editboxPos1TextPosY = bgPosTop + 19;
+        final int editboxPos2TextPosY = bgPosTop + 54;
         final int checkBoxTextPosX = bgPosLeft + Checkbox.getBoxSize(font) + 12;
-        final int checkBox1TextPosY = checkboxBoarderCulling.getY() + Checkbox.getBoxSize(font) / 2 - 3;
-        final int checkBox2TextPosY = checkboxPerChunkRendering.getY() + Checkbox.getBoxSize(font) / 2 - 3;
+        final int checkboxPerChunkRenderingTextPosY = checkboxPerChunkRendering.getY() + Checkbox.getBoxSize(font) / 2 - 3;
+        final int checkboxBoarderCullingTextPosY = checkboxBoarderCulling.getY() + Checkbox.getBoxSize(font) / 2 - 3;
 
         /**
          * Constructor.
@@ -412,26 +443,26 @@ public class RenderScreen extends Screen {
             guiGraphics.drawString(font, title, titleTextPosX, titleTextPosY, 0x404040, false);
 
             // Editbox 1
-            guiGraphics.drawString(font, editbox1Text, this.editboxTextPosX, this.editbox1TextPosY,
+            guiGraphics.drawString(font, editbox1Text, this.editboxTextPosX, this.editboxPos1TextPosY,
                     0x404040, false);
             editboxRenderPos1.render(guiGraphics, mouseX, mouseY, partialTicks);
 
             // Editbox 2
-            guiGraphics.drawString(font, editbox2Text, this.editboxTextPosX, this.editbox2TextPosY,
+            guiGraphics.drawString(font, editbox2Text, this.editboxTextPosX, this.editboxPos2TextPosY,
                     0x404040, false);
             editboxRenderPos2.render(guiGraphics, mouseX, mouseY, partialTicks);
 
-            // Region boarder culling checkbox
-            guiGraphics.drawString(font, REGION_BOARDER_CHECKBOX_TEXT,
-                    this.checkBoxTextPosX, this.checkBox1TextPosY,
-                    0x404040, false);
-            checkboxBoarderCulling.render(guiGraphics, mouseX, mouseY, partialTicks);
-
             // Per chunk rendering checkbox
             guiGraphics.drawString(font, PER_CHUNK_RENDERING_CHECKBOX_TEXT,
-                    this.checkBoxTextPosX, this.checkBox2TextPosY,
+                    this.checkBoxTextPosX, this.checkboxPerChunkRenderingTextPosY,
                     0x404040, false);
             checkboxPerChunkRendering.render(guiGraphics, mouseX, mouseY, partialTicks);
+
+            // Region boarder culling checkbox
+            guiGraphics.drawString(font, REGION_BOARDER_CHECKBOX_TEXT,
+                    this.checkBoxTextPosX, this.checkboxBoarderCullingTextPosY,
+                    0x404040, false);
+            checkboxBoarderCulling.render(guiGraphics, mouseX, mouseY, partialTicks);
 
             // Render button
             buttonRender.render(guiGraphics, mouseX, mouseY, partialTicks);
@@ -449,9 +480,49 @@ public class RenderScreen extends Screen {
     }
 
     /**
+     * World relative position render tab.
+     */
+    protected class TabWRR extends Tab {
+        /**
+         * Constructor.
+         * @param posX              X position on screen
+         * @param posY              Y position on screen
+         * @param title             tab title and tooltip text
+         * @param editbox1Text      text of the first editbox
+         * @param editbox2Text      text of the second editbox
+         * @param selectedTexture   tab texture when active
+         * @param unselectedTexture tab texture when non-active
+         * @param itemIcon          tab item icon
+         * @param onClick           action, performed when tab is clicked
+         */
+        TabWRR(int posX, int posY, Component title, Component editbox1Text, Component editbox2Text,
+               ResourceLocation selectedTexture, ResourceLocation unselectedTexture, ItemStack itemIcon,
+               OnClick onClick) {
+            super(posX, posY, title, editbox1Text, editbox2Text, selectedTexture, unselectedTexture, itemIcon, onClick);
+        }
+
+        /**
+         * Captures world region.
+         * @param player client player
+         * @param minPos min block position of the region to capture
+         * @param maxPos max block position of the region to capture
+         */
+        @Override
+        public void captureRegion(@NotNull LocalPlayer player,
+                                  @NotNull BlockPos minPos,
+                                  @NotNull BlockPos maxPos) throws IOException {
+            // Render requested region
+            RegionRenderer.captureRegion(new ChunkRendererVanilla(player.level()),
+                    minPos, maxPos,
+                    checkboxPerChunkRendering.selected(),
+                    checkboxBoarderCulling.selected());
+        }
+    }
+
+    /**
      * Player relative render tab.
      */
-    protected class TabPRR extends Tab {
+    protected class TabPRR extends TabWRR {
         /**
          * Constructor.
          * @param posX              X position on screen
@@ -481,18 +552,16 @@ public class RenderScreen extends Screen {
                                   @NotNull BlockPos minPos,
                                   @NotNull BlockPos maxPos) throws IOException {
             // Render requested region with position offset by player coordinates
-            RegionRenderer.captureRegion(new ChunkRendererVanilla(player.level()),
+            super.captureRegion(player,
                     minPos.offset(player.getBlockX(), player.getBlockY(), player.getBlockZ()),
-                    maxPos.offset(player.getBlockX(), player.getBlockY(), player.getBlockZ()),
-                    checkboxPerChunkRendering.selected(),
-                    checkboxBoarderCulling.selected());
+                    maxPos.offset(player.getBlockX(), player.getBlockY(), player.getBlockZ()));
         }
     }
 
     /**
-     * Absolute position render tab.
+     * LODs render tab (world relative position).
      */
-    protected class TabAPR extends Tab {
+    protected class TabLODsWRR extends Tab {
         /**
          * Constructor.
          * @param posX              X position on screen
@@ -505,14 +574,29 @@ public class RenderScreen extends Screen {
          * @param itemIcon          tab item icon
          * @param onClick           action, performed when tab is clicked
          */
-        TabAPR(int posX, int posY, Component title, Component editbox1Text, Component editbox2Text,
-               ResourceLocation selectedTexture, ResourceLocation unselectedTexture, ItemStack itemIcon,
-               OnClick onClick) {
+        TabLODsWRR(int posX, int posY, Component title, Component editbox1Text, Component editbox2Text,
+                   ResourceLocation selectedTexture, ResourceLocation unselectedTexture, ItemStack itemIcon,
+                   OnClick onClick) {
             super(posX, posY, title, editbox1Text, editbox2Text, selectedTexture, unselectedTexture, itemIcon, onClick);
         }
 
         /**
-         * Captures world region.
+         * Renders player relative render tab.
+         * @param guiGraphics  GUI renderer
+         * @param mouseX       X coordinate of the mouse cursor
+         * @param mouseY       Y coordinate of the mouse cursor
+         * @param partialTicks partial tick time
+         */
+        @Override
+        public void renderTabContents(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
+            super.renderTabContents(guiGraphics, mouseX, mouseY, partialTicks);
+
+            // LOD level slider
+            sliderLOD.render(guiGraphics, mouseX, mouseY, partialTicks);
+        }
+
+        /**
+         * Captures world region with LODs.
          * @param player client player
          * @param minPos min block position of the region to capture
          * @param maxPos max block position of the region to capture
@@ -521,11 +605,52 @@ public class RenderScreen extends Screen {
         public void captureRegion(@NotNull LocalPlayer player,
                                   @NotNull BlockPos minPos,
                                   @NotNull BlockPos maxPos) throws IOException {
-            // Render requested region
-            RegionRenderer.captureRegion(new ChunkRendererVanilla(player.level()),
-                    minPos, maxPos,
-                    checkboxPerChunkRendering.selected(),
-                    checkboxBoarderCulling.selected());
+            // Try to render LODs of the requested region
+            try(ChunkRendererLODs chunkRenderer = new ChunkRendererLODs(player.level(), (byte)sliderLOD.getValue())) {
+                RegionRenderer.captureRegion(chunkRenderer,
+                        minPos, maxPos,
+                        checkboxPerChunkRendering.selected(),
+                        checkboxBoarderCulling.selected());
+            }
+        }
+    }
+
+    /**
+     * LODs render tab (player relative position).
+     */
+    protected class TabLODsPRR extends TabLODsWRR {
+        /**
+         * Constructor.
+         * @param posX              X position on screen
+         * @param posY              Y position on screen
+         * @param title             tab title and tooltip text
+         * @param editbox1Text      text of the first editbox
+         * @param editbox2Text      text of the second editbox
+         * @param selectedTexture   tab texture when active
+         * @param unselectedTexture tab texture when non-active
+         * @param itemIcon          tab item icon
+         * @param onClick           action, performed when tab is clicked
+         */
+        TabLODsPRR(int posX, int posY, Component title, Component editbox1Text, Component editbox2Text,
+                   ResourceLocation selectedTexture, ResourceLocation unselectedTexture, ItemStack itemIcon,
+                   OnClick onClick) {
+            super(posX, posY, title, editbox1Text, editbox2Text, selectedTexture, unselectedTexture, itemIcon, onClick);
+        }
+
+        /**
+         * Captures world region with LODs.
+         * @param player client player
+         * @param minPos min block position of the region to capture
+         * @param maxPos max block position of the region to capture
+         */
+        @Override
+        public void captureRegion(@NotNull LocalPlayer player,
+                                  @NotNull BlockPos minPos,
+                                  @NotNull BlockPos maxPos) throws IOException {
+            // Try to render LODs of the requested region with position offset by player coordinates
+            super.captureRegion(player,
+                    minPos.offset(player.getBlockX(), player.getBlockY(), player.getBlockZ()),
+                    maxPos.offset(player.getBlockX(), player.getBlockY(), player.getBlockZ()));
         }
     }
 }

@@ -26,7 +26,7 @@ public abstract class BlockWrapper {
                                                 BlockPos pos,
                                                 Operation<Boolean> original) {
         // Must be rendering and allowed by settings
-        if (RegionRenderer.STATE.isRendering() && RegionRenderer.STATE.renderRegionBoarderFaceCulling()) {
+        if (RegionRenderer.STATE.isRendering() && RegionRenderer.STATE.noRenderRegionBoarderFaceCulling()) {
             // If position toward direction is outside of render region
             if (RegionRenderer.STATE.isOutsideRenderRegion(pos.relative(face))) {
                 return true;

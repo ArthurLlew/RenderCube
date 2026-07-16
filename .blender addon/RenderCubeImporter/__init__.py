@@ -22,7 +22,7 @@ else:
 bl_info = {
     "name": "RenderCubeImporter",
     "author": "Arthur Llew",
-    "version": (1, 0),
+    "version": (2, 0),
     "description": "RenderCube captured geometry importer.",
 }
 

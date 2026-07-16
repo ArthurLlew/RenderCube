@@ -21,15 +21,15 @@ Mod Config
 There are several aspects that can be tweaked via
 _**config/rendercube.json**_:
 1) **Render distance** _(default = 400)_: how big
-   can the render region be made across X/Z.
+   can the render region get across X/Z.
 2) **Use Minecraft Ambient Occlusion** _(default = false)_:
-   whether rendering should capture Minecraft builtin ambient
+   whether rendering should capture Minecraft native ambient
    occlusion.
 3) **Block Consumer Configs**: this list of
    _**\<type, condition, filename, culling>**_,
    used to control face culling and redirect captured
    geometry from pre-defined files into a separate file with
-   a name provided in the entry, may contain either:
+   a name provided in the entry; may contain either:
    * _**\<EMISSION, emission level, filename, culling>**_:
      _emission level_ -- integer from 0 to 15 (block emission
      level).
@@ -56,11 +56,15 @@ Export
    (https://minecraft.fandom.com/wiki/Texture_atlas).
 
 ### Export Modes
-1) **Player Relative Render.** Obtains block coordinates of
-   the render region as sum of input coordinates and player
+1) **Player Relative Render.** Block coordinates of
+   the render region is a sum of input and player
    coordinates.
-2) **Absolute Position Render.** Input coordinates are
+2) **World Relative Render.** Input coordinates are
    treated as block coordinates of the render region.
+3) **LODs Render (Player Relative).** Same as _**Player
+   Relative Render**_ for capturing geometry LODs.
+4) **LODs Render (World Relative).** Same as _**Player
+   Relative Render**_ for capturing geometry LODs.
 
 ### Export Options
 1) **Do not cull faces on boarder.** By default, the exporter
@@ -72,6 +76,15 @@ Export
    captures entire render region as one single object.
    If this option is checked, the exporter slices render
    region based on chunk boarders.
+3) **LOD level.** This slider sets LODs level (LOD column
+   width in blocks): 0 -- width = 1; 1 -- width = 2;
+   2 -- width = 4; 3 -- width = 8; 4 -- width = 16
+   (whole chunk).
+
+### LODS
+Currently, an experimental feature. Allows to render chunks
+with decreased level of detail for use as terrain background
+in a scene.
 
 Import
 ---------------------------------------------------------
@@ -92,15 +105,19 @@ Import
    creating duplicates. Useful for exporting different
    pieces of the same _**Minecraft**_ world.
 2) **Unified material.** By default, the importer assigns
-   unique materials to each object and treats name of the
-   object as the material name. If the option contains
-   any text, the importer will assign only one material
-   with that name to all imported objects.
+   unique materials to each object based on their name
+   (which comes from filename). If the option contains
+   any text, the importer will use it as material name
+   (creating duplicates with '.\<numbers\>' at the end
+   by default). option can be paired with **Search for
+   existing materials** option to assign a single
+   unified material to all imported objects.
+3) **Offset.** Offsets geometry by provided vector.
 
 Limitations and tips
 ---------------------------------------------------------
 1) Some optimization mods (not including Sodium, Rubidium
-   and their addons) that tweak rendering may cause errors.
+   and their addons!) that tweak rendering may cause errors.
 2) No _**Java**_ exceptions encountered while rendering should
    crash the game. All exceptions that interrupt rendering
    are logged.
@@ -118,7 +135,7 @@ Limitations and tips
    very close to one another). For example, that is
    true for grass blocks. They have extra outer faces
    on sides (they contain biome colored layer). Such
-   faces will render black in _Cycles_. You can fix it via
+   faces will render black. One can fix it via
    selecting all faces that cause issue with the
    help of the _UV Editing_ Blender menu, setting
    _Transform Orientations_ to _Normal_ (so that

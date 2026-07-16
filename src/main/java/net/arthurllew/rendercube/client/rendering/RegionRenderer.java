@@ -19,24 +19,24 @@ public abstract class RegionRenderer {
 
     /**
      * Captures geometry of world region.
-     * @param chunkRenderer                  chunk renderer implementation
-     * @param regionMin                      min block position of the region to capture
-     * @param regionMax                      max block position of the region to capture
-     * @param perChunkRendering              whether to write data in unified files or split data files per chunk
-     * @param renderRegionBoarderFaceCulling whether to not cull quads facing out of render region and
-     *                                       located on its boarder
+     * @param chunkRenderer                    chunk renderer implementation
+     * @param regionMin                        min block position of the region to capture
+     * @param regionMax                        max block position of the region to capture
+     * @param perChunkRendering                whether to write data in unified files or split data files per chunk
+     * @param noRenderRegionBoarderFaceCulling whether to not cull quads facing out of render region and
+     *                                         located on its boarder
      **/
     public static void captureRegion(@NotNull ChunkRenderer chunkRenderer,
                                      @NotNull BlockPos regionMin, @NotNull BlockPos regionMax,
                                      boolean perChunkRendering,
-                                     boolean renderRegionBoarderFaceCulling) throws IOException {
+                                     boolean noRenderRegionBoarderFaceCulling) throws IOException {
         // Only render if not rendering
         if (!STATE.isRendering()) {
             try {
                 // Init renderer
                 STATE.chunkRenderer = chunkRenderer;
                 STATE.setRegionPositions(regionMin, regionMax);
-                STATE.renderRegionBoarderFaceCulling = renderRegionBoarderFaceCulling;
+                STATE.noRenderRegionBoarderFaceCulling = noRenderRegionBoarderFaceCulling;
                 // Date time string
                 String dateTimeStr = LocalDateTime.now().toString()
                         .replace("T", "_").replace(":", "-");
@@ -114,7 +114,7 @@ public abstract class RegionRenderer {
         /**
          * Whether to not cull quads facing out of render region and located on its boarder.
          */
-        protected boolean renderRegionBoarderFaceCulling = false;
+        protected boolean noRenderRegionBoarderFaceCulling = false;
 
         /**
          * @return whether any rendering is in process
@@ -126,8 +126,8 @@ public abstract class RegionRenderer {
         /**
          * @return whether to not cull quads facing out of render region and located on its boarder
          */
-        public boolean renderRegionBoarderFaceCulling() {
-            return renderRegionBoarderFaceCulling;
+        public boolean noRenderRegionBoarderFaceCulling() {
+            return noRenderRegionBoarderFaceCulling;
         }
 
         /**

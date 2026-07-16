@@ -28,17 +28,21 @@ public class BasicVertexConsumer implements VertexConsumer {
     public OutputStream outputStream;
 
     /**
-     * Temporary vertex coordinates.
+     * Vertex coordinates.
      */
-    byte[] coordsBytes;
+    protected byte[] coordsBytes;
     /**
-     * Temporary vertex coordinates.
+     * Vertex UVs.
      */
-    byte[] uvBytes;
+    protected byte[] uvBytes;
     /**
-     * Temporary vertex coordinates.
+     * Vertex color.
      */
-    byte[] colorBytes;
+    protected byte[] colorBytes;
+    /**
+     * Vertex normal.
+     */
+    protected byte[] normalBytes;
 
     /**
      * Constructor.
@@ -49,20 +53,25 @@ public class BasicVertexConsumer implements VertexConsumer {
     }
 
     /**
-     * Tries to finalize temporary vertex data.
+     * Tries to finalize vertex data.
      */
-    private void tryToFinalizeVertex() {
+    protected void tryToFinalizeVertex() {
         try {
-            // If temporary vertex is complete
-            if (this.coordsBytes != null && this.uvBytes != null && this.colorBytes != null) {
+            // If vertex is complete
+            if (this.coordsBytes != null
+                    && this.uvBytes != null
+                    && this.colorBytes != null
+                    && this.normalBytes != null) {
                 // Dump vertex data
                 outputStream.write(this.coordsBytes);
                 outputStream.write(this.uvBytes);
                 outputStream.write(this.colorBytes);
+                outputStream.write(this.normalBytes);
                 // Clear temporary vertex data
                 this.coordsBytes = null;
                 this.uvBytes = null;
                 this.colorBytes = null;
+                this.normalBytes = null;
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -148,7 +157,7 @@ public class BasicVertexConsumer implements VertexConsumer {
                 .putDouble(z)
                 .array();
 
-        // Try to write these bytes into file
+        // Try to write vertex into file (vertex might be complete at this point)
         this.tryToFinalizeVertex();
 
         return this;
@@ -172,7 +181,7 @@ public class BasicVertexConsumer implements VertexConsumer {
                 .putInt(a)
                 .array();
 
-        // Try to write these bytes into file
+        // Try to write vertex into file (vertex might be complete at this point)
         this.tryToFinalizeVertex();
 
         return this;
@@ -192,7 +201,29 @@ public class BasicVertexConsumer implements VertexConsumer {
                 .putFloat(v)
                 .array();
 
-        // Try to write these bytes into file
+        // Try to write vertex into file (vertex might be complete at this point)
+        this.tryToFinalizeVertex();
+
+        return this;
+    }
+
+    /**
+     * Captures vertex normal vector.
+     * @param x normal X coordinate
+     * @param y normal Y coordinate
+     * @param z normal Z coordinate
+     * @return self
+     */
+    @Override
+    public @NotNull VertexConsumer setNormal(float x, float y, float z) {
+        // ByteBuffer for 3 floats
+        this.normalBytes = ByteBuffer.allocate(3*Float.BYTES)
+                .putFloat(x)
+                .putFloat(y)
+                .putFloat(z)
+                .array();
+
+        // Try to write vertex into file (vertex might be complete at this point)
         this.tryToFinalizeVertex();
 
         return this;
@@ -222,15 +253,6 @@ public class BasicVertexConsumer implements VertexConsumer {
      */
     @Override
     public @NotNull VertexConsumer setUv2(int var1, int var2) {
-        return this;
-    }
-
-    /**
-     * Does nothing.
-     * @return self
-     */
-    @Override
-    public @NotNull VertexConsumer setNormal(float x, float y, float z) {
         return this;
     }
 

@@ -2,7 +2,6 @@ package net.arthurllew.rendercube.client.rendering.chunk;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.arthurllew.rendercube.client.io.DataWriters;
-import net.arthurllew.rendercube.client.rendering.vertex.BasicVertexConsumer;
 import net.arthurllew.rendercube.client.rendering.vertex.CommonVertexConsumer;
 import net.arthurllew.rendercube.client.rendering.vertex.LiquidVertexConsumer;
 import net.arthurllew.rendercube.config.Config;
@@ -72,7 +71,11 @@ public class ChunkRendererVanilla extends ChunkRenderer {
         // Capture chunk entities
         captureEntities(dataWriters, this.level,
                 new BlockPos(chunkPos.getMinBlockX(), regionMin.getY(), chunkPos.getMinBlockZ()),
-                new BlockPos(chunkPos.getMaxBlockX(), regionMax.getY(), chunkPos.getMaxBlockZ()));
+                new BlockPos(chunkPos.getMaxBlockX(), regionMax.getY(), chunkPos.getMaxBlockZ()),
+                new BlockPos(
+                        chunkPos.getMinBlockX() - regionMin.getX(),
+                        0,
+                        chunkPos.getMinBlockZ() - regionMin.getZ()));
     }
 
     /**
@@ -171,9 +174,11 @@ public class ChunkRendererVanilla extends ChunkRenderer {
      * @param level       level accessor
      * @param chunkMin    min block position of the chunk to capture
      * @param chunkMax    max block position of the chunk to capture
+     * @param regionPos   region relative block position
      **/
     public static void captureEntities(@NotNull DataWriters dataWriters, @NotNull Level level,
-                                       @NotNull BlockPos chunkMin, @NotNull BlockPos chunkMax) throws IOException {
+                                       @NotNull BlockPos chunkMin, @NotNull BlockPos chunkMax,
+                                       @NotNull BlockPos regionPos) throws IOException {
         // Get all entities in region (except player entity)
         List<Entity> entities = level.getEntities(
                 (Entity)null, new AABB(
@@ -207,7 +212,7 @@ public class ChunkRendererVanilla extends ChunkRenderer {
                     Mth.lerp(minecraftConstant, entity.yRotO, entity.getYRot()),
                     minecraftConstant,
                     new PoseStack(),
-                    new BasicVertexConsumer(dataWriters.get("renderedEntities")).wrap(),
+                    new CommonVertexConsumer(dataWriters.get("renderedEntities"), regionPos).wrap(),
                     entityRenderDispatcher.getPackedLightCoords(entity, minecraftConstant));
         }
     }

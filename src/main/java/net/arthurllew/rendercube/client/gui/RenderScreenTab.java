@@ -28,7 +28,7 @@ public abstract class RenderScreenTab extends AbstractWidget {
     protected final ItemStack itemIcon;
 
     /**
-     * Action, performed when tab is clicked.
+     * Tab being clicked handler.
      */
     protected final OnClick onClick;
 
@@ -40,7 +40,7 @@ public abstract class RenderScreenTab extends AbstractWidget {
      * @param selectedTexture   tab texture when active
      * @param deselectedTexture tab texture when non-active
      * @param itemIcon          tab item icon
-     * @param onClick           action, performed when tab is clicked
+     * @param onClick           tab being clicked handler
      */
     RenderScreenTab(int posX, int posY, Component tooltipText,
                     ResourceLocation selectedTexture, ResourceLocation deselectedTexture, ItemStack itemIcon,
@@ -129,13 +129,14 @@ public abstract class RenderScreenTab extends AbstractWidget {
      * @param mouseX X coordinate of the mouse cursor
      * @param mouseY Y coordinate of the mouse cursor
      */
+    @SuppressWarnings("deprecation")
     @Override
     public void onClick(double mouseX, double mouseY) {
         this.onClick.onClick(this);
     }
 
     /**
-     * Interface for the action, performed when tab is clicked.
+     * Tab being clicked handler.
      */
     @OnlyIn(Dist.CLIENT)
     public interface OnClick {

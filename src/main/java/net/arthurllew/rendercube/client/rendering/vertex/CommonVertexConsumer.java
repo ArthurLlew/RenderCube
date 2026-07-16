@@ -11,14 +11,14 @@ import java.io.OutputStream;
  */
 public class CommonVertexConsumer extends BasicVertexConsumer {
     /**
-     * Position in region.
+     * Position in render region.
      */
     private final BlockPos regionPos;
 
     /**
      * Constructor.
      * @param fileStream opened file output stream where data will be saved
-     * @param regionPos position in render region
+     * @param regionPos  position inside render region
      */
     public CommonVertexConsumer(OutputStream fileStream, BlockPos regionPos) {
         super(fileStream);

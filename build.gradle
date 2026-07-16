@@ -118,8 +118,6 @@ repositories {
 }
 
 dependencies {
-    // Distant horizons mod
-    implementation files('libs/DistantHorizons-3.2.0-b-1.21.1.jar')
     // Little tiles mod
     implementation files('libs/creativecore-257814-7353403.jar')
     implementation files('libs/littletiles-257818-7369631.jar')

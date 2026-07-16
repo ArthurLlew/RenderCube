@@ -6,8 +6,9 @@ import net.arthurllew.rendercube.client.rendering.RegionRenderer;
 import net.minecraft.client.renderer.block.LiquidBlockRenderer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.material.FluidState;
 import org.spongepowered.asm.mixin.Mixin;
 
 /**
@@ -16,23 +17,24 @@ import org.spongepowered.asm.mixin.Mixin;
 @Mixin(LiquidBlockRenderer.class)
 public class LiquidBlockRendererWrapper {
     /**
-     * Wraps isFaceOccludedByState in {@link LiquidBlockRenderer}. Allows to render faces on boarders of render region.
+     * Wraps shouldRenderFace in {@link LiquidBlockRenderer}. Allows to render faces on boarders of render region.
      */
-    @WrapMethod(method = "isFaceOccludedByState")
-    private static boolean wrapShouldRenderFace(BlockGetter level,
-                                                Direction face,
-                                                float height,
+    @WrapMethod(method = "shouldRenderFace(Lnet/minecraft/world/level/BlockAndTintGetter;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/material/FluidState;Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/core/Direction;Lnet/minecraft/world/level/material/FluidState;)Z")
+    private static boolean wrapShouldRenderFace(BlockAndTintGetter level,
                                                 BlockPos pos,
-                                                BlockState state,
+                                                FluidState fluidState,
+                                                BlockState blockState,
+                                                Direction direction,
+                                                FluidState neighborFluid,
                                                 Operation<Boolean> original) {
         // Must be rendering and allowed by settings
-        if (RegionRenderer.STATE.isRendering() && RegionRenderer.STATE.renderRegionBoarderFaceCulling()) {
+        if (RegionRenderer.STATE.isRendering() && RegionRenderer.STATE.noRenderRegionBoarderFaceCulling()) {
             // If position toward direction is outside of render region
-            if (RegionRenderer.STATE.isOutsideRenderRegion(pos.relative(face))) {
+            if (RegionRenderer.STATE.isOutsideRenderRegion(pos.relative(direction))) {
                 return true;
             }
         }
         // Default behaviour
-        return original.call(level, face, height, pos, state);
+        return original.call(level, pos, fluidState, blockState, direction, neighborFluid);
     }
 }

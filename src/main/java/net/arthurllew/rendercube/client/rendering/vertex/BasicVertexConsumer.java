@@ -28,19 +28,21 @@ public class BasicVertexConsumer implements VertexConsumer {
     public OutputStream outputStream;
 
     /**
-     * Temporary vertex coordinates.
+     * Vertex coordinates.
      */
-    private final double[] coordsBytes = new double[3];
-
+    protected double[] coordsBytes = new double[3];
     /**
-     * Temporary vertex coordinates.
+     * Vertex UVs.
      */
-    private final float[] uvBytes = new float[2];
-
+    protected float[] uvBytes = new float[2];
     /**
-     * Temporary vertex coordinates.
+     * Vertex color.
      */
-    private final int[] colorBytes = new int[4];
+    protected int[] colorBytes = new int[4];
+    /**
+     * Vertex normal.
+     */
+    protected float[] normalBytes = new float[3];
 
     /**
      * Constructor.
@@ -177,22 +179,38 @@ public class BasicVertexConsumer implements VertexConsumer {
         colorBytes[1] = g;
         colorBytes[2] = b;
         colorBytes[3] = a;
-
         return this;
     }
 
     /**
-     * Writes vertex data (captured coordinates, UVs and color) to file.
+     * Does nothing.
+     * @param x X coordinate
+     * @param y Y coordinate
+     * @param z Z coordinate
+     * @return self
+     */
+    @Override
+    public @NotNull VertexConsumer normal(float x, float y, float z) {
+        normalBytes[0] = x;
+        normalBytes[1] = y;
+        normalBytes[2] = z;
+        return this;
+    }
+
+    /**
+     * Tries to finalize vertex data.
      */
     @Override
     public void endVertex() {
-        // ByteBuffer size is 3 double (each is 8 bytes) + 2 floats (each is 4 bytes) + 4 ints (each is 4 bytes)
-        byte[] bytes = ByteBuffer.allocate(48)
+        // ByteBuffer size is 3 double (each is 8 bytes) + 2 floats (each is 4 bytes)
+        //  + 4 ints (each is 4 bytes) + 3 floats (each is 4 bytes)
+        byte[] bytes = ByteBuffer.allocate(60)
                 .putDouble(coordsBytes[0]).putDouble(coordsBytes[1])
                 .putDouble(coordsBytes[2])
                 .putFloat(uvBytes[0]).putFloat(uvBytes[1])
                 .putInt(colorBytes[0]).putInt(colorBytes[1])
                 .putInt(colorBytes[2]).putInt(colorBytes[3])
+                .putFloat(normalBytes[0]).putFloat(normalBytes[1]).putFloat(normalBytes[2])
                 .array();
 
         // Try to write these bytes into file
@@ -222,18 +240,6 @@ public class BasicVertexConsumer implements VertexConsumer {
      */
     @Override
     public @NotNull VertexConsumer uv2(int u, int v) {
-        return this;
-    }
-
-    /**
-     * Does nothing.
-     * @param x X coordinate
-     * @param y Y coordinate
-     * @param z Z coordinate
-     * @return self
-     */
-    @Override
-    public @NotNull VertexConsumer normal(float x, float y, float z) {
         return this;
     }
 

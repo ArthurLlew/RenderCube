@@ -88,13 +88,13 @@ public abstract class RenderScreenTab extends AbstractWidget {
 
     /**
      * Renders contents.
-     * @param guiGraphics  GUI renderer
-     * @param mouseX       X coordinate of the mouse cursor
-     * @param mouseY       Y coordinate of the mouse cursor
-     * @param partialTicks partial tick time
+     * @param guiGraphics GUI renderer
+     * @param mouseX      X coordinate of the mouse cursor
+     * @param mouseY      Y coordinate of the mouse cursor
+     * @param partialTick partial tick time
      */
     public abstract void renderTabContents(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY,
-                                           float partialTicks);
+                                           float partialTick);
 
     /**
      * Defines how to render button tooltip.

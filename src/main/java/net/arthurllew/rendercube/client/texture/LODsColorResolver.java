@@ -304,8 +304,8 @@ public class LODsColorResolver implements AutoCloseable {
      * Stores quad sprite color.
      * @param spritePixelCount quad sprite pixel count
      * @param spriteMeanR      quad sprite average R color
-     * @param spriteMeanG      quad sprite average R color
-     * @param spriteMeanB      quad sprite average R color
+     * @param spriteMeanG      quad sprite average G color
+     * @param spriteMeanB      quad sprite average B color
      */
     protected record QuadSpriteColor(long spritePixelCount, long spriteMeanR, long spriteMeanG, long spriteMeanB){}
 }

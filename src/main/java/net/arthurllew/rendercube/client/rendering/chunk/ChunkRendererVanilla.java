@@ -70,12 +70,9 @@ public class ChunkRendererVanilla extends ChunkRenderer {
 
         // Capture chunk entities
         captureEntities(dataWriters, this.level,
-                new BlockPos(chunkPos.getMinBlockX(), regionMin.getY(), chunkPos.getMinBlockZ()),
-                new BlockPos(chunkPos.getMaxBlockX(), regionMax.getY(), chunkPos.getMaxBlockZ()),
-                new BlockPos(
-                        chunkPos.getMinBlockX() - regionMin.getX(),
-                        0,
-                        chunkPos.getMinBlockZ() - regionMin.getZ()));
+                new BlockPos(minX, regionMin.getY(), minZ),
+                new BlockPos(maxX, regionMax.getY(), maxZ),
+                new BlockPos(minX - regionMin.getX(), 0, minZ - regionMin.getZ()));
     }
 
     /**
@@ -179,16 +176,14 @@ public class ChunkRendererVanilla extends ChunkRenderer {
     public static void captureEntities(@NotNull DataWriters dataWriters, @NotNull Level level,
                                        @NotNull BlockPos chunkMin, @NotNull BlockPos chunkMax,
                                        @NotNull BlockPos regionPos) throws IOException {
-        // Get all entities in region (except player entity)
-        List<Entity> entities = level.getEntities(
-                (Entity)null, new AABB(
-                        chunkMin.getX(),
-                        chunkMin.getY(),
-                        chunkMin.getZ(),
-                        chunkMax.getX(),
-                        chunkMax.getY(),
-                        chunkMax.getZ()),
-                (entity) -> !(entity instanceof Player));
+        // Get all entities (except player) in a box inside chunk
+        AABB boundingBox = new AABB(
+                chunkMin.getX(), chunkMin.getY(), chunkMin.getZ(),
+                chunkMax.getX() + 1, chunkMax.getY() + 1, chunkMax.getZ() + 1);
+        List<Entity> entities = level.getEntities((Entity) null, boundingBox,
+                entity -> !(entity instanceof Player)
+                        // Position decides which chunk owns each entity
+                        && boundingBox.contains(entity.getX(), entity.getY(), entity.getZ()));
 
         // Saves instance of minecraft entity render dispatcher for multiple use in loop
         EntityRenderDispatcher entityRenderDispatcher = Minecraft.getInstance().getEntityRenderDispatcher();

@@ -106,7 +106,7 @@ public class LittleTilesManager {
                                 Direction direction = quad.getDirection();
                                 mutablePos.setWithOffset(pos, direction);
                                 if (Block.shouldRenderFace(state, level, pos, direction, mutablePos)) {
-                                    // Calculate brightness and ambient occlusion
+                                    // Calculate brightness
                                     lighter.computeLightingForQuad(quad);
                                     // Put vertex data into consumer
                                     vertexConsumer.putBulkData(new PoseStack().last(), quad,

@@ -10,13 +10,10 @@ import net.arthurllew.rendercube.client.rendering.chunk.ChunkRendererVanilla;
 import net.arthurllew.rendercube.config.Config;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.components.Checkbox;
-import net.minecraft.client.gui.components.EditBox;
-import net.minecraft.client.gui.components.Tooltip;
+import net.minecraft.client.gui.components.*;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
@@ -59,53 +56,54 @@ public class RenderScreen extends Screen {
                             "textures/gui/tab_top_middle_unselected.png")};
 
     /**
-     * Position input common tooltip.
+     * Config button icon.
      */
-    protected static final Component EDITBOX_TOOLTIP =
-            Component.translatable("gui." + MODID + ".render_screen.edit_box.tooltip");
+    private static final ResourceLocation CONFIG_ICON =
+            ResourceLocation.fromNamespaceAndPath(MODID, "config_small");
 
+    /**
+     * Config button text.
+     */
+    protected static final Component CONFIG_BUTTON_TEXT =
+            Component.translatable("gui." + MODID + ".screen.render.button.config");
     /**
      * Render button text.
      */
     protected static final Component RENDER_BUTTON_TEXT =
-            Component.translatable("gui." + MODID + ".render_screen.button.render");
+            Component.translatable("gui." + MODID + ".screen.render.button.render");
+
     /**
-     * Region border culling checkbox text.
+     * Position input common tooltip.
      */
-    protected static final Component REGION_BOARDER_CHECKBOX_TEXT =
-            Component.translatable("gui." + MODID + ".render_screen.checkbox.region_boarder");
-    /**
-     * Per chunk rendering checkbox text.
-     */
-    protected static final Component PER_CHUNK_RENDERING_CHECKBOX_TEXT =
-            Component.translatable("gui." + MODID + ".render_screen.checkbox.per_chunk_rendering");
+    protected static final Component EDITBOX_TOOLTIP =
+            Component.translatable("gui." + MODID + ".screen.render.editbox.tooltip");
 
     /**
      * Incorrect input message.
      */
     protected static final Component RENDER_WRONG_INPUT_MSG =
-            Component.translatable("gui." + MODID + ".render_screen.button.render.wrong_input");
+            Component.translatable("gui." + MODID + ".screen.render.button.render.wrong_input");
     /**
      * Exceeding render region size cap message.
      */
     protected static final Supplier<Component> RENDER_REGION_TOO_LARGE_MSG = () ->
-            Component.translatable("gui." + MODID + ".render_screen.button.render.region_too_large",
+            Component.translatable("gui." + MODID + ".screen.render.button.render.region_too_large",
                     Config.DATA.maxRenderDistance);
     /**
      * Render success message.
      */
     protected static final Component RENDER_SUCCESS_MSG =
-            Component.translatable("gui." + MODID + ".render_screen.button.render.success");
+            Component.translatable("gui." + MODID + ".screen.render.button.render.success");
     /**
      * Rendering error message.
      */
     protected static final Component RENDER_ERROR_MSG =
-            Component.translatable("gui." + MODID + ".render_screen.button.render.error");
+            Component.translatable("gui." + MODID + ".screen.render.button.render.error");
 
     /**
      * Background texture dimensions.
      */
-    protected final int bgWidth, bgHeight;
+    protected final int bgWidth = 195, bgHeight = 160;
     /**
      * Background texture positions.
      */
@@ -119,19 +117,19 @@ public class RenderScreen extends Screen {
      * Active tab.
      */
     protected Tab selectedTab;
+    /**
+     * Active tab index.
+     */
+    protected static int selectedTabIdx = 0;
 
+    /**
+     * Config editor button.
+     */
+    protected SpriteIconButton buttonConfig;
     /**
      * Editboxes for coordinates input.
      */
     protected EditBox editboxRenderPos1, editboxRenderPos2;
-    /**
-     * Checkbox for controlling per-chunk geometry data saving.
-     */
-    protected Checkbox checkboxPerChunkRendering;
-    /**
-     * Checkbox for controlling region boarder face culling.
-     */
-    protected Checkbox checkboxBoarderCulling;
     /**
      * Render button.
      */
@@ -140,6 +138,10 @@ public class RenderScreen extends Screen {
      * Slider for controlling LODs level.
      */
     protected RenderScreenSlider sliderLOD;
+    /**
+     * LODs level.
+     */
+    protected static int LODsLevel = 0;
 
     /**
      * Screen state (is rendering or not).
@@ -150,11 +152,7 @@ public class RenderScreen extends Screen {
      * Constructor.
      */
     public RenderScreen() {
-        super(CommonComponents.EMPTY);
-
-        // Background texture size in pixels
-        this.bgWidth = 195;
-        this.bgHeight = 160;
+        super(Component.literal("Render Menu"));
     }
 
     /**
@@ -181,15 +179,6 @@ public class RenderScreen extends Screen {
     protected void init() {
         super.init();
 
-        // Save previously selected tab inted
-        int selectedTabIndex;
-        if (selectedTab != null) {
-            selectedTabIndex = this.tabs.indexOf(this.selectedTab);
-        }
-        else {
-            selectedTabIndex = 0;
-        }
-
         // Clear previous widgets
         this.clearWidgets();
 
@@ -197,14 +186,26 @@ public class RenderScreen extends Screen {
         this.bgPosLeft = (this.width - this.bgWidth) / 2;
         this.bgPosTop = (this.height - this.bgHeight) / 2;
 
+        // Config button
+        //noinspection DataFlowIssue
+        this.buttonConfig = addWidget(SpriteIconButton
+                .builder(CONFIG_BUTTON_TEXT,
+                        b -> this.minecraft.setScreen(new ConfigScreen(this)),
+                        true)
+                .size(20, 21)
+                .sprite(CONFIG_ICON, 16, 16)
+                .build());
+        this.buttonConfig.setPosition(this.bgPosLeft + this.bgWidth - 25, this.bgPosTop + 5);
+        this.buttonConfig.setTooltip(Tooltip.create(CONFIG_BUTTON_TEXT));
+
         EditBox prevEditbox;
         // Positions 1 input
         prevEditbox = this.editboxRenderPos1;
         this.editboxRenderPos1 = addWidget(new EditBox(this.font,
                 this.bgPosLeft + 8, this.bgPosTop + 32,
-                179, 16, Component.literal("editbox1")));
+                179, 16, Component.literal("Pos 1 Editbox")));
+        this.editboxRenderPos1.setMaxLength(40);
         this.editboxRenderPos1.setTooltip(Tooltip.create(EDITBOX_TOOLTIP));
-        this.editboxRenderPos1.setMaxLength(29);
         if (prevEditbox != null) {
             this.editboxRenderPos1.setValue(prevEditbox.getValue());
         }
@@ -212,28 +213,12 @@ public class RenderScreen extends Screen {
         prevEditbox = this.editboxRenderPos2;
         this.editboxRenderPos2 = addWidget(new EditBox(this.font,
                 this.bgPosLeft + 8, this.bgPosTop + 67,
-                179, 16, Component.literal("editbox2")));
+                179, 16, Component.literal("Pos 2 Editbox")));
+        this.editboxRenderPos2.setMaxLength(40);
         this.editboxRenderPos2.setTooltip(Tooltip.create(EDITBOX_TOOLTIP));
-        this.editboxRenderPos2.setMaxLength(29);
         if (prevEditbox != null) {
             this.editboxRenderPos2.setValue(prevEditbox.getValue());
         }
-
-        // Checkbox for controlling per-chunk vertex data saving
-        this.checkboxPerChunkRendering = addWidget(Checkbox
-                .builder(Component.literal(""), this.font)
-                .pos(this.bgPosLeft + 9, this.bgPosTop + 88)
-                .maxWidth(180)
-                .selected(this.checkboxPerChunkRendering != null && this.checkboxPerChunkRendering.selected())
-                .build());
-
-        // Checkbox for controlling region boarder face culling
-        this.checkboxBoarderCulling = addWidget(Checkbox
-                .builder(Component.literal(""), this.font)
-                .pos(this.bgPosLeft + 9, this.bgPosTop + 112)
-                .maxWidth(180)
-                .selected(this.checkboxBoarderCulling != null && this.checkboxBoarderCulling.selected())
-                .build());
 
         // Render button
         this.buttonRender = addWidget(new RenderScreenButton(
@@ -246,55 +231,56 @@ public class RenderScreen extends Screen {
         this.sliderLOD = addWidget(new RenderScreenSlider(
                 this.bgPosLeft + 8, this.bgPosTop + 133,
                 40, 20,
-                4.0, this.sliderLOD != null ? this.sliderLOD.getValue() : 0));
+                4.0, LODsLevel,
+                (v) -> LODsLevel = v));
 
         // Refresh tabs list
         this.tabs.clear();
         this.tabs.add(addWidget(new TabPRR(this.bgPosLeft, this.bgPosTop - 28,
-                Component.translatable("gui." + MODID + ".render_screen.prr.title"),
-                Component.translatable("gui." + MODID + ".render_screen.prr.edit_box.pos1"),
-                Component.translatable("gui." + MODID + ".render_screen.prr.edit_box.pos2"),
+                Component.translatable("gui." + MODID + ".screen.render.prr.title"),
+                Component.translatable("gui." + MODID + ".screen.render.prr.editbox.pos1"),
+                Component.translatable("gui." + MODID + ".screen.render.prr.editbox.pos2"),
                 TAB_TOP_RIGHT_TEXTURES[0], TAB_TOP_RIGHT_TEXTURES[1], new ItemStack(Items.PLAYER_HEAD),
                 this::onTabClicked)));
         this.tabs.add(addWidget(new TabWRR(this.bgPosLeft + 27, this.bgPosTop - 28,
-                Component.translatable("gui." + MODID + ".render_screen.wrr.title"),
-                Component.translatable("gui." + MODID + ".render_screen.wrr.edit_box.pos1"),
-                Component.translatable("gui." + MODID + ".render_screen.wrr.edit_box.pos2"),
+                Component.translatable("gui." + MODID + ".screen.render.wrr.title"),
+                Component.translatable("gui." + MODID + ".screen.render.wrr.editbox.pos1"),
+                Component.translatable("gui." + MODID + ".screen.render.wrr.editbox.pos2"),
                 TAB_TOP_MIDDLE_TEXTURES[0], TAB_TOP_MIDDLE_TEXTURES[1], new ItemStack(Items.GRASS_BLOCK),
                 this::onTabClicked)));
         this.tabs.add(addWidget(new TabLODsPRR(this.bgPosLeft + 54, this.bgPosTop - 28,
-                Component.translatable("gui." + MODID + ".render_screen.LODs.prr.title"),
-                Component.translatable("gui." + MODID + ".render_screen.LODs.prr.edit_box.pos1"),
-                Component.translatable("gui." + MODID + ".render_screen.LODs.prr.edit_box.pos2"),
+                Component.translatable("gui." + MODID + ".screen.render.LODs.prr.title"),
+                Component.translatable("gui." + MODID + ".screen.render.LODs.prr.editbox.pos1"),
+                Component.translatable("gui." + MODID + ".screen.render.LODs.prr.editbox.pos2"),
                 TAB_TOP_MIDDLE_TEXTURES[0], TAB_TOP_MIDDLE_TEXTURES[1], new ItemStack(Items.WITHER_SKELETON_SKULL),
                 this::onTabClicked)));
         this.tabs.add(addWidget(new TabLODsWRR(this.bgPosLeft + 81, this.bgPosTop - 28,
-                Component.translatable("gui." + MODID + ".render_screen.LODs.wrr.title"),
-                Component.translatable("gui." + MODID + ".render_screen.LODs.wrr.edit_box.pos1"),
-                Component.translatable("gui." + MODID + ".render_screen.LODs.wrr.edit_box.pos2"),
+                Component.translatable("gui." + MODID + ".screen.render.LODs.wrr.title"),
+                Component.translatable("gui." + MODID + ".screen.render.LODs.wrr.editbox.pos1"),
+                Component.translatable("gui." + MODID + ".screen.render.LODs.wrr.editbox.pos2"),
                 TAB_TOP_MIDDLE_TEXTURES[0], TAB_TOP_MIDDLE_TEXTURES[1], new ItemStack(Items.MOSS_BLOCK),
                 this::onTabClicked)));
         // Select the first tab
-        this.selectedTab = this.tabs.get(selectedTabIndex);
+        this.selectedTab = this.tabs.get(selectedTabIdx);
         this.selectedTab.select();
     }
 
     /**
      * Renders GUI element.
-     * @param guiGraphics  GUI renderer
-     * @param mouseX       X coordinate of the mouse cursor
-     * @param mouseY       Y coordinate of the mouse cursor
-     * @param partialTicks partial tick time
+     * @param guiGraphics GUI renderer
+     * @param mouseX      X coordinate of the mouse cursor
+     * @param mouseY      Y coordinate of the mouse cursor
+     * @param partialTick partial tick
      */
     @Override
-    public void render(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
+    public void render(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         // Render background blur
-        this.renderBackground(guiGraphics, mouseX, mouseY, partialTicks);
+        this.renderBackground(guiGraphics, mouseX, mouseY, partialTick);
 
         // Render all unselected tabs under background texture
         for(Tab tab : this.tabs){
             if (!tab.isSelected()) {
-                tab.render(guiGraphics, mouseX, mouseY, partialTicks);
+                tab.render(guiGraphics, mouseX, mouseY, partialTick);
             }
         }
 
@@ -303,7 +289,7 @@ public class RenderScreen extends Screen {
                 this.bgWidth, this.bgHeight, this.bgWidth, this.bgHeight);
 
         // Render selected tab
-        this.selectedTab.render(guiGraphics, mouseX, mouseY, partialTicks);
+        this.selectedTab.render(guiGraphics, mouseX, mouseY, partialTick);
     }
 
     /**
@@ -316,6 +302,7 @@ public class RenderScreen extends Screen {
             this.selectedTab.deselect();
             // Assign new selected tab
             this.selectedTab = (Tab)tab;
+            selectedTabIdx = this.tabs.indexOf(this.selectedTab);
             // Set its state as active
             this.selectedTab.select();
         }
@@ -405,9 +392,6 @@ public class RenderScreen extends Screen {
         final int editboxTextPosX = bgPosLeft + 12;
         final int editboxPos1TextPosY = bgPosTop + 19;
         final int editboxPos2TextPosY = bgPosTop + 54;
-        final int checkBoxTextPosX = bgPosLeft + Checkbox.getBoxSize(font) + 12;
-        final int checkboxPerChunkRenderingTextPosY = checkboxPerChunkRendering.getY() + Checkbox.getBoxSize(font) / 2 - 3;
-        final int checkboxBoarderCullingTextPosY = checkboxBoarderCulling.getY() + Checkbox.getBoxSize(font) / 2 - 3;
 
         /**
          * Constructor.
@@ -432,40 +416,31 @@ public class RenderScreen extends Screen {
 
         /**
          * Renders player relative render tab.
-         * @param guiGraphics  GUI renderer
-         * @param mouseX       X coordinate of the mouse cursor
-         * @param mouseY       Y coordinate of the mouse cursor
-         * @param partialTicks partial tick time
+         * @param guiGraphics GUI renderer
+         * @param mouseX      X coordinate of the mouse cursor
+         * @param mouseY      Y coordinate of the mouse cursor
+         * @param partialTick partial tick
          */
         @Override
-        public void renderTabContents(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
+        public void renderTabContents(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
             // Tab title
             guiGraphics.drawString(font, title, titleTextPosX, titleTextPosY, 0x404040, false);
+
+            // Config button
+            buttonConfig.render(guiGraphics, mouseX, mouseY, partialTick);
 
             // Editbox 1
             guiGraphics.drawString(font, editbox1Text, this.editboxTextPosX, this.editboxPos1TextPosY,
                     0x404040, false);
-            editboxRenderPos1.render(guiGraphics, mouseX, mouseY, partialTicks);
+            editboxRenderPos1.render(guiGraphics, mouseX, mouseY, partialTick);
 
             // Editbox 2
             guiGraphics.drawString(font, editbox2Text, this.editboxTextPosX, this.editboxPos2TextPosY,
                     0x404040, false);
-            editboxRenderPos2.render(guiGraphics, mouseX, mouseY, partialTicks);
-
-            // Per chunk rendering checkbox
-            guiGraphics.drawString(font, PER_CHUNK_RENDERING_CHECKBOX_TEXT,
-                    this.checkBoxTextPosX, this.checkboxPerChunkRenderingTextPosY,
-                    0x404040, false);
-            checkboxPerChunkRendering.render(guiGraphics, mouseX, mouseY, partialTicks);
-
-            // Region boarder culling checkbox
-            guiGraphics.drawString(font, REGION_BOARDER_CHECKBOX_TEXT,
-                    this.checkBoxTextPosX, this.checkboxBoarderCullingTextPosY,
-                    0x404040, false);
-            checkboxBoarderCulling.render(guiGraphics, mouseX, mouseY, partialTicks);
+            editboxRenderPos2.render(guiGraphics, mouseX, mouseY, partialTick);
 
             // Render button
-            buttonRender.render(guiGraphics, mouseX, mouseY, partialTicks);
+            buttonRender.render(guiGraphics, mouseX, mouseY, partialTick);
         }
 
         /**
@@ -512,10 +487,7 @@ public class RenderScreen extends Screen {
                                   @NotNull BlockPos minPos,
                                   @NotNull BlockPos maxPos) throws IOException {
             // Render requested region
-            RegionRenderer.captureRegion(new ChunkRendererVanilla(player.level()),
-                    minPos, maxPos,
-                    checkboxPerChunkRendering.selected(),
-                    checkboxBoarderCulling.selected());
+            RegionRenderer.captureRegion(new ChunkRendererVanilla(player.level()), minPos, maxPos);
         }
     }
 
@@ -582,17 +554,17 @@ public class RenderScreen extends Screen {
 
         /**
          * Renders player relative render tab.
-         * @param guiGraphics  GUI renderer
-         * @param mouseX       X coordinate of the mouse cursor
-         * @param mouseY       Y coordinate of the mouse cursor
-         * @param partialTicks partial tick time
+         * @param guiGraphics GUI renderer
+         * @param mouseX      X coordinate of the mouse cursor
+         * @param mouseY      Y coordinate of the mouse cursor
+         * @param partialTick partial tick time
          */
         @Override
-        public void renderTabContents(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
-            super.renderTabContents(guiGraphics, mouseX, mouseY, partialTicks);
+        public void renderTabContents(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+            super.renderTabContents(guiGraphics, mouseX, mouseY, partialTick);
 
             // LOD level slider
-            sliderLOD.render(guiGraphics, mouseX, mouseY, partialTicks);
+            sliderLOD.render(guiGraphics, mouseX, mouseY, partialTick);
         }
 
         /**
@@ -607,10 +579,7 @@ public class RenderScreen extends Screen {
                                   @NotNull BlockPos maxPos) throws IOException {
             // Try to render LODs of the requested region
             try(ChunkRendererLODs chunkRenderer = new ChunkRendererLODs(player.level(), (byte)sliderLOD.getValue())) {
-                RegionRenderer.captureRegion(chunkRenderer,
-                        minPos, maxPos,
-                        checkboxPerChunkRendering.selected(),
-                        checkboxBoarderCulling.selected());
+                RegionRenderer.captureRegion(chunkRenderer, minPos, maxPos);
             }
         }
     }

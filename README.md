@@ -16,33 +16,9 @@ Setup
 2) Install _**Blender addon**_
    (see [Add-ons - Blender Manual](https://docs.blender.org/manual/en/latest/editors/preferences/addons.html))
 
-Mod Config
----------------------------------------------------------
-There are several aspects that can be tweaked via
-_**config/rendercube.json**_:
-1) **Render distance** _(default = 400)_: how big
-   can the render region get across X/Z.
-2) **Use Minecraft Ambient Occlusion** _(default = false)_:
-   whether rendering should capture Minecraft native ambient
-   occlusion.
-3) **Block Consumer Configs**: this list of
-   _**\<type, condition, filename, culling>**_,
-   used to control face culling and redirect captured
-   geometry from pre-defined files into a separate file with
-   a name provided in the entry; may contain either:
-   * _**\<EMISSION, emission level, filename, culling>**_:
-     _emission level_ -- integer from 0 to 15 (block emission
-     level).
-   * _**\<CLASS, class string, filename, culling>**_:
-     _class string_ -- full _**Java**_ class name (examples
-     can be found in default config).
-   * _**\<BLOCK, block registry string, filename, culling>**_:
-     _block registry string_ -- <nobr>"\<namespace>:\<id>"</nobr>
-     (e.g. <nobr>"minecraft:oak_log"</nobr>).
-
 Export
 ---------------------------------------------------------
-1) Open render menu _( default key = **R** )_.
+1) Open _Render Menu_ ( default key = **R** ).
 2) Input min and max block coordinates describing render region
    box.
 3) Hit _**Render**_ button (the screen will be locked until
@@ -56,42 +32,33 @@ Export
    (https://minecraft.fandom.com/wiki/Texture_atlas).
 
 ### Export Modes
-1) **Player Relative Render.** Block coordinates of
-   the render region is a sum of input and player
+1) **Player Relative Render.** Coordinates of
+   the render region are a sum of input and player
    coordinates.
 2) **World Relative Render.** Input coordinates are
-   treated as block coordinates of the render region.
+   treated as block coordinates of the world.
 3) **LODs Render (Player Relative).** Same as _**Player
    Relative Render**_ for capturing geometry LODs.
-4) **LODs Render (World Relative).** Same as _**Player
+4) **LODs Render (World Relative).** Same as _**World
    Relative Render**_ for capturing geometry LODs.
 
-### Export Options
-1) **Do not cull faces on boarder.** By default, the exporter
-   culls (hides) block faces based on vanilla rules or config
-   entries. If this option is checked, the exporter will
-   ignore culling on render region boarder, allowing for
-   diorama-like capture.
-2) **Split render per chunk.** By default, the exporter
-   captures entire render region as one single object.
-   If this option is checked, the exporter slices render
-   region based on chunk boarders.
-3) **LOD level.** This slider sets LODs level (LOD column
+### Render Menu Options
+1) **LOD level (in LOD export modes).** This slider
+   sets LODs level (LOD column
    width in blocks): 0 -- width = 1; 1 -- width = 2;
    2 -- width = 4; 3 -- width = 8; 4 -- width = 16
    (whole chunk).
 
 ### LODS
-Currently, an experimental feature. Allows to render chunks
-with decreased level of detail for use as terrain background
-in a scene.
+Allows to render chunks with decreased level of detail
+for use as terrain background in a scene.
 
 Import
 ---------------------------------------------------------
 1) Open _**Blender**_.
 2) Make sure provided addon is activated.
 3) Use new import option named _**RenderCube (.rcube)**_ to
-   load _**.rcube**_ file(s). 
+   load _**.rcube**_ file(s).
 4) Once meshes are loaded (may take some time) there will be
    as many new objects as there were files selected.
 5) All objects will have pre-configured materials.
@@ -113,6 +80,42 @@ Import
    existing materials** option to assign a single
    unified material to all imported objects.
 3) **Offset.** Offsets geometry by provided vector.
+
+Mod Config
+---------------------------------------------------------
+Mod Config is accessible from _Config Menu_ and as a
+normal config file _**../config/rendercube.json**_.
+These are the values and their related functions:
+1) **Render distance** _(default = 400)_. A cap on the
+   render region size across X/Z.
+2) **Split render per chunk.** By default, the exporter
+   captures entire render region as one single object.
+   If this option is checked, the exporter slices render
+   region based on chunk borders. Useful for large scenes.
+3) **Capture Directional Shading.** To keep blocks from looking
+   flat Vanilla applies fixed direction driven shading to block
+   quads. By default, this option is off (realistic Minecraft
+   shaders omit this shading). Can be turned on for the true
+   Vanilla look.
+4) **Region Border Unculled Directions.** Allows to avoid culling
+   (face hiding) on render region borders. A great option for
+   creating dioramas. Each Minecraft direction has its own flag,
+   which is useful for exporting parts of desired world region
+   separately.
+5) **Block Consumer Configs**. A list of block predicates
+   _**\<type, condition, filename, culling>**_ . Is
+   used per specified block to control face culling and redirect
+   captured geometry from pre-defined files into a separate file 
+   with a name provided in the entry. May contain either:
+   * _**\<EMISSION, emission level, filename, culling>**_:
+     _emission level_ -- integer from 0 to 15 (block emission
+     level).
+   * _**\<CLASS, class string, filename, culling>**_:
+     _class string_ -- full _**Java**_ class name (examples
+     can be found in default config).
+   * _**\<BLOCK, block registry string, filename, culling>**_:
+     _block registry string_ -- <nobr>"\<namespace>:\<id>"</nobr>
+     (e.g. <nobr>"minecraft:oak_log"</nobr>).
 
 Limitations and tips
 ---------------------------------------------------------
@@ -142,4 +145,4 @@ Limitations and tips
    all transforms happen along normals), setting
    _Transform Pivot Point_ to _Individual Origins_
    and then finally pressing _G_ and _Z_ (move along
-   Z-axis) to move them away for a tiny amount.
+   Z-axis) to move them away by a tiny margin (eg 0.0001).

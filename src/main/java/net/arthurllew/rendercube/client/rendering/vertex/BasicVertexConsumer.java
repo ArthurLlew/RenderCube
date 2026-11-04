@@ -3,7 +3,6 @@ package net.arthurllew.rendercube.client.rendering.vertex;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import net.arthurllew.rendercube.config.Config;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.model.BakedQuad;
@@ -25,12 +24,16 @@ public class BasicVertexConsumer implements VertexConsumer {
     /**
      * Holds file stream.
      */
-    public OutputStream outputStream;
+    protected OutputStream outputStream;
 
     /**
      * Vertex coordinates.
      */
     protected byte[] coordsBytes;
+    /**
+     * Vertex normal.
+     */
+    protected byte[] normalBytes;
     /**
      * Vertex UVs.
      */
@@ -40,9 +43,13 @@ public class BasicVertexConsumer implements VertexConsumer {
      */
     protected byte[] colorBytes;
     /**
-     * Vertex normal.
+     * Vertex brightness.
      */
-    protected byte[] normalBytes;
+    protected byte[] brightnessBytes = ByteBuffer.allocate(Float.BYTES).putFloat(1).array();
+    /**
+     * Vertex light.
+     */
+    protected byte[] lightBytes;
 
     /**
      * Constructor.
@@ -59,19 +66,25 @@ public class BasicVertexConsumer implements VertexConsumer {
         try {
             // If vertex is complete
             if (this.coordsBytes != null
+                    && this.normalBytes != null
                     && this.uvBytes != null
                     && this.colorBytes != null
-                    && this.normalBytes != null) {
+                    && this.brightnessBytes != null
+                    && this.lightBytes != null) {
                 // Dump vertex data
-                outputStream.write(this.coordsBytes);
-                outputStream.write(this.uvBytes);
-                outputStream.write(this.colorBytes);
-                outputStream.write(this.normalBytes);
+                this.outputStream.write(this.coordsBytes);
+                this.outputStream.write(this.normalBytes);
+                this.outputStream.write(this.uvBytes);
+                this.outputStream.write(this.colorBytes);
+                this.outputStream.write(this.brightnessBytes);
+                this.outputStream.write(this.lightBytes);
                 // Clear temporary vertex data
                 this.coordsBytes = null;
+                this.normalBytes = null;
                 this.uvBytes = null;
                 this.colorBytes = null;
-                this.normalBytes = null;
+                this.brightnessBytes = ByteBuffer.allocate(Float.BYTES).putFloat(1).array();
+                this.lightBytes = null;
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -79,7 +92,7 @@ public class BasicVertexConsumer implements VertexConsumer {
     }
 
     /**
-     * Copy of {@link VertexConsumer#putBulkData}. Includes control over rendering of ambient occlusion.
+     * Copy of {@link VertexConsumer#putBulkData}. Modified to capture vertex brightness.
      */
     @Override
     public void putBulkData(PoseStack.Pose pose, BakedQuad quad, float @NotNull [] brightness,
@@ -108,7 +121,7 @@ public class BasicVertexConsumer implements VertexConsumer {
                 float f4 = green;
                 float f5 = blue;
 
-                // Brightness was moved from here below
+                // Brightness was moved below from here so it is not contaminating color and can be captured too
                 if (readAlpha) {
                     f3 *= (float)(bytebuffer.get(12) & 255);
                     f4 *= (float)(bytebuffer.get(13) & 255);
@@ -118,13 +131,10 @@ public class BasicVertexConsumer implements VertexConsumer {
                     f4 *= 255.0F;
                     f5 *= 255.0F;
                 }
-
-                // Ambient occlusion depending on config
-                if (Config.DATA.useMinecraftAmbientOcclusion) {
-                    f3 *= brightness[l];
-                    f4 *= brightness[l];
-                    f5 *= brightness[l];
-                }
+                // Brightness
+                this.brightnessBytes = ByteBuffer.allocate(Float.BYTES)
+                        .putFloat(brightness[l])
+                        .array();
 
                 int i1 = FastColor.ARGB32.color(k, (int)f3, (int)f4, (int)f5);
                 float f10 = bytebuffer.getFloat(16);
@@ -160,21 +170,19 @@ public class BasicVertexConsumer implements VertexConsumer {
     }
 
     /**
-     * Captures vertex color.
-     * @param r Red channel
-     * @param g Green channel
-     * @param b Blue channel
-     * @param a Alpha channel
+     * Captures vertex normal vector.
+     * @param x normal X coordinate
+     * @param y normal Y coordinate
+     * @param z normal Z coordinate
      * @return self
      */
     @Override
-    public @NotNull VertexConsumer setColor(int r, int g, int b, int a) {
-        // ByteBuffer for 4 ints
-        this.colorBytes = ByteBuffer.allocate(4*Integer.BYTES)
-                .putInt(r)
-                .putInt(g)
-                .putInt(b)
-                .putInt(a)
+    public @NotNull VertexConsumer setNormal(float x, float y, float z) {
+        // ByteBuffer for 3 floats
+        this.normalBytes = ByteBuffer.allocate(3*Float.BYTES)
+                .putFloat(x)
+                .putFloat(y)
+                .putFloat(z)
                 .array();
 
         // Try to write vertex into file (vertex might be complete at this point)
@@ -204,19 +212,39 @@ public class BasicVertexConsumer implements VertexConsumer {
     }
 
     /**
-     * Captures vertex normal vector.
-     * @param x normal X coordinate
-     * @param y normal Y coordinate
-     * @param z normal Z coordinate
+     * Captures vertex color.
+     * @param r Red channel
+     * @param g Green channel
+     * @param b Blue channel
+     * @param a Alpha channel
      * @return self
      */
     @Override
-    public @NotNull VertexConsumer setNormal(float x, float y, float z) {
-        // ByteBuffer for 3 floats
-        this.normalBytes = ByteBuffer.allocate(3*Float.BYTES)
-                .putFloat(x)
-                .putFloat(y)
-                .putFloat(z)
+    public @NotNull VertexConsumer setColor(int r, int g, int b, int a) {
+        // ByteBuffer for 4 ints
+        this.colorBytes = ByteBuffer.allocate(4*Integer.BYTES)
+                .putInt(r)
+                .putInt(g)
+                .putInt(b)
+                .putInt(a)
+                .array();
+
+        // Try to write vertex into file (vertex might be complete at this point)
+        this.tryToFinalizeVertex();
+
+        return this;
+    }
+
+    /**
+     * Captures vertex block light.
+     * @param packedLight block light: (packed & 0xFFFF) >> 4; skylight: packed >>> 20
+     * @return self
+     */
+    @Override
+    public @NotNull VertexConsumer setLight(int packedLight) {
+        // ByteBuffer for 1 int
+        lightBytes = ByteBuffer.allocate(Integer.BYTES)
+                .putInt((packedLight & 0xFFFF) >> 4)
                 .array();
 
         // Try to write vertex into file (vertex might be complete at this point)

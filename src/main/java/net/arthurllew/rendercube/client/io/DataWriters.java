@@ -64,9 +64,9 @@ public class DataWriters implements AutoCloseable {
         else {
             OutputStream writer = new BufferedOutputStream(
                     new FileOutputStream(Paths.get(this.directory.toString(), fileName + ".rcube").toString()),
-                    // Buffer size = 48 (size of one vertex) * 4 (4 in a quad) *
-                    // * 42 (arbitrary number)
-                    8064);
+                    // Buffer size = 68 (size of one vertex) * 4 (4 in a quad) *
+                    // * 30 (arbitrary number)
+                    8160);
 
             writers.put(fileName, writer);
 

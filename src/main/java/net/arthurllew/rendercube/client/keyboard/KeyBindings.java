@@ -7,9 +7,16 @@ import org.lwjgl.glfw.GLFW;
 import static net.arthurllew.rendercube.RenderCube.MODID;
 
 public abstract class KeyBindings {
+    /**
+     * Mode key category.
+     */
     public static final String MOD_KEY_CATEGORY = "key.category." + MODID + ".rendercube";
 
-    public static final KeyMapping RENDER_SCREEN_KEY = new KeyMapping("key." + MODID + ".render_screen",
-                                                                      InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_R,
-                                                                      MOD_KEY_CATEGORY);
+    /**
+     * Render screen key.
+     */
+    public static final KeyMapping RENDER_SCREEN_KEY =
+            new KeyMapping("key." + MODID + ".screen.render",
+                    InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_R,
+                    MOD_KEY_CATEGORY);
 }

@@ -1,8 +1,11 @@
 package net.arthurllew.rendercube.client.gui;
 
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.components.AbstractSliderButton;
 import net.minecraft.network.chat.Component;
 
+@Environment(EnvType.CLIENT)
 public class RenderScreenSlider extends AbstractSliderButton {
     /**
      * Slider max (converted) integer value.
@@ -15,17 +18,26 @@ public class RenderScreenSlider extends AbstractSliderButton {
     protected int intValue;
 
     /**
-     * Constructor.
-     * @param x            X widget coordinate
-     * @param y            Y widget coordinate
-     * @param width        widget width
-     * @param height       widget width
-     * @param initialValue slider starting value
+     * Slider value change handler.
      */
-    public RenderScreenSlider(int x, int y, int width, int height, double maxValue, int initialValue) {
+    protected final OnValueChange onValueChange;
+
+    /**
+     * Constructor.
+     * @param x             X slider coordinate
+     * @param y             Y slider coordinate
+     * @param width         slider width
+     * @param height        slider height
+     * @param maxValue      slider maximum value
+     * @param initialValue  slider starting value
+     * @param onValueChange slider value change handler
+     */
+    public RenderScreenSlider(int x, int y, int width, int height, double maxValue, int initialValue,
+                              OnValueChange onValueChange) {
         super(x, y, width, height, Component.literal(""), initialValue / maxValue);
         this.maxValue = maxValue;
         this.intValue = initialValue;
+        this.onValueChange = onValueChange;
         // Set initial text
         updateMessage();
     }
@@ -38,11 +50,14 @@ public class RenderScreenSlider extends AbstractSliderButton {
     }
 
     /**
-     * Updates slider text.
+     * Is called upon slider value update.
      */
     @Override
     protected void updateMessage() {
-        setMessage(Component.literal("LOD: " + intValue));
+        // Update count in text
+        setMessage(Component.literal("LOD: " + this.intValue));
+        // Handle slider update
+        this.onValueChange.handle(this.intValue);
     }
 
     /**
@@ -51,8 +66,16 @@ public class RenderScreenSlider extends AbstractSliderButton {
     @Override
     protected void applyValue() {
         // Snap value to the nearest integer
-        this.intValue = (int) Math.round(value * maxValue);
+        this.intValue = (int) Math.round(this.value * this.maxValue);
         // Derive position from int value
-        this.value = intValue / maxValue;
+        this.value = this.intValue / this.maxValue;
+    }
+
+    /**
+     * Slider value change handler.
+     */
+    @Environment(EnvType.CLIENT)
+    public interface OnValueChange {
+        void handle(int value);
     }
 }

@@ -16,10 +16,10 @@ public class RenderScreenButton extends AbstractButton {
 
     /**
      * Constructor.
-     * @param x       X widget coordinate
-     * @param y       Y widget coordinate
-     * @param width   widget width
-     * @param height  widget width
+     * @param x       X button coordinate
+     * @param y       Y button coordinate
+     * @param width   button width
+     * @param height  button height
      * @param text    button text
      * @param onClick button being clicked handler
      */
@@ -28,6 +28,9 @@ public class RenderScreenButton extends AbstractButton {
         this.onClick = onClick;
     }
 
+    /**
+     * Button being pressed handler.
+     */
     @Override
     public void onPress() {
         this.onClick.handle();

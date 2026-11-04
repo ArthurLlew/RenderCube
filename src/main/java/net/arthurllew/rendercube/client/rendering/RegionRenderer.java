@@ -2,6 +2,7 @@ package net.arthurllew.rendercube.client.rendering;
 
 import net.arthurllew.rendercube.client.io.DataWriters;
 import net.arthurllew.rendercube.client.rendering.chunk.ChunkRenderer;
+import net.arthurllew.rendercube.config.Config;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.SectionPos;
 import net.minecraft.world.level.ChunkPos;
@@ -19,31 +20,25 @@ public abstract class RegionRenderer {
 
     /**
      * Captures geometry of world region.
-     * @param chunkRenderer                    chunk renderer implementation
-     * @param regionMin                        min block position of the region to capture
-     * @param regionMax                        max block position of the region to capture
-     * @param perChunkRendering                whether to write data in unified files or split data files per chunk
-     * @param noRenderRegionBoarderFaceCulling whether to not cull quads facing out of render region and
-     *                                         located on its boarder
+     * @param chunkRenderer chunk renderer implementation
+     * @param regionMin     min block position of the region to capture
+     * @param regionMax     max block position of the region to capture
      **/
     public static void captureRegion(@NotNull ChunkRenderer chunkRenderer,
-                                     @NotNull BlockPos regionMin, @NotNull BlockPos regionMax,
-                                     boolean perChunkRendering,
-                                     boolean noRenderRegionBoarderFaceCulling) throws IOException {
+                                     @NotNull BlockPos regionMin, @NotNull BlockPos regionMax) throws IOException {
         // Only render if not rendering
         if (!STATE.isRendering()) {
             try {
                 // Init renderer
                 STATE.chunkRenderer = chunkRenderer;
                 STATE.setRegionPositions(regionMin, regionMax);
-                STATE.noRenderRegionBoarderFaceCulling = noRenderRegionBoarderFaceCulling;
                 // Date time string
                 String dateTimeStr = LocalDateTime.now().toString()
                         .replace("T", "_").replace(":", "-");
                 STATE.dateTime = dateTimeStr.substring(0, dateTimeStr.lastIndexOf("."));
 
                 // Capture region with per-chunk data writers
-                if (perChunkRendering) {
+                if (Config.DATA.perChunkRendering) {
                     captureRegion(null);
                 }
                 // Capture region with unified data writers
@@ -112,22 +107,10 @@ public abstract class RegionRenderer {
         protected BlockPos regionMin, regionMax = BlockPos.ZERO;
 
         /**
-         * Whether to not cull quads facing out of render region and located on its boarder.
-         */
-        protected boolean noRenderRegionBoarderFaceCulling = false;
-
-        /**
          * @return whether any rendering is in process
          */
         public boolean isRendering() {
             return chunkRenderer != null;
-        }
-
-        /**
-         * @return whether to not cull quads facing out of render region and located on its boarder
-         */
-        public boolean noRenderRegionBoarderFaceCulling() {
-            return noRenderRegionBoarderFaceCulling;
         }
 
         /**
